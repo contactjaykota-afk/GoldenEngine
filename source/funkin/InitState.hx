@@ -364,10 +364,11 @@ class InitState extends FlxState
 
     #if SONG
     // -DSONG=bopeebo
-    startSong(defineSong(), defineDifficulty());
+    // Golden Engine: fixed null-safety compile error in upstream's -DSONG debug path.
+    startSong(defineSong() ?? 'bopeebo', defineDifficulty() ?? 'normal');
     #elseif LEVEL
     // -DLEVEL=week1 -DDIFFICULTY=hard
-    startLevel(defineLevel(), defineDifficulty());
+    startLevel(defineLevel() ?? 'week1', defineDifficulty() ?? 'normal');
     #elseif FREEPLAY
     // -DFREEPLAY
     FlxG.switchState(() -> new funkin.ui.freeplay.FreeplayState());

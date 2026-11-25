@@ -10,4 +10,4 @@ Upstream base commit: `94ee0f2a9386d80e445be39ee2ed4b4a630cfbac` (FunkinCrew/Fun
 |---|---|---|
 | `.github/workflows/golden-build.yml` | **Added** (new file): Windows/Linux builds on GitHub-hosted runners. | 1 |
 
-No upstream source files have been modified yet (Milestone 1 builds the unmodified foundation).
+| `source/funkin/InitState.hx` | `startGame()`: `-DSONG`/`-DLEVEL` debug boot paths now default their nullable defines (`?? 'bopeebo'`, `?? 'week1'`, `?? 'normal'`), fixing an upstream null-safety compile error (GE-000). | 1 |

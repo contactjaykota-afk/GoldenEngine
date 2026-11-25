@@ -52,6 +52,12 @@ haxelib run lime build windows -release          # output: export/release/window
 
 Upstream's `docs/COMPILING.md` remains the reference for platform setup.
 
+## Testing
+
+`golden/tests/smoke-linux.sh` drives the real Linux build end to end with real keyboard input on a
+virtual display and checks the log, the rendered frames and the audio output at every step.
+Known issues and their status are tracked in `golden/KNOWN_ISSUES.md`.
+
 ## Milestones
 
 1. Clone/inspect upstream, correct architecture, compile & launch the original foundation. ← **current**
