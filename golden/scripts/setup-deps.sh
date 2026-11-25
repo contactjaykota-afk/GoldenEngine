@@ -18,7 +18,7 @@ dl="$(mktemp -d)"
 PYCODE="import json
 for d in json.load(open('hmm.json'))['dependencies']:
     if d['type'] == 'haxelib': print(d['name'], d['version'])"
-(python3 -c "$PYCODE" 2>/dev/null || python -c "$PYCODE") > "$dl/list.txt"
+(python3 -c "$PYCODE" 2>/dev/null || python -c "$PYCODE") | tr -d '\r' > "$dl/list.txt"  # strip CR (Windows Python)
 while read -r name ver; do
   [ -z "$name" ] && continue
   zip="$dl/$name-${ver//./,}.zip"
