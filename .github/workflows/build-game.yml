@@ -19,6 +19,8 @@ on:
 jobs:
 
   gather-changes:
+    # Golden Engine: these jobs need The Funkin' Crew's self-hosted runners; skip them on forks.
+    if: github.repository == 'FunkinCrew/Funkin'
     runs-on: build-set
     outputs:
       trigger-build: ${{ steps.should-trigger.outputs.result }}
@@ -53,6 +55,8 @@ jobs:
               || manual
 
   gather-tags:
+    # Golden Engine: these jobs need The Funkin' Crew's self-hosted runners; skip them on forks.
+    if: github.repository == 'FunkinCrew/Funkin'
     runs-on: build-set
     outputs:
       primary: ${{ steps.build-tags.outputs.primary }}
@@ -89,7 +93,7 @@ jobs:
 
   docker-image:
     needs: [gather-changes, gather-tags]
-    if: needs.gather-changes.outputs.trigger-build == 'true'
+    if: github.repository == 'FunkinCrew/Funkin' && needs.gather-changes.outputs.trigger-build == 'true'
     runs-on: build-set
     permissions:
       contents: read
@@ -123,6 +127,8 @@ jobs:
             org.opencontainers.image.version=${{ github.sha }}
 
   build-game-on-host:
+    # Golden Engine: these jobs need The Funkin' Crew's self-hosted runners; skip them on forks.
+    if: github.repository == 'FunkinCrew/Funkin'
     strategy:
       fail-fast: false
       matrix:
@@ -199,7 +205,7 @@ jobs:
 
   build-game-in-container:
     needs: [gather-tags, docker-image]
-    if: ${{ ! cancelled() }}
+    if: ${{ github.repository == 'FunkinCrew/Funkin' && ! cancelled() }}
     runs-on: build-set
     container: ghcr.io/funkincrew/build-dependencies:${{ needs.gather-tags.outputs.primary }}
     strategy:

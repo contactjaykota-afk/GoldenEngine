@@ -14,3 +14,4 @@ Upstream base commit: `94ee0f2a9386d80e445be39ee2ed4b4a630cfbac` (FunkinCrew/Fun
 | `source/Main.hx` | Startup loads `PolymodHandler.loadEnabledMods()` instead of `loadAllMods()` (upstream TODO). | Mods |
 | `source/funkin/modding/PolymodHandler.hx` | `MOD_FOLDER` made public; `loadEnabledMods()` and `getEnabledMods()` use `golden.modding.GoldenMods` (installed + valid + enabled, from `golden-mods.json`) instead of the unused save field; `forceReloadAssets()` clears Polymod's asset cache and reloads enabled mods only. | Mods |
 | `source/funkin/modding/PolymodErrorHandler.hx` | `onPolymodError()` forwards errors to `GoldenMods` for the Mod Manager. | Mods |
+| `.github/workflows/build-game.yml` | Upstream nightly-build jobs guarded with `if: github.repository == 'FunkinCrew/Funkin'` so they do not queue forever on forks (they need FunkinCrew self-hosted runners). | CI |
