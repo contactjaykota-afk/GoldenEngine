@@ -18,3 +18,16 @@ Only features that were built **and** tested are listed as done.
 - Fixed upstream `-DSONG`/`-DLEVEL` debug boot compile error (GE-000).
 - Diagnosed black screen on software OpenGL (GE-001, see KNOWN_ISSUES.md).
 - **Not yet done:** Windows build has not been produced or tested (needs a Windows runner — see README).
+
+## Mod system (in progress)
+
+- **Enabled-only mod loading** (extends upstream PolymodHandler; no second loader). Per-mod enabled
+  state persists in `golden-mods.json` next to `mods/`. New mod folders are enabled automatically.
+  Mods with invalid/missing metadata or an incompatible `api_version` are skipped with a reason
+  instead of upstream's blocking error popups. Corrupted state file → backed up as `.bak`, no crash.
+  **Tested** (`golden/tests/mod-enable-test.sh`, 23/23): A on/B off and reverse, none, both, new mod,
+  corrupted state file, broken metadata, incompatible API version, disabled mod files untouched.
+- **Starter mod template** (`golden/mod-template/starter`): FNF folder layout with a README per folder,
+  mod icon, and a working HScript custom event (`<mod>-screen-flash`). No example song/characters/stage
+  (removed at the user's request — content is created in the engine).
+- Not done yet: in-game Create New Mod wizard and Mod Manager UI.

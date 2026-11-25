@@ -7,6 +7,9 @@ class PolymodErrorHandler
 {
   public static function onPolymodError(error:PolymodError):Void
   {
+    // Golden Engine: surface errors in the Mod Manager.
+    golden.modding.GoldenMods.recordPolymodError(Std.string(error.code), error.message, Std.string(error.severity));
+
     // Perform an action based on the error code.
     switch (error.code)
     {

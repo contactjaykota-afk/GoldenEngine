@@ -51,7 +51,7 @@ class PolymodHandler
   /**
    * Where relative to the executable that mods are located.
    */
-  static final MOD_FOLDER:String =
+  public static final MOD_FOLDER:String = // Golden Engine: made public for golden.modding
     #if (REDIRECT_ASSETS_FOLDER && mac)
     '../../../../../../../example_mods'
     #elseif REDIRECT_ASSETS_FOLDER
@@ -113,7 +113,8 @@ class PolymodHandler
     createModRoot();
     #end
     trace('Initializing Polymod (using configured mods)...');
-    loadModsByDir(Save.instance.enabledModDirs.value);
+    // Golden Engine: only installed + valid + enabled mods, from golden-mods.json (see golden.modding.GoldenMods).
+    loadModsByDir(golden.modding.GoldenMods.resolveEnabledDirs());
   }
 
   /**
@@ -573,7 +574,8 @@ class PolymodHandler
    */
   public static function getEnabledMods():Array<ModMetadata>
   {
-    var modDirs:Array<String> = Save.instance.enabledModDirs.value;
+    // Golden Engine: the enabled list is managed by golden.modding.GoldenMods.
+    var modDirs:Array<String> = golden.modding.GoldenMods.loadedDirs;
     var modMetadata:Array<ModMetadata> = getAllMods();
     var enabledMods:Array<ModMetadata> = [];
     for (item in modMetadata)
@@ -596,10 +598,22 @@ class PolymodHandler
     ModuleHandler.clearModuleCache();
     Polymod.clearScripts();
 
+    // Golden Engine: drop cached assets so content from mods that were just disabled cannot linger.
+    if (loadedModDirs.length > 0 || golden.modding.GoldenMods.loadedDirs.length > 0)
+    {
+      try
+      {
+        Polymod.clearCache();
+      }
+      catch (e:Dynamic) {}
+    }
+    // (Textures are purged by the Mod Manager when it applies changes, not here: callers of this
+    // function may still draw the current state for a frame before resetting it.)
+
     // Forcibly reload Polymod so it finds any new files.
     // This will also register all scripts.
-    // TODO: Replace this with loadEnabledMods().
-    funkin.modding.PolymodHandler.loadAllMods();
+    // Golden Engine: load only enabled mods (upstream loaded every installed mod here).
+    funkin.modding.PolymodHandler.loadEnabledMods();
 
     // Reload everything that is cached.
     // Currently this freezes the game for a second but I guess that's tolerable?
