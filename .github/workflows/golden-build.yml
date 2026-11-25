@@ -1,0 +1,57 @@
+# Golden Engine — build the game for Windows x64 (and Linux) on GitHub-hosted runners.
+# Upstream's build-game.yml targets The Funkin' Crew's self-hosted runners; this workflow uses
+# standard runners so any fork can produce a Windows build.
+name: Golden Engine build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [golden-engine]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2022
+            target: windows
+          - os: ubuntu-24.04
+            target: linux
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.3.7
+      - name: Linux native dependencies
+        if: matrix.target == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++ libx11-dev libxi-dev libxext-dev libxinerama-dev libxrandr-dev \
+            libgl-dev libgl1-mesa-dev libasound2-dev libpulse-dev libvlc-dev libvlccore-dev \
+            libwayland-dev libwayland-bin libxkbcommon-dev wayland-protocols libegl-dev libxcursor-dev libxss-dev libdbus-1-dev \
+            libudev-dev libdrm-dev libgbm-dev libdecor-0-dev libibus-1.0-dev libxtst-dev libxrender-dev libxxf86vm-dev libusb-1.0-0-dev libsamplerate0-dev libpipewire-0.3-dev libjack-jackd2-dev
+      - name: Cache haxelibs
+        uses: actions/cache@v4
+        with:
+          path: .haxelib
+          key: golden-haxelib-${{ runner.os }}-${{ hashFiles('hmm.json') }}
+      - name: Install Haxe libraries
+        run: golden/scripts/setup-deps.sh
+      - name: Rebuild lime
+        run: |
+          haxelib run lime rebuild ${{ matrix.target }} -64 -release
+      - name: Create empty .env (optional Newgrounds keys are not used)
+        run: touch .env
+      - name: Build Golden Engine
+        run: haxelib run lime build ${{ matrix.target }} -release -v
+      - uses: actions/upload-artifact@v4
+        with:
+          name: golden-engine-${{ matrix.target }}-x64
+          path: export/release/${{ matrix.target }}/bin
