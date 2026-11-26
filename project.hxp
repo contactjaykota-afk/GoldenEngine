@@ -43,7 +43,7 @@ class Project extends HXProject
   /**
    * The game's name. Used as the default window title.
    */
-  static final TITLE:String = "Friday Night Funkin'";
+  static final TITLE:String = "Golden Engine"; // Golden Engine: window title (save path is unaffected; it uses company + executable name)
 
   /**
    * The game's name on mobile. Used as the title for the game on the home screen.

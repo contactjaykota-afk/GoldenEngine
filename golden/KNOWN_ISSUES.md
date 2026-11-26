@@ -18,8 +18,11 @@ A bug is only marked fixed after its regression test has been re-run.
 - **Repro:** run the build with `LIBGL_ALWAYS_SOFTWARE=1` (or on llvmpipe) → black frames.
 - **Workaround:** `MESA_EXTENSION_OVERRIDE="-GL_KHR_blend_equation_advanced -GL_KHR_blend_equation_advanced_coherent"`.
   Verified: title, menus, Freeplay, gameplay, pause, game over and Chart Editor all render.
-- **Planned fix (Milestone 2):** detect software renderers / a black first frame at startup and fall back to
-  standard blending automatically, with a log message, so users never see an unexplained black screen.
+- **Fix (implemented, NOT yet verified):** `golden.render.RendererGuard` hides the extension before the GL context is created when
+  the driver is very likely software Mesa (no GPU device node, `LIBGL_ALWAYS_SOFTWARE`, `GALLIUM_DRIVER=llvmpipe|softpipe|swrast`),
+  and after context creation disables OpenFL's advanced-blend flags if `GL_RENDERER` names a software rasterizer. Overrides:
+  `GOLDEN_SAFE_BLEND=1` forces it, `GOLDEN_ADVANCED_BLEND=1` disables it. Verification: `golden/tests/startup-linux.sh` in CI.
+  This stays open until that test has passed on a real build.
 
 ### GE-002 — "Normal Conductor Update!! are you lagging?" warnings — low
 - **Seen in:** upstream; Linux software-rendering test environment during gameplay.

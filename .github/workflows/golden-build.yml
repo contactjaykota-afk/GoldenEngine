@@ -55,3 +55,28 @@ jobs:
         with:
           name: golden-engine-${{ matrix.target }}-x64
           path: export/release/${{ matrix.target }}/bin
+
+      # --- Golden Engine verification (runs after the artifact upload so a failing test never hides a good build) ---
+      - name: Verify Windows package contents
+        if: matrix.target == 'windows'
+        run: |
+          BIN=export/release/windows/bin
+          test -f "$BIN/Funkin.exe" || { echo "::error::Funkin.exe missing"; exit 1; }
+          test -d "$BIN/assets" || { echo "::error::assets folder missing"; exit 1; }
+          echo "Funkin.exe: $(stat -c %s "$BIN/Funkin.exe") bytes"
+          echo "DLLs: $(ls "$BIN"/*.dll 2>/dev/null | wc -l)"; ls "$BIN"/*.dll || true
+          echo "Total size: $(du -sm "$BIN" | cut -f1) MB"
+          grep -c "Golden Engine" "$BIN/Funkin.exe" >/dev/null && echo "window title string present in Funkin.exe" || echo "::warning::title string not found in exe"
+      - name: Install Linux test dependencies
+        if: matrix.target == 'linux'
+        run: |
+          sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils
+      - name: Startup regression test (software OpenGL, GE-001)
+        if: matrix.target == 'linux'
+        run: |
+          glxinfo -B 2>/dev/null | head -5 || true
+          golden/tests/startup-linux.sh export/release/linux/bin
+      - name: Startup test logs
+        if: always() && matrix.target == 'linux'
+        run: |
+          sed 's/\x1b\[[0-9;]*m//g' golden/tests/results/normal.log 2>/dev/null | tail -40 || true

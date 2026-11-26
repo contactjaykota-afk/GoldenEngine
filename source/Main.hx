@@ -125,6 +125,9 @@ class Main extends Sprite
       System.exit(1);
     }
 
+    // Golden Engine: GE-001 software-renderer fallback (logs the GL renderer; see golden.render.RendererGuard).
+    golden.render.RendererGuard.onContextReady();
+
     setupGame();
   }
 

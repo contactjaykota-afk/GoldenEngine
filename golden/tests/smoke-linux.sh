@@ -23,7 +23,7 @@ clean_log() { sed 's/\x1b\[[0-9;]*m//g' "$LOG"; }
 count() { clean_log | grep -c -- "$1"; }
 wait_for() { # pattern min_count timeout_s
   local end=$((SECONDS + $3)); while [ $SECONDS -lt $end ]; do [ "$(count "$1")" -ge "$2" ] && return 0; sleep 0.5; done; return 1; }
-key() { local w; w=$(xdotool search --name "Friday Night Funkin" | head -1); xdotool windowactivate --sync "$w" 2>/dev/null; sleep 0.2
+key() { local w; w=$(xdotool search --name "Golden Engine" | head -1); xdotool windowactivate --sync "$w" 2>/dev/null; sleep 0.2
   for k in "$@"; do xdotool keydown "$k"; sleep 0.08; xdotool keyup "$k"; sleep 0.35; done; }
 shot() { import -window root "$OUT/$1.png"; convert "$OUT/$1.png" -format '%[fx:mean]' info:; }
 not_black() { python3 -c "import sys; sys.exit(0 if float('$1') > 0.05 else 1)"; }
@@ -40,13 +40,9 @@ pactl set-default-sink golden_test
 cleanup() { pkill -9 -f "$BIN/Funkin" 2>/dev/null; kill $WM $XVFB 2>/dev/null; }
 trap cleanup EXIT
 
-# Software OpenGL (Mesa llvmpipe) renders black with OpenFL's advanced-blend path; see
-# golden/KNOWN_ISSUES.md (GE-001). Hide the extension only when running on llvmpipe.
-EXTRA_ENV=()
-if glxinfo -B 2>/dev/null | grep -q llvmpipe; then
-  EXTRA_ENV=(MESA_EXTENSION_OVERRIDE="-GL_KHR_blend_equation_advanced -GL_KHR_blend_equation_advanced_coherent")
-  echo "note: software OpenGL detected, applying GE-001 workaround"
-fi
+# Software OpenGL (Mesa llvmpipe): the game applies its own GE-001 fallback (golden.render.RendererGuard),
+# so no external workaround is set here -- the test exercises the real fix.
+EXTRA_ENV=(GOLDEN_TEST_NOOP=1)
 
 # --- run ---------------------------------------------------------------------------------------
 (cd "$BIN" && env "${EXTRA_ENV[@]}" ./Funkin > "$LOG" 2>&1 &)
