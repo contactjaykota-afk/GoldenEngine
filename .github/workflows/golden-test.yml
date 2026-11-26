@@ -1,0 +1,62 @@
+# Golden Engine — startup regression test for the Linux build (software OpenGL, no GPU on the runner).
+#
+# - Called by golden-build.yml right after a build (run_id = that run).
+# - Also runs by itself when only test scripts change, against the latest completed build of this branch (its artifact is uploaded before any test step runs),
+#   so test fixes take minutes instead of a full rebuild.
+name: Golden Engine startup test
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        type: string
+        required: false
+        default: ''
+  push:
+    branches: [golden-engine]
+    paths:
+      - 'golden/tests/**'
+      - '.github/workflows/golden-test.yml'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  startup:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pick the build to test
+        id: pick
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          RID="${{ inputs.run_id }}"
+          if [ -z "$RID" ]; then
+            RID=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow golden-build.yml --branch golden-engine --status completed --limit 1 --json databaseId --jq '.[0].databaseId')
+          fi
+          [ -n "$RID" ] || { echo "::error::no successful build found to test"; exit 1; }
+          echo "Testing artifact from build run $RID"
+          echo "run_id=$RID" >> "$GITHUB_OUTPUT"
+      - uses: actions/download-artifact@v4
+        with:
+          name: golden-engine-linux-x64
+          path: export/release/linux/bin
+          run-id: ${{ steps.pick.outputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Install test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils pulseaudio pulseaudio-utils \
+            libvlc5 libopenal1 libsdl2-2.0-0 || sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils pulseaudio pulseaudio-utils
+      - name: Startup regression test
+        run: |
+          chmod +x export/release/linux/bin/Funkin
+          glxinfo -B 2>/dev/null | head -6 || true
+          ls /dev/dri 2>&1 | head -3 || true
+          golden/tests/startup-linux.sh export/release/linux/bin
+      - name: Test log
+        if: always()
+        run: |
+          sed 's/\x1b\[[0-9;]*m//g' golden/tests/results/normal.log 2>/dev/null | grep -v PRELOADER | tail -40 || true
