@@ -49,7 +49,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils pulseaudio pulseaudio-utils \
-            libvlc5 libopenal1 libsdl2-2.0-0 || sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils pulseaudio pulseaudio-utils
+            libvlc5 libopenal1 libsdl2-2.0-0 gdb || sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils pulseaudio pulseaudio-utils gdb
       - name: Startup regression test
         run: |
           chmod +x export/release/linux/bin/Funkin
@@ -60,3 +60,13 @@ jobs:
         if: always()
         run: |
           sed 's/\x1b\[[0-9;]*m//g' golden/tests/results/normal.log 2>/dev/null | grep -v PRELOADER | tail -40 || true
+      - name: Crash diagnosis (native backtrace)
+        if: failure()
+        run: |
+          cd export/release/linux/bin
+          for MODE in "audio=default" "audio=null"; do
+            echo "=== gdb run: $MODE ==="
+            if [ "$MODE" = "audio=null" ]; then export ALSOFT_DRIVERS=null; fi
+            timeout 90 xvfb-run -a gdb -batch -ex "handle SIGPIPE nostop noprint" -ex run -ex "bt 25" ./Funkin 2>&1 \
+              | sed 's/\x1b\[[0-9;]*m//g' | grep -v PRELOADER | tail -45 || true
+          done

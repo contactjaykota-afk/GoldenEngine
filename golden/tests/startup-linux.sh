@@ -32,6 +32,7 @@ if command -v pulseaudio >/dev/null 2>&1; then
   pulseaudio --check 2>/dev/null || pulseaudio -D --exit-idle-time=-1 -n --load=module-native-protocol-unix \
     --load="module-null-sink sink_name=golden_test" >/dev/null 2>&1
   sleep 1; pactl set-default-sink golden_test 2>/dev/null
+  echo "audio sinks: $(pactl list short sinks 2>&1 | tr '\n' ';')"
 else
   echo "note: pulseaudio not installed; the game may abort on audio init"
 fi
@@ -62,7 +63,7 @@ run_game() { # label envassignments...  -> sets LOG
   local label="$1"; shift
   LOG="$OUT/$label.log"
   pkill -9 -x Funkin 2>/dev/null; sleep 1
-  (cd "$BIN" && env "$@" ./Funkin > "$LOG" 2>&1 &)
+  (cd "$BIN" && env ${GOLDEN_TEST_ENV:-} "$@" stdbuf -o0 -e0 ./Funkin > "$LOG" 2>&1 &)
   sleep 2
 }
 
