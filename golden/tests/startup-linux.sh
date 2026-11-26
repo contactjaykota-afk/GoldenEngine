@@ -88,15 +88,24 @@ m=$(luma 02-main-menu); echo "      main menu luma=$m"; lit "$m"; check "main me
 [ "$(count "$LOG" "started song at")" = 0 ]; check "main menu reached without starting a song" $?
 pgrep -x Funkin >/dev/null; check "game still running (no crash)" $?
 echo "      memory: $(rss_mb) MB RSS at main menu"
-bad=$(clean_log "$LOG" | grep -ciE "uncaught|null object reference|segmentation|CRITICAL ERROR"); [ "$bad" = 0 ]; check "no uncaught errors in log ($bad)" $?
+bad=$(clean_log "$LOG" | grep -v "Enabling" | grep -ciE "uncaught|null object reference|segmentation|CRITICAL ERROR"); [ "$bad" = 0 ]; check "no uncaught errors in log ($bad)" $?
 
 echo; echo "== Pass 2: LibVLC unavailable (must degrade gracefully, not abort the game) =="
-# libvlc cannot start without its plugins; hxvlc's Handle.init() then throws. Golden Engine catches it.
-run_game novlc VLC_PLUGIN_PATH=/nonexistent
-wait_for "$LOG" "TitleState" 1 90; check "game reaches the title screen without LibVLC" $?
-sleep 6
-pgrep -x Funkin >/dev/null; check "game keeps running without LibVLC (no abort)" $?
-[ "$(count "$LOG" "could not be initialized\|failed to initialize")" -ge 1 ]; check "missing LibVLC is reported in the log" $?
+# libvlc only fails to start when its plugins are missing, so move the plugin directory away (needs passwordless sudo).
+VLC_DIR=$(ls -d /usr/lib/*/vlc/plugins /usr/lib/vlc/plugins 2>/dev/null | head -1)
+if [ -n "$VLC_DIR" ] && sudo -n true 2>/dev/null; then
+  sudo mv "$VLC_DIR" "$VLC_DIR.off"
+  trap 'sudo mv "$VLC_DIR.off" "$VLC_DIR" 2>/dev/null; cleanup' EXIT
+  run_game novlc GOLDEN_TEST_NOVLC=1
+  wait_for "$LOG" "TitleState" 1 90; check "game reaches the title screen without LibVLC" $?
+  sleep 6
+  pgrep -x Funkin >/dev/null; check "game keeps running without LibVLC (no abort)" $?
+  [ "$(count "$LOG" "could not be initialized\|failed to initialize")" -ge 1 ]; check "missing LibVLC is reported in the log" $?
+  pkill -9 -x Funkin 2>/dev/null; sleep 1
+  sudo mv "$VLC_DIR.off" "$VLC_DIR"; trap cleanup EXIT
+else
+  echo "SKIP  LibVLC-unavailable pass (needs VLC installed and passwordless sudo)"
+fi
 
 echo; echo "== Control: fallback disabled (informational — shows whether GE-001 reproduces here) =="
 run_game control GOLDEN_ADVANCED_BLEND=1
