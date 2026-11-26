@@ -158,15 +158,28 @@ class Main extends Sprite
 
     #if hxvlc
     // Initialize hxvlc's Handle here so the videos are loading faster.
-    Handle.initAsync(function(success:Bool):Void
+    // Golden Engine: Handle.initAsync() runs Handle.init() in a worker thread without catching its exception, and
+    // init() throws when LibVLC cannot start (e.g. VLC plugins not installed on Linux). That uncaught exception
+    // aborts the whole process. Run init() ourselves and catch the failure: videos are unavailable, the game is not.
+    sys.thread.Thread.create(function():Void
     {
+      var success:Bool = false;
+      try
+      {
+        success = Handle.init();
+      }
+      catch (e:Dynamic)
+      {
+        trace(' HXVLC '.bold().bg_orange() + ' LibVLC could not be initialized: $e');
+      }
+
       if (success)
       {
         trace(' HXVLC '.bold().bg_orange() + ' LibVLC instance initialized!');
       }
       else
       {
-        trace(' HXVLC '.bold().bg_orange() + ' LibVLC instance failed to initialize!');
+        trace(' HXVLC '.bold().bg_orange() + ' LibVLC instance failed to initialize! Video playback will be unavailable.');
       }
     });
     #end

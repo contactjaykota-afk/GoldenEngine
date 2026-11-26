@@ -49,7 +49,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils pulseaudio pulseaudio-utils \
-            libvlc5 libopenal1 libsdl2-2.0-0 gdb || sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils pulseaudio pulseaudio-utils gdb
+            libvlc5 vlc-plugin-base libopenal1 libsdl2-2.0-0 gdb || sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils pulseaudio pulseaudio-utils gdb
       - name: Startup regression test
         run: |
           chmod +x export/release/linux/bin/Funkin

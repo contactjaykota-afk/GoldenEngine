@@ -90,6 +90,14 @@ pgrep -x Funkin >/dev/null; check "game still running (no crash)" $?
 echo "      memory: $(rss_mb) MB RSS at main menu"
 bad=$(clean_log "$LOG" | grep -ciE "uncaught|null object reference|segmentation|CRITICAL ERROR"); [ "$bad" = 0 ]; check "no uncaught errors in log ($bad)" $?
 
+echo; echo "== Pass 2: LibVLC unavailable (must degrade gracefully, not abort the game) =="
+# libvlc cannot start without its plugins; hxvlc's Handle.init() then throws. Golden Engine catches it.
+run_game novlc VLC_PLUGIN_PATH=/nonexistent
+wait_for "$LOG" "TitleState" 1 90; check "game reaches the title screen without LibVLC" $?
+sleep 6
+pgrep -x Funkin >/dev/null; check "game keeps running without LibVLC (no abort)" $?
+[ "$(count "$LOG" "could not be initialized\|failed to initialize")" -ge 1 ]; check "missing LibVLC is reported in the log" $?
+
 echo; echo "== Control: fallback disabled (informational — shows whether GE-001 reproduces here) =="
 run_game control GOLDEN_ADVANCED_BLEND=1
 if wait_for "$LOG" "TitleState" 1 90; then
