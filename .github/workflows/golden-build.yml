@@ -76,6 +76,9 @@ jobs:
   # Startup regression test on the Linux artifact produced above (see golden-test.yml).
   startup-test:
     needs: build
+    permissions:
+      actions: read
+      contents: read
     uses: ./.github/workflows/golden-test.yml
     with:
       run_id: ${{ github.run_id }}
