@@ -7,6 +7,11 @@ on:
   workflow_dispatch:
   push:
     branches: [golden-engine]
+    # Test-script and doc edits do not need a 40 minute rebuild; golden-test.yml covers test changes.
+    paths-ignore:
+      - 'golden/tests/**'
+      - 'golden/**.md'
+      - '.github/workflows/golden-test.yml'
 
 jobs:
   build:
@@ -67,16 +72,10 @@ jobs:
           echo "DLLs: $(ls "$BIN"/*.dll 2>/dev/null | wc -l)"; ls "$BIN"/*.dll || true
           echo "Total size: $(du -sm "$BIN" | cut -f1) MB"
           grep -c "Golden Engine" "$BIN/Funkin.exe" >/dev/null && echo "window title string present in Funkin.exe" || echo "::warning::title string not found in exe"
-      - name: Install Linux test dependencies
-        if: matrix.target == 'linux'
-        run: |
-          sudo apt-get install -y xvfb openbox xdotool ffmpeg mesa-utils
-      - name: Startup regression test (software OpenGL, GE-001)
-        if: matrix.target == 'linux'
-        run: |
-          glxinfo -B 2>/dev/null | head -5 || true
-          golden/tests/startup-linux.sh export/release/linux/bin
-      - name: Startup test logs
-        if: always() && matrix.target == 'linux'
-        run: |
-          sed 's/\x1b\[[0-9;]*m//g' golden/tests/results/normal.log 2>/dev/null | tail -40 || true
+
+  # Startup regression test on the Linux artifact produced above (see golden-test.yml).
+  startup-test:
+    needs: build
+    uses: ./.github/workflows/golden-test.yml
+    with:
+      run_id: ${{ github.run_id }}
