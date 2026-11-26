@@ -60,13 +60,24 @@ jobs:
         if: always()
         run: |
           sed 's/\x1b\[[0-9;]*m//g' golden/tests/results/normal.log 2>/dev/null | grep -v PRELOADER | tail -40 || true
-      - name: Crash diagnosis (native backtrace)
+      - name: Crash diagnosis (origin of the last C++ throw before abort)
         if: failure()
         run: |
           cd export/release/linux/bin
-          for MODE in "audio=default" "audio=null"; do
-            echo "=== gdb run: $MODE ==="
-            if [ "$MODE" = "audio=null" ]; then export ALSOFT_DRIVERS=null; fi
-            timeout 90 xvfb-run -a gdb -batch -ex "handle SIGPIPE nostop noprint" -ex run -ex "bt 25" ./Funkin 2>&1 \
-              | sed 's/\x1b\[[0-9;]*m//g' | grep -v PRELOADER | tail -45 || true
-          done
+          cat > /tmp/gdbcmds <<'GDB'
+          set pagination off
+          handle SIGPIPE nostop noprint
+          catch throw
+          commands 1
+          bt 14
+          continue
+          end
+          run
+          GDB
+          sed -i 's/^          //' /tmp/gdbcmds
+          timeout 120 xvfb-run -a gdb -batch -x /tmp/gdbcmds ./Funkin > /tmp/gdb.out 2>&1 || true
+          sed 's/\x1b\[[0-9;]*m//g' /tmp/gdb.out | grep -vE "PRELOADER|New Thread|exited\]|Switching" > /tmp/gdb.clean
+          echo "total lines: $(wc -l < /tmp/gdb.clean)"
+          # Everything between the last 'Catchpoint' hit and the final abort.
+          grep -n "Catchpoint" /tmp/gdb.clean | tail -3
+          tail -70 /tmp/gdb.clean | cut -c1-240
