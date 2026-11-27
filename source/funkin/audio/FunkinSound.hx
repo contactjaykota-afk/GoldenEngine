@@ -528,6 +528,40 @@ class FunkinSound extends FlxSound implements ICloneable<FunkinSound>
     this._waveformData = null;
   }
 
+  /**
+   * Golden Engine: guard against an endless restart loop when no audio device is available.
+   * Without an output device, OpenAL sources "complete" immediately; FlxSound.stopped() then restarts a
+   * looped sound, which completes again at once — synchronously, forever, freezing the main thread
+   * (seen on PCs without an active audio output and on CI machines). If a looped sound completes more
+   * than a few times within one frame, looping is stopped for that sound and the game continues silently.
+   */
+  static var goldenLoopGuardFrame:Float = -1;
+  static var goldenLoopGuardCount:Int = 0;
+  static var goldenNoAudioReported:Bool = false;
+
+  override function stopped(?_):Void
+  {
+    if (looped)
+    {
+      var frame:Float = FlxG.game.ticks;
+      if (frame != goldenLoopGuardFrame)
+      {
+        goldenLoopGuardFrame = frame;
+        goldenLoopGuardCount = 0;
+      }
+      if (++goldenLoopGuardCount > 8)
+      {
+        if (!goldenNoAudioReported)
+        {
+          goldenNoAudioReported = true;
+          trace('[GOLDEN] Audio output unavailable (looped sound restarted ${goldenLoopGuardCount} times in one frame); continuing without sound.');
+        }
+        looped = false;
+      }
+    }
+    super.stopped(_);
+  }
+
   @:access(openfl.media.Sound) @:access(openfl.media.SoundChannel) @:access(openfl.media.SoundMixer)
   override function startSound(startTime:Float)
   {

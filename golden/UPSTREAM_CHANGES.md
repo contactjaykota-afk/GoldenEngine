@@ -31,3 +31,4 @@ Upstream base commit: `94ee0f2a9386d80e445be39ee2ed4b4a630cfbac` (FunkinCrew/Fun
 | `source/funkin/ui/debug/charting/handlers/ChartEditorThemeHandler.hx`, `components/ChartEditorMeasureTicks.hx` | Golden theme colours (dark checkered grid, light dividers, gold selection) as an extra case in each existing theme switch. | Theme |
 | `source/funkin/save/Save.hx`, `save/migrator/SaveDataMigrator.hx` | Default Chart Editor theme = Golden (existing saves keep their chosen theme). | Theme |
 | `source/Main.hx`, `MainMenuState.hx` | Golden version logged at start and shown in the main-menu watermark. | Release |
+| `source/funkin/audio/FunkinSound.hx` | `stopped()` override: breaks the endless looped-restart cycle when no audio device exists (GE-009). | Release QA |

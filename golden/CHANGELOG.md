@@ -144,3 +144,9 @@ Only features that were built **and** tested are listed as done.
   still-held key (FNF shares one control set), e.g. the main menu jumped back to the title screen. Now the
   switch happens when the key is released. Regression step in the "mods" route.
 - `golden/tests/autotest-linux.sh` runs the same routes on Linux (8/8).
+
+## Batch 12 — No-audio freeze fix (2026-11-27)
+
+- **Fixed (critical, GE-009)**: with no audio output device the game froze at the title screen (endless
+  looped-sound restart). Found by the Windows CI runner; reproduced and verified on Linux.
+- Windows runtime test installs a virtual audio device and echoes the game's log into the CI output.

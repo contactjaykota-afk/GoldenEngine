@@ -35,6 +35,14 @@ A bug is only marked fixed after its regression test has been re-run.
 
 ## Fixed
 
+### GE-009 — Game froze at the title screen when no audio output device exists — critical (FIXED)
+- Found via the Windows CI runner (which has no audio device) and reproduced on Linux without an audio
+  server: looped music "completed" instantly and Flixel restarted it in an endless synchronous loop.
+  `FunkinSound.stopped()` now stops looping a sound that restarts more than 8 times in one frame and logs
+  "Audio output unavailable". Retested: AutoTest "play" route completes with no audio server.
+- Remaining limitation: without an audio device, songs cannot be timed (FNF syncs gameplay to the audio
+  clock), so gameplay is not meaningful; menus and editors work.
+
 ### GE-007 — A mod with a missing dependency froze startup on a blocking popup — critical (FIXED)
 - Upstream PolymodErrorHandler shows a native modal for every per-mod error; with zenity/message boxes
   the game waits. Golden now drops mods with unmet dependencies before loading (reason in the Mod
