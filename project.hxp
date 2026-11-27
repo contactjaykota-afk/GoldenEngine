@@ -304,6 +304,12 @@ class Project extends HXProject
   static final FEATURE_DISCORD_RPC:FeatureFlag = "FEATURE_DISCORD_RPC";
 
   /**
+   * `-DFEATURE_LUA`
+   * Golden Engine: Lua scripting (LuaJIT via hxluajit). Desktop x64 only (prebuilt LuaJIT libraries).
+   */
+  static final FEATURE_LUA:FeatureFlag = "FEATURE_LUA";
+
+  /**
    * `-DFEATURE_LOST_FOCUS_VOLUME`
    * If this flag is enabled, the game will reduce application volume, when lost focus.
    * Allowed only on Desktop targets.
@@ -873,6 +879,7 @@ class Project extends HXProject
     // Should be true on desktop, non-tester builds.
     // We don't want testers to accidentally leak songs to their Discord friends!
     FEATURE_DISCORD_RPC.apply(this, isDesktop() && !FEATURE_DEBUG_FUNCTIONS.isEnabled(this));
+    FEATURE_LUA.apply(this, (isWindows() || isLinux() || isMac()) && !isWeb()); // Golden Engine
 
     FEATURE_LOST_FOCUS_VOLUME.apply(this, isDesktop());
 
@@ -1323,6 +1330,11 @@ class Project extends HXProject
     if (FEATURE_DISCORD_RPC.isEnabled(this))
     {
       addHaxelib('hxdiscord_rpc'); // Discord API
+    }
+
+    if (FEATURE_LUA.isEnabled(this))
+    {
+      addHaxelib('hxluajit'); // Golden Engine: Lua scripting (LuaJIT)
     }
 
     if (FEATURE_NEWGROUNDS.isEnabled(this))

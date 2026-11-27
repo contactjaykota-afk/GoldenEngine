@@ -14,7 +14,7 @@ in `DEVELOPMENT_STATUS.md` (Implemented → Compiled → Tested → Runtime veri
 | 6 | Chart Editor improvements | Upstream editor already has place/move/delete/resize/select/copy/paste/undo/redo/zoom/BPM/difficulties/waveform/playback speed/offsets; Golden additions: MIDI import. Audit of remaining gaps NOT done |
 | 7 | MIDI import | Implemented (parser + converter unit-tested; dialog + menu entry + undoable command) |
 | 8 | Event editor (multi-event per timestamp, duplicate, parameters, built-in events) | NOT started (upstream event lane exists) |
-| 9 | Lua scripting for events | NOT started — needs a Lua runtime library (e.g. linc_luajit / hxluajit); dependency decision pending |
+| 9 | Lua scripting for events | Implemented & runtime verified: LuaJIT (hxluajit), gameplay callbacks, chart "Lua Script" event, sandbox, timeout. In-game script editor NOT started |
 | 10 | Character Editor | NOT started (upstream animation editor exists) |
 | 11 | Stage Editor | NOT started (upstream stage editor exists) |
 | 12 | Note Skin Editor | NOT started |

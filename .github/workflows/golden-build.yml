@@ -67,6 +67,13 @@ jobs:
         run: touch .env
       - name: Build Golden Engine
         run: haxelib run lime build ${{ matrix.target }} -release -v
+      - name: Package release folder
+        run: |
+          BIN=export/release/${{ matrix.target }}/bin
+          cp golden/release/README.txt golden/release/MODDING.md "$BIN/"
+          cp golden/CHANGELOG.md "$BIN/GOLDEN-CHANGELOG.md"
+          mkdir -p "$BIN/mods"
+          echo "Put mods here (one folder per mod), or use Main menu > Mods." > "$BIN/mods/README.txt"
       - uses: actions/upload-artifact@v4
         with:
           name: golden-engine-${{ matrix.target }}-x64

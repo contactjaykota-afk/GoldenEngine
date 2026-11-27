@@ -34,7 +34,7 @@ screen with the colour and duration you choose.
 
 ## Not available yet
 
-* **Lua scripts** — planned (Milestone 3). Use HScript `.hxc` files for now.
+* **Lua scripts** — `scripts/lua/` (every song), `data/songs/<song>/` (one song), `scripts/events/` (chart "Lua Script" event). Example: `scripts/events/__MODID__-flash.lua`.
 * **3D stages and cutscenes** — planned (Milestones 10 and 12); no `stages3D/` or `cutscenes/`
   folders are created because the runtime cannot read them yet.
 

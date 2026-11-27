@@ -59,3 +59,13 @@ Only features that were built **and** tested are listed as done.
 - GE-001 software-renderer fallback verified on llvmpipe (moved to Fixed).
 - Tooling: `golden/scripts/setup-deps-git.sh` (all dependencies from GitHub), `golden/tests/golden-ui-linux.sh`,
   `golden/tests/unit/run-unit-tests.sh`.
+
+## Batch 3 — Lua scripting (2026-11-27)
+
+- **Lua** (LuaJIT via the `hxluajit` library, desktop builds): scripts from enabled mods in
+  `scripts/lua/` (every song), `data/songs/<song>/` (one song) and `scripts/events/` (the new
+  **Lua Script (Golden)** chart event). Gameplay callbacks come from FNF's own module event system.
+  Sandboxed (no io/os.execute/require/ffi/debug), 2-second runaway-call timeout, errors logged with
+  script name and line, never crash the game. Runtime verified by `golden/tests/lua-linux.sh` (18/18).
+- Starter template: Lua event example `scripts/events/<mod>-flash.lua`; scripts README updated.
+- Release packaging step in CI (README.txt, MODDING.md, GOLDEN-CHANGELOG.md, empty `mods/`).

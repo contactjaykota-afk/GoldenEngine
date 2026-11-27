@@ -20,6 +20,8 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | `golden/tests/mod-enable-test.sh` | 23 passed, 0 failed |
 | `golden/tests/golden-ui-linux.sh` | 40 passed, 0 failed |
 | `golden/tests/unit/run-unit-tests.sh` | 30 passed, 0 failed (MIDI parser/converter) |
+| `golden/tests/lua-linux.sh` | 18 passed, 0 failed (Lua in real gameplay) |
+| GitHub Actions `golden-build.yml` on commit 8652421 | unit-tests: success; Linux build: success; Windows build: see GE-004 |
 
 ## Features
 
@@ -48,6 +50,12 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | Chart Editor shortcut in gameplay (opens current chart) | Compiled | |
 | MIDI parser + converter (tempo map, running status, sustains, lane modes, duplicates merge, errors) | Tested | 30 unit tests |
 | Chart Editor File > Import MIDI dialog + undoable import command | Compiled | dialog needs native file picker (GE-006) |
+| Lua runtime (LuaJIT via hxluajit, sandbox, 2 s timeout, error reporting) | Runtime verified | lua test: sandbox, syntax error, infinite loop |
+| Lua gameplay callbacks (onCreate, onSongStart, onBeatHit, onNoteHit, onNoteMiss, onEvent, …) | Runtime verified for those listed; onStepHit/onUpdate/onPause/onResume/onGameOver/onSongEnd compiled only | lua test |
+| Lua API (getSongName, getDifficulty, getBPM, cameraFlash, setVar/getVar, print) | Runtime verified for those listed; other functions compiled only | lua test |
+| "Lua Script (Golden)" chart event | Runtime verified (fires at 3009 ms for a 3000 ms event) | lua test |
+| Disabled mods' Lua never runs | Runtime verified | lua test |
+| Release packaging in CI (README, MODDING.md, changelog, empty mods folder) | Implemented (CI config) | not yet observed in a finished CI run |
 | Windows build | NOT verified | GE-004 |
 
 Everything in `golden/ROADMAP.md` marked "NOT started" has no code.
