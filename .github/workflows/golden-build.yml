@@ -10,6 +10,7 @@ on:
     # Test-script and doc edits do not need a 40 minute rebuild; golden-test.yml covers test changes.
     paths-ignore:
       - 'golden/tests/**'
+      - '!golden/tests/windows-runtime-test.ps1'   # the Windows runtime test runs after the build
       - 'golden/**.md'
       - '.github/workflows/golden-test.yml'
 
