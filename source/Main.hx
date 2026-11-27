@@ -68,6 +68,9 @@ class Main extends Sprite
     // You can remove this line if you want to read debug messages.
     openfl.utils._internal.Log.level = openfl.utils._internal.Log.LogLevel.INFO;
 
+    // Golden Engine: engine settings (Developer Mode, UI volume, shortcuts) from golden-settings.json.
+    golden.GoldenSettings.load();
+
     // Load mods to override assets.
     // Golden Engine: only enabled mods are loaded (state in golden-mods.json, managed by the Mod Manager).
     funkin.modding.PolymodHandler.loadEnabledMods();

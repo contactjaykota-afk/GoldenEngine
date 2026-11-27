@@ -20,6 +20,12 @@ typedef ModInfo =
   var license:String;
   var hasIcon:Bool;
 
+  /** Required mods: folder id -> semver rule (from `dependencies` in the manifest). */
+  var dependencies:Map<String, String>;
+
+  /** Optional mods: folder id -> semver rule (from `optionalDependencies`). */
+  var optionalDependencies:Map<String, String>;
+
   /** Problems that stop the mod from loading (it is skipped, never half-loaded). */
   var errors:Array<String>;
 
@@ -73,6 +79,8 @@ class ModScanner
       authors: [],
       license: '',
       hasIcon: false,
+      dependencies: new Map<String, String>(),
+      optionalDependencies: new Map<String, String>(),
       errors: [],
       warnings: []
     };
@@ -117,6 +125,19 @@ class ModScanner
         var name:Dynamic = c == null ? null : Reflect.field(c, 'name');
         if (name != null) info.authors.push(Std.string(name));
       }
+    }
+    for (field in ['dependencies', 'optionalDependencies'])
+    {
+      var deps:Dynamic = Reflect.field(meta, field);
+      if (deps == null) continue;
+      if (Type.typeof(deps) != TObject)
+      {
+        info.errors.push('"$field" must be an object like {"other-mod": "1.0.0"}.');
+        continue;
+      }
+      var target = field == 'dependencies' ? info.dependencies : info.optionalDependencies;
+      for (id in Reflect.fields(deps))
+        target.set(id, Std.string(Reflect.field(deps, id)));
     }
     if (str('title') == '') info.warnings.push('$META_FILE has no "title".');
     if (info.apiVersion == '') info.errors.push('$META_FILE has no "api_version".');

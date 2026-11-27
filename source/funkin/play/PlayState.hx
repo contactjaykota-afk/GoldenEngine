@@ -3264,7 +3264,10 @@ class PlayState extends MusicBeatSubState
 
     #if FEATURE_CHART_EDITOR
     // Redirect to the chart editor playing the current song.
-    if (controls.DEBUG_CHART)
+    // Golden Engine: also the configurable Developer Mode shortcut (default 7; ignored while typing).
+    if (controls.DEBUG_CHART
+      || (golden.GoldenSettings.developerMode && golden.input.GoldenInput.shortcutPressed(golden.GoldenSettings.chartEditorKey)
+        && !golden.input.GoldenInput.isNoteKey(golden.GoldenSettings.chartEditorKey)))
     {
       disableKeys = true;
       persistentUpdate = false;

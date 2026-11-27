@@ -30,4 +30,32 @@ Only features that were built **and** tested are listed as done.
 - **Starter mod template** (`golden/mod-template/starter`): FNF folder layout with a README per folder,
   mod icon, and a working HScript custom event (`<mod>-screen-flash`). No example song/characters/stage
   (removed at the user's request — content is created in the engine).
-- Not done yet: in-game Create New Mod wizard and Mod Manager UI.
+- **Mod Manager** (main menu > Mods): installed mods with icon, title, version, authors, description and
+  validation; enable/disable (Space/click), enable all / disable all, create, duplicate, delete (to
+  `mods/.trash`), import/export zip, open folder, dependency and conflict reports, safe reload.
+  Runtime verified: list, create, toggle, reload (see DEVELOPMENT_STATUS.md for per-action levels).
+- **Create Mod wizard**: title / folder / author / version / description; writes a valid
+  `_polymod_meta.json` for the running API version and copies the packaged starter template.
+  Runtime verified.
+
+## Batch 2 — Golden menus, Developer Mode, MIDI import (2026-11-27)
+
+- Main menu **Mods** and **Editors** entries with original Golden artwork (`golden/scripts/gen_menu_items.py`).
+- **Options > Golden Engine**: Developer Mode (off by default), UI volume, performance monitor, Chart Editor
+  key (default 7) and mod selector key (default Tab) rebinding, reset developer settings. Saved in
+  `golden-settings.json`.
+- **Developer Mode tools** plugin: DEV MODE badge, performance monitor (FPS, frame time, RAM current/peak,
+  GC heap, state/substate, song, difficulty, BPM, position), Tab mod selector, Chart Editor shortcut.
+  Shortcuts are ignored while typing and outside menus; in gameplay the key is ignored if bound to a note.
+- **UI sounds**: central `UISound` (hover/scroll/select/back/open/close/toggle/slider/error) with
+  de-duplication; UI volume applies to every UI sound file, upstream menus included.
+- **MIDI import** (Chart Editor File > Import MIDI..., Ctrl+Shift+M): SMF format 0/1 parser, tempo map,
+  per-track Skip/Player/Opponent mapping, lane modes, min sustain, offset, replace/merge, BPM import,
+  live preview, one undoable command. Parser/converter unit-tested (30/30); dialog compiled, not
+  runtime-tested (native file picker).
+- Fixed during testing: FNF `controls.ACCEPT` is "held", so one press toggled options several times
+  (now `ACCEPT_P`); overlays now pause a parent that keeps updating (main menu), ignore the opening key
+  on their first frame, and finish closing only after keys are released.
+- GE-001 software-renderer fallback verified on llvmpipe (moved to Fixed).
+- Tooling: `golden/scripts/setup-deps-git.sh` (all dependencies from GitHub), `golden/tests/golden-ui-linux.sh`,
+  `golden/tests/unit/run-unit-tests.sh`.

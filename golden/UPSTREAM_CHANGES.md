@@ -15,3 +15,11 @@ Upstream base commit: `94ee0f2a9386d80e445be39ee2ed4b4a630cfbac` (FunkinCrew/Fun
 | `source/funkin/modding/PolymodHandler.hx` | `MOD_FOLDER` made public; `loadEnabledMods()` and `getEnabledMods()` use `golden.modding.GoldenMods` (installed + valid + enabled, from `golden-mods.json`) instead of the unused save field; `forceReloadAssets()` clears Polymod's asset cache and reloads enabled mods only. | Mods |
 | `source/funkin/modding/PolymodErrorHandler.hx` | `onPolymodError()` forwards errors to `GoldenMods` for the Mod Manager. | Mods |
 | `.github/workflows/build-game.yml` | Upstream nightly-build jobs guarded with `if: github.repository == 'FunkinCrew/Funkin'` so they do not queue forever on forks (they need FunkinCrew self-hosted runners). | CI |
+| `project.hxp` | Window title "Golden Engine"; packages `golden/assets` into the default library and the Create Mod starter template (`golden/mod-template`, scripts renamed `*.hxc.tmpl` so Polymod never runs them) next to the executable (`addGoldenModTemplate`). | 2–3 |
+| `source/Main.hx` | Loads `golden.GoldenSettings` before mods. | 2 |
+| `source/funkin/InitState.hx` | Registers the `golden.dev.GoldenDevTools` Flixel plugin (Developer Mode shortcuts, mod selector, performance monitor). | 4 |
+| `source/funkin/ui/mainmenu/MainMenuState.hx` | Adds **Mods** (→ `golden.ui.ModManagerState`) and **Editors** (→ upstream `DebugMenuSubState`, asks to enable Developer Mode if it is off) entries; tighter spacing when more than 5 entries. | 2 |
+| `source/funkin/ui/options/OptionsState.hx` | New page `Golden` ("GOLDEN ENGINE" item) → `golden.ui.GoldenOptionsPage`. | 2 |
+| `source/funkin/audio/FunkinSound.hx` | `playOnce()` scales UI sound files (scrollMenu, confirmMenu, cancelMenu, remote_click, CS_locked) by the Golden UI volume; gameplay sounds unaffected. | 2 |
+| `source/funkin/play/PlayState.hx` | The chart-editor redirect also fires on the configurable Developer Mode key (default 7), never while typing and never if that key is bound to a note. | 4 |
+| `source/funkin/ui/debug/charting/ChartEditorState.hx` | Two calls into `handlers/GoldenChartEditorHandler` (File > Import MIDI... menu entry, Ctrl+Shift+M). New Golden files in the same package: `commands/GoldenMidiImportCommand.hx`, `dialogs/GoldenMidiImportDialog.hx`, `handlers/GoldenChartEditorHandler.hx`. | 7 |

@@ -569,6 +569,8 @@ class FunkinSound extends FlxSound implements ICloneable<FunkinSound>
    */
   public static function playOnce(key:String, volume:Float = 1.0, ?onComplete:Void->Void, ?onLoad:Void->Void, important:Bool = false):Null<FunkinSound>
   {
+    // Golden Engine: menu/UI sounds follow the separate UI volume setting (see golden.audio.UISound).
+    volume *= golden.audio.UISound.volumeScaleFor(key);
     var result:Null<FunkinSound> = FunkinSound.load(key, volume, false, true, true, false, onComplete, onLoad, important);
     return result;
   }

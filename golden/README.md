@@ -60,7 +60,7 @@ Known issues and their status are tracked in `golden/KNOWN_ISSUES.md`.
 
 ## Milestones
 
-1. Clone/inspect upstream, correct architecture, compile & launch the original foundation. ← **current**
+1. Clone/inspect upstream, correct architecture, compile & launch the original foundation. (Linux verified)
 2. Golden Engine identity, project structure, integrated development menu.
 3. Gameplay improvements, mod loading, Lua.
 4. Character Editor + animation alignment.
@@ -75,4 +75,5 @@ Known issues and their status are tracked in `golden/KNOWN_ISSUES.md`.
 13. Haxe extensions & source customization.
 14. Testing, optimization, docs, Windows packaging.
 
-See `golden/CHANGELOG.md` for what is actually done and tested.
+The current, authoritative plan is `golden/ROADMAP.md`; per-feature evidence is in
+`golden/DEVELOPMENT_STATUS.md`. See `golden/CHANGELOG.md` for what is actually done and tested.

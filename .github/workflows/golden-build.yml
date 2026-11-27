@@ -14,6 +14,17 @@ on:
       - '.github/workflows/golden-test.yml'
 
 jobs:
+  # Pure-Haxe unit tests (MIDI import etc.) — no game build needed, runs in about a minute.
+  unit-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.3.7
+      - name: Unit tests
+        run: golden/tests/unit/run-unit-tests.sh
+
   build:
     strategy:
       fail-fast: false

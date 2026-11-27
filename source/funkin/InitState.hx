@@ -271,6 +271,8 @@ class InitState extends FlxState
       funkin.util.plugins.VolumePlugin.initialize();
       #end
       funkin.util.plugins.WatchPlugin.initialize();
+      // Golden Engine: Developer Mode tools (shortcuts, mod selector, performance monitor).
+      golden.dev.GoldenDevTools.init();
       #if mobile
       funkin.util.plugins.TouchPointerPlugin.initialize();
       funkin.mobile.input.ControlsHandler.initInputTrackers();

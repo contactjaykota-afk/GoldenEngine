@@ -76,6 +76,8 @@ class OptionsState extends MusicBeatState
     var offsets:OffsetMenu = optionsCodex.addPage(Offsets, new OffsetMenu());
     #end
     var saveData:SaveDataMenu = optionsCodex.addPage(SaveData, new SaveDataMenu());
+    // Golden Engine: engine settings page (Developer Mode, UI volume, shortcuts).
+    var goldenPage:golden.ui.GoldenOptionsPage = optionsCodex.addPage(Golden, new golden.ui.GoldenOptionsPage());
 
     options.addSaveDataOptionsItem(saveData);
     options.addExitItem();
@@ -89,6 +91,7 @@ class OptionsState extends MusicBeatState
       offsets.onExit.add(exitOffsets);
       #end
       saveData.onExit.add(optionsCodex.switchPage.bind(Options));
+      goldenPage.onExit.add(optionsCodex.switchPage.bind(Options));
     }
     else
     {
@@ -170,6 +173,7 @@ class OptionsMenu extends Page<OptionsMenuPageName>
     add(items = new TextMenuList());
 
     createItem('PREFERENCES', function() codex.switchPage(Preferences));
+    createItem('GOLDEN ENGINE', function() codex.switchPage(Golden)); // Golden Engine
     #if mobile
     if (ControlsHandler.hasExternalInputDevice)
     #end
@@ -356,4 +360,5 @@ enum abstract OptionsMenuPageName(String) to PageName
   public var Preferences = 'preferences';
   public var Offsets = 'offsets';
   public var SaveData = 'saveData';
+  public var Golden = 'golden'; // Golden Engine
 }

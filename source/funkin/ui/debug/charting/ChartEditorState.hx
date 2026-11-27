@@ -3309,6 +3309,8 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
       // CTRL + SHIFT + S Cancelled
     });
     menubarItemExit.onClick = _ -> quitChartEditor(true);
+    // Golden Engine: File > Import MIDI... (see handlers/GoldenChartEditorHandler.hx).
+    funkin.ui.debug.charting.handlers.GoldenChartEditorHandler.setup(this);
 
     // Edit
     menubarItemUndo.onClick = _ -> undoLastCommand();
@@ -6106,6 +6108,9 @@ class ChartEditorState extends UIState // UIState derives from MusicBeatState
    */
   function handleFileKeybinds():Void
   {
+    // Golden Engine: Ctrl+Shift+M = Import MIDI.
+    funkin.ui.debug.charting.handlers.GoldenChartEditorHandler.handleKeybinds(this);
+
     // CTRL + N = New Chart
     if (pressingControl()
       && FlxG.keys.justPressed.N

@@ -1418,6 +1418,13 @@ class Project extends HXProject
 
     if (!FEATURE_STAGE_EDITOR.isEnabled(this)) removeAssetPath('assets/preload/data/ui/stage-editor', "default");
 
+    // Golden Engine: engine artwork (main menu items etc.) merged into the default library, and the
+    // Create Mod starter template, shipped as plain files next to the executable. Template scripts are
+    // renamed *.hxc -> *.hxc.tmpl so Polymod (which registers every .hxc it can list) never runs them;
+    // golden.modding.ModOps strips the suffix when it creates a mod.
+    addAssetPath("golden/assets", "assets", "default", ["*"], exclude, shouldEmbed, "assets");
+    if (!isWeb()) addGoldenModTemplate("golden/mod-template", "assets/golden/mod-template");
+
     // Font assets
     var shouldEmbedFonts = true;
     addAssetPath("assets/fonts", null, "default", ["*"], exclude, shouldEmbedFonts, "assets");
@@ -1943,6 +1950,25 @@ class Project extends HXProject
           addAsset('${path}/${file}', '${targetPath}${file}', library, embed, padName);
         }
       }
+    }
+  }
+
+  /**
+   * Golden Engine: add the mod template folder as non-embedded files (see configureAssets).
+   */
+  function addGoldenModTemplate(path:String, rename:String):Void
+  {
+    for (file in sys.FileSystem.readDirectory(path))
+    {
+      var src = '${path}/${file}';
+      if (sys.FileSystem.isDirectory(src))
+      {
+        addGoldenModTemplate(src, '${rename}/${file}');
+        continue;
+      }
+      var target = '${rename}/${file}';
+      if (Path.extension(file) == 'hxc') target += '.tmpl';
+      addAsset(src, target, "default", false);
     }
   }
 

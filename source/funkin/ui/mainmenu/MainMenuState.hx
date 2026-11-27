@@ -188,6 +188,17 @@ class MainMenuState extends MusicBeatState
       }));
     });
 
+    #if sys
+    // Golden Engine: Mod Manager and Editors entries (see golden.ui.ModManagerState).
+    createMenuItem('mods', 'mainmenu/mods', function()
+    {
+      startExitState(() -> new golden.ui.ModManagerState());
+    });
+    #if FEATURE_DEBUG_MENU
+    createMenuItem('editors', 'mainmenu/editors', openEditors, true);
+    #end
+    #end
+
     if (hasUpgraded)
     {
       #if FEATURE_OPEN_URL
@@ -225,7 +236,8 @@ class MainMenuState extends MusicBeatState
     });
 
     // Reset position of menu items.
-    final spacing:Float = 160;
+    // Golden Engine: tighter spacing when the extra Mods/Editors entries are present (camera follows the selection).
+    final spacing:Float = menuItems.length > 5 ? 140 : 160;
     final top:Float = (FlxG.height - (spacing * (menuItems.length - 1))) / 2;
 
     for (index => menuItem in menuItems)
@@ -614,6 +626,35 @@ class MainMenuState extends MusicBeatState
 
     if (controls.BACK_P) goBack();
   }
+
+  #if FEATURE_DEBUG_MENU
+  /**
+   * Golden Engine: the Editors entry. Editors are part of Developer Mode; if it is off, ask to turn it on
+   * (the choice is saved), so the entry is never a dead button.
+   */
+  function openEditors():Void
+  {
+    var open = function()
+    {
+      persistentUpdate = false;
+      uiStateMachine.transition(Interacting);
+      FlxG.state.openSubState(new DebugMenuSubState());
+    };
+    if (golden.GoldenSettings.developerMode)
+    {
+      open();
+      return;
+    }
+    uiStateMachine.transition(Interacting);
+    persistentUpdate = false;
+    openSubState(new golden.ui.GoldenDialogs.GoldenConfirmSubState('The editors are part of Developer Mode.\n\nTurn Developer Mode on now? (You can turn it off in Options > Golden Engine.)',
+      function()
+      {
+        golden.GoldenSettings.developerMode = true;
+        FlxTimer.wait(0.05, open);
+      }));
+  }
+  #end
 
   function goOptions():Void
   {

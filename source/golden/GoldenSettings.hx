@@ -1,0 +1,154 @@
+package golden;
+
+#if sys
+import haxe.Json;
+import sys.FileSystem;
+import sys.io.File;
+#end
+
+/**
+ * Golden Engine — settings that belong to the engine rather than to FNF's save file.
+ *
+ * Stored as `golden-settings.json` next to the `mods` folder (same place as `golden-mods.json`),
+ * so upstream's save format and its migrations stay untouched. A corrupted file is backed up as
+ * `.bak` and defaults are used; the problem is logged, never swallowed silently.
+ */
+class GoldenSettings
+{
+  public static inline var FILE_NAME:String = 'golden-settings.json';
+
+  /** Developer Mode: unlocks editors, debug tools, the Tab mod selector and the performance monitor. Off by default. */
+  public static var developerMode(default, set):Bool = false;
+
+  /** Volume of menu/UI sounds (0..1), multiplied with the master volume. Separate from music and gameplay. */
+  public static var uiVolume(default, set):Float = 1.0;
+
+  /** Show the Golden performance monitor overlay (only while Developer Mode is on). */
+  public static var perfMonitor(default, set):Bool = false;
+
+  /** Key (FlxKey name) that opens the Chart Editor from gameplay/menus in Developer Mode. */
+  public static var chartEditorKey(default, set):String = 'SEVEN';
+
+  /** Key (FlxKey name) that opens the mod selector in Developer Mode. */
+  public static var modSelectorKey(default, set):String = 'TAB';
+
+  static var loaded:Bool = false;
+  static var suspendSave:Bool = false;
+
+  /** Last load problem, if any (shown in the Golden options page). */
+  public static var loadError(default, null):Null<String> = null;
+
+  public static function path():String
+  {
+    return haxe.io.Path.normalize(haxe.io.Path.join([funkin.modding.PolymodHandler.MOD_FOLDER, '..', FILE_NAME]));
+  }
+
+  public static function load():Void
+  {
+    loaded = true;
+    #if sys
+    var p = path();
+    if (!FileSystem.exists(p)) return;
+    suspendSave = true;
+    try
+    {
+      var data:Dynamic = Json.parse(File.getContent(p));
+      if (Reflect.hasField(data, 'developerMode')) developerMode = Reflect.field(data, 'developerMode') == true;
+      if (Reflect.hasField(data, 'uiVolume')) uiVolume = Std.parseFloat(Std.string(Reflect.field(data, 'uiVolume')));
+      if (Reflect.hasField(data, 'perfMonitor')) perfMonitor = Reflect.field(data, 'perfMonitor') == true;
+      if (Reflect.hasField(data, 'chartEditorKey')) chartEditorKey = Std.string(Reflect.field(data, 'chartEditorKey'));
+      if (Reflect.hasField(data, 'modSelectorKey')) modSelectorKey = Std.string(Reflect.field(data, 'modSelectorKey'));
+    }
+    catch (e:Dynamic)
+    {
+      loadError = 'Could not read $p ($e); defaults are used and the file was backed up as $p.bak.';
+      trace('[GOLDEN] $loadError');
+      try
+      {
+        File.copy(p, p + '.bak');
+      }
+      catch (e2:Dynamic)
+      {
+        trace('[GOLDEN] Could not back up $p: $e2');
+      }
+    }
+    suspendSave = false;
+    #end
+    trace('[GOLDEN] Settings: developerMode=$developerMode uiVolume=$uiVolume perfMonitor=$perfMonitor');
+  }
+
+  public static function save():Void
+  {
+    if (suspendSave || !loaded) return;
+    #if sys
+    var p = path();
+    try
+    {
+      var text = Json.stringify({
+        version: 1,
+        developerMode: developerMode,
+        uiVolume: uiVolume,
+        perfMonitor: perfMonitor,
+        chartEditorKey: chartEditorKey,
+        modSelectorKey: modSelectorKey
+      }, null, '  ');
+      File.saveContent(p + '.tmp', text);
+      if (FileSystem.exists(p)) FileSystem.deleteFile(p);
+      FileSystem.rename(p + '.tmp', p);
+    }
+    catch (e:Dynamic)
+    {
+      trace('[GOLDEN] Could not save settings to $p: $e');
+    }
+    #end
+  }
+
+  /** Reset every developer setting (Developer Mode itself, monitor, shortcuts) to defaults. UI volume is kept. */
+  public static function resetDeveloperSettings():Void
+  {
+    suspendSave = true;
+    developerMode = false;
+    perfMonitor = false;
+    chartEditorKey = 'SEVEN';
+    modSelectorKey = 'TAB';
+    suspendSave = false;
+    save();
+    trace('[GOLDEN] Developer settings reset to defaults.');
+  }
+
+  static function set_developerMode(v:Bool):Bool
+  {
+    developerMode = v;
+    save();
+    return v;
+  }
+
+  static function set_uiVolume(v:Float):Float
+  {
+    if (Math.isNaN(v)) v = 1.0;
+    uiVolume = Math.max(0, Math.min(1, v));
+    save();
+    return uiVolume;
+  }
+
+  static function set_perfMonitor(v:Bool):Bool
+  {
+    perfMonitor = v;
+    save();
+    return v;
+  }
+
+  static function set_chartEditorKey(v:String):String
+  {
+    chartEditorKey = (v == null || v == '') ? 'SEVEN' : v.toUpperCase();
+    save();
+    return chartEditorKey;
+  }
+
+  static function set_modSelectorKey(v:String):String
+  {
+    modSelectorKey = (v == null || v == '') ? 'TAB' : v.toUpperCase();
+    save();
+    return modSelectorKey;
+  }
+}
