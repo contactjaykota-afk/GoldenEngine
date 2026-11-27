@@ -18,7 +18,7 @@ Upstream base commit: `94ee0f2a9386d80e445be39ee2ed4b4a630cfbac` (FunkinCrew/Fun
 | `project.hxp` | Window title "Golden Engine"; packages `golden/assets` into the default library and the Create Mod starter template (`golden/mod-template`, scripts renamed `*.hxc.tmpl` so Polymod never runs them) next to the executable (`addGoldenModTemplate`); `FEATURE_LUA` flag (desktop) adding the `hxluajit` haxelib. | 2–3, 9 |
 | `source/Main.hx` | Loads `golden.GoldenSettings` before mods. | 2 |
 | `source/funkin/InitState.hx` | Registers the `golden.dev.GoldenDevTools` Flixel plugin (Developer Mode shortcuts, mod selector, performance monitor). | 4 |
-| `source/funkin/ui/mainmenu/MainMenuState.hx` | Adds **Mods** (→ `golden.ui.ModManagerState`) and **Editors** (→ upstream `DebugMenuSubState`, asks to enable Developer Mode if it is off) entries; tighter spacing when more than 5 entries. | 2 |
+| `source/funkin/ui/mainmenu/MainMenuState.hx` | Adds **Mods** (→ `golden.ui.ModManagerState`) and **Editors** (→ upstream `DebugMenuSubState`, asks to enable Developer Mode if it is off) entries; tighter spacing when more than 5 entries; desktop mouse navigation (`handleMouse`). | 2 |
 | `source/funkin/ui/options/OptionsState.hx` | New page `Golden` ("GOLDEN ENGINE" item) → `golden.ui.GoldenOptionsPage`. | 2 |
 | `source/funkin/audio/FunkinSound.hx` | `playOnce()` scales UI sound files (scrollMenu, confirmMenu, cancelMenu, remote_click, CS_locked) by the Golden UI volume; gameplay sounds unaffected. | 2 |
 | `source/funkin/play/PlayState.hx` | The chart-editor redirect also fires on the configurable Developer Mode key (default 7), never while typing and never if that key is bound to a note. | 4 |

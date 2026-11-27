@@ -18,7 +18,7 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | `haxelib run lime build linux -release` (with `HAXE_STD_PATH` set) | success (clean ~25 min on 4 cores, incremental ~1 min) |
 | `golden/tests/smoke-linux.sh` | 22 passed, 0 failed (RSS 1152 MB after gameplay + Chart Editor) |
 | `golden/tests/mod-enable-test.sh` | 23 passed, 0 failed |
-| `golden/tests/golden-ui-linux.sh` | 43 passed, 0 failed |
+| `golden/tests/golden-ui-linux.sh` | 45 passed, 0 failed |
 | `golden/tests/unit/run-unit-tests.sh` | 30 passed, 0 failed (MIDI parser/converter) |
 | `golden/tests/lua-linux.sh` | 18 passed, 0 failed (Lua in real gameplay) |
 | `golden/tests/studio-linux.sh` | 26 passed, 0 failed (script editor + Play-in-Editor) |
@@ -41,6 +41,8 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | Create Mod wizard (typed input, slug folder, manifest with running API version, template copy, validation) | Runtime verified | UI test |
 | Starter template packaged with the game (`assets/golden/mod-template`) | Runtime verified | wizard uses the packaged copy |
 | Main menu: Mods and Editors entries (original Golden art) | Runtime verified | UI test |
+| Main menu mouse navigation (hover selects, click accepts, wheel) | Runtime verified (hover+click opens an entry) | UI test |
+| Main menu controller navigation | Upstream behaviour (FNF controls include gamepad bindings) | not tested here (no gamepad in the container) |
 | Editors entry gated by Developer Mode (asks to enable) | Compiled; open path runtime verified with Dev Mode on | the "ask" dialog path not yet tested |
 | Options > Golden Engine page (Developer Mode, UI volume, perf monitor, shortcut rebinding, reset) | Runtime verified for Dev Mode / UI volume / monitor toggles; rebinding + reset compiled only | UI test |
 | Golden settings persistence (`golden-settings.json`) | Runtime verified | UI test restart check |

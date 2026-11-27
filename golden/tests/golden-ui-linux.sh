@@ -135,6 +135,14 @@ wait_for "Idle -> EnteringMainMenu" 1 20
 sleep 2; key Down Down Down Return
 sleep 2; m=$(shot 08-editors); not_black "$m"; check "Editors entry opens the editors menu (mean=$m)" $?
 
+# ---- 8. Mouse navigation on a fresh main menu ---------------------------------------------------
+start_game; sleep 16; key Return
+wait_for "Idle -> EnteringMainMenu" 1 20; sleep 2.5
+W=$(win); eval "$(xdotool getwindowgeometry --shell "$W")"
+xdotool mousemove --window "$W" 640 300; sleep 0.12; xdotool click 1
+wait_for "Idle -> EnteringFreeplay" 1 15; check "mouse: hovering + clicking FREEPLAY opens Freeplay" $?
+sleep 2; m=$(shot 09-freeplay-by-mouse); not_black "$m"; check "Freeplay renders after mouse click (mean=$m)" $?
+
 pgrep -x Funkin >/dev/null; check "game still running (no crash)" $?
 crashes=$(clean_log | grep -v "Enabling" | grep -ciE "uncaught|null object reference|segmentation|CRITICAL ERROR"); [ "$crashes" = 0 ]; check "no uncaught errors in log ($crashes)" $?
 

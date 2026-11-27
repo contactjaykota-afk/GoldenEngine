@@ -625,7 +625,48 @@ class MainMenuState extends MusicBeatState
     #end
 
     if (controls.BACK_P) goBack();
+
+    #if !mobile
+    handleMouse(); // Golden Engine
+    #end
   }
+
+  #if !mobile
+  /**
+   * Golden Engine: desktop mouse navigation. Moving the mouse shows the cursor; hovering an entry
+   * selects it, clicking the selected entry accepts it, the wheel moves the selection.
+   * Keyboard and controller navigation are unchanged.
+   */
+  function handleMouse():Void
+  {
+    if (menuItems == null || menuItems.busy || !canInteract) return;
+    if (FlxG.mouse.justMoved) FlxG.mouse.visible = true;
+    if (!FlxG.mouse.visible) return;
+    if (FlxG.mouse.wheel != 0)
+    {
+      var next = (menuItems.selectedIndex - FlxG.mouse.wheel + menuItems.length) % menuItems.length;
+      menuItems.selectItem(next);
+      FunkinSound.playOnce(Paths.sound('scrollMenu'), 0.4);
+      return;
+    }
+    for (i in 0...menuItems.length)
+    {
+      var item = menuItems.members[i];
+      if (item == null || !item.visible || !item.available) continue;
+      if (!FlxG.mouse.overlaps(item, FlxG.camera)) continue;
+      if (i != menuItems.selectedIndex && FlxG.mouse.justMoved)
+      {
+        menuItems.selectItem(i);
+        FunkinSound.playOnce(Paths.sound('scrollMenu'), 0.4);
+      }
+      else if (i == menuItems.selectedIndex && FlxG.mouse.justReleased)
+      {
+        menuItems.accept();
+      }
+      break;
+    }
+  }
+  #end
 
   #if FEATURE_DEBUG_MENU
   /**

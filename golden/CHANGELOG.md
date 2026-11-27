@@ -96,3 +96,8 @@ Only features that were built **and** tested are listed as done.
   upstream's F5 asset reload. Runtime verified: a Lua script typed in the editor runs in the played song.
 - **Fixed**: upstream's volume keys (- + 0) fired while typing in Flixel text fields (Create Mod wizard,
   script editor, console filter), changing or muting the saved master volume.
+
+## Batch 7 — Main menu mouse navigation (2026-11-27)
+
+- Main menu: hovering an entry selects it, clicking the selected entry opens it, the mouse wheel moves
+  the selection (desktop). Runtime verified.
