@@ -236,3 +236,64 @@ class GoldenCreateModSubState extends GoldenSubState
     else if (FlxG.keys.justPressed.UP) focus(focusIndex - 1);
   }
 }
+
+/** Single-line text prompt (Enter = OK, Esc = cancel). */
+class GoldenPromptSubState extends GoldenSubState
+{
+  var message:String;
+  var initial:String;
+  var onOk:String->Void;
+  var input:FlxInputText;
+
+  public function new(message:String, initial:String, onOk:String->Void)
+  {
+    super(0xAA000000);
+    this.message = message;
+    this.initial = initial;
+    this.onOk = onOk;
+  }
+
+  override function create():Void
+  {
+    super.create();
+    var w = 760, h = 200;
+    var x = (FlxG.width - w) / 2, y = (FlxG.height - h) / 2;
+    add(GoldenUI.panel(x - 2, y - 2, w + 4, h + 4, GoldenUI.GOLD));
+    add(GoldenUI.panel(x, y, w, h, 0xFF1A1420));
+    add(GoldenUI.text(x + 24, y + 18, w - 48, message, 16));
+    input = new FlxInputText(x + 24, y + 70, w - 48, initial, 18, FlxColor.WHITE, 0xFF2C2436);
+    input.font = Paths.font('vcr.ttf');
+    input.fieldBorderColor = GoldenUI.GOLD_DARK;
+    input.scrollFactor.set();
+    add(input);
+    add(new GoldenButton(x + w - 360, y + h - 56, 160, 40, 'OK (Enter)', ok));
+    add(new GoldenButton(x + w - 184, y + h - 56, 160, 40, 'Cancel (Esc)', cancel));
+    input.startFocus();
+    input.setSelection(0, initial.length);
+    UISound.play(Open);
+  }
+
+  function ok():Void
+  {
+    var v = input.text;
+    input.endFocus();
+    UISound.play(Select);
+    close();
+    onOk(v);
+  }
+
+  function cancel():Void
+  {
+    input.endFocus();
+    UISound.play(Back);
+    close();
+  }
+
+  override function update(elapsed:Float):Void
+  {
+    super.update(elapsed);
+    if (inputBlocked()) return;
+    if (FlxG.keys.justPressed.ENTER) ok();
+    else if (FlxG.keys.justPressed.ESCAPE) cancel();
+  }
+}

@@ -77,6 +77,20 @@ class LuaScript
     if (haxe.Timer.stamp() - callStarted > TIMEOUT_SECONDS) LuaL.error(L, 'script timed out (ran longer than 2 seconds without returning)');
   }
 
+  /**
+   * Compile `source` without running it. Returns null if the syntax is valid, otherwise the Lua error
+   * message ("name:line: message").
+   */
+  public static function checkSyntax(source:String, name:String):Null<String>
+  {
+    var L = LuaL.newstate();
+    var status = LuaL.loadbuffer(L, source, source.length, '@' + name);
+    var result:Null<String> = null;
+    if (status != Lua.OK) result = Lua.isstring(L, -1) == 1 ? Std.string(Lua.tostring(L, -1)) : 'syntax error';
+    Lua.close(L);
+    return result;
+  }
+
   /** True if the script defines a global function `fn` (cached). */
   public function hasFunction(fn:String):Bool
   {

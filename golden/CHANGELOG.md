@@ -78,3 +78,12 @@ Only features that were built **and** tested are listed as done.
   text on the software-GL path and blacked out the game when the monitor was enabled at startup. All
   Golden overlays now draw with Flixel on a dedicated top-most camera. (The earlier status entry
   "monitor runtime verified" was wrong and has been corrected.)
+
+## Batch 5 — Golden Studio script editor (2026-11-27)
+
+- **Script editor** (Mod Manager > Scripts / S): edit a mod's .hxc/.hx/.lua/.json/.xml/.txt/.md files in
+  the game. Syntax highlighting (Haxe/HScript, Lua, JSON, XML), line numbers, bracket matching,
+  auto-indent, Tab = 2 spaces, tabs with unsaved markers, undo/redo, find, new file from templates
+  (Lua callbacks, HScript Module), Ctrl+S with validation (JSON/XML parsed, Lua compiled with
+  file:line errors) and a backup of the previous version in `mods/.trash/backups/`, Ctrl+R saves all
+  and reloads mods. Runtime verified by `golden/tests/studio-linux.sh` (18/18); highlighter unit-tested (21/21).

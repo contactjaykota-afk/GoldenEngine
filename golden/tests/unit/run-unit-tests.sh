@@ -6,9 +6,10 @@ set -eu
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/golden"
-cp -r "$ROOT/source/golden/charting" "$TMP/golden/"
+cp -r "$ROOT/source/golden/charting" "$ROOT/source/golden/studio" "$TMP/golden/"
+rm -f "$TMP/golden/studio/"*State.hx "$TMP/golden/studio/"*Panel.hx  # engine-dependent files
 status=0
-for t in MidiTest; do
+for t in MidiTest HighlightTest; do
   echo "== $t"
   haxe -cp "$TMP" -cp "$ROOT/golden/tests/unit" -main "$t" --interp || status=1
 done

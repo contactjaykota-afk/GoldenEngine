@@ -26,7 +26,7 @@ import openfl.display.BitmapData;
  * when you leave the manager or press Reload, so disabled mods never register content.
  *
  * Keyboard / controller: Up/Down select · Accept/Space toggle · A enable all · D disable all ·
- * N new · I import · E export · C duplicate · Delete delete · O open folder · R reload · Esc/Back leave.
+ * N new · I import · E export · C duplicate · Delete delete · O open folder · R reload · S script editor · Esc/Back leave.
  * Mouse: click a row to select, click its checkbox to toggle, wheel to scroll, buttons for actions.
  */
 class ModManagerState extends MusicBeatState
@@ -111,6 +111,7 @@ class ModManagerState extends MusicBeatState
       {t: 'Delete (Del)', f: deleteSelected},
       {t: 'Open folder (O)', f: openFolder},
       {t: 'Reload (R)', f: applyAndReload},
+      {t: 'Scripts (S)', f: openScripts},
       {t: 'Back (Esc)', f: leave}
     ];
     var bw = 146, bh = 36, gap = 8;
@@ -424,6 +425,14 @@ class ModManagerState extends MusicBeatState
     }
   }
 
+  /** Open the Golden Studio script editor on the selected mod. */
+  function openScripts():Void
+  {
+    if (mods.length == 0) { UISound.play(Error); return; }
+    UISound.play(Select);
+    FlxG.switchState(() -> new golden.studio.ScriptEditorState(mods[selected].dir));
+  }
+
   function showError(title:String, msg:String):Void
   {
     trace('[GOLDEN] $title: $msg');
@@ -486,6 +495,7 @@ class ModManagerState extends MusicBeatState
     else if (FlxG.keys.justPressed.DELETE) deleteSelected();
     else if (FlxG.keys.justPressed.O) openFolder();
     else if (FlxG.keys.justPressed.R) applyAndReload();
+    else if (FlxG.keys.justPressed.S) openScripts();
     else if (controls.BACK_P) leave();
   }
 

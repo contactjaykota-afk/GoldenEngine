@@ -21,6 +21,8 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | `golden/tests/golden-ui-linux.sh` | 43 passed, 0 failed |
 | `golden/tests/unit/run-unit-tests.sh` | 30 passed, 0 failed (MIDI parser/converter) |
 | `golden/tests/lua-linux.sh` | 18 passed, 0 failed (Lua in real gameplay) |
+| `golden/tests/studio-linux.sh` | 18 passed, 0 failed (script editor) |
+| `golden/tests/unit/run-unit-tests.sh` (HighlightTest) | 21 passed, 0 failed |
 | GitHub Actions `golden-build.yml` run 45953618100 (commit 8652421) | unit-tests success; Linux build success; **Windows build success** (artifact golden-engine-windows-x64, 840 MB); CI startup test success |
 
 ## Features
@@ -57,6 +59,7 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | "Lua Script (Golden)" chart event | Runtime verified (fires at 3009 ms for a 3000 ms event) | lua test |
 | Disabled mods' Lua never runs | Runtime verified | lua test |
 | Release packaging in CI (README, MODDING.md, changelog, empty mods folder) | Implemented (CI config) | not yet observed in a finished CI run |
+| Golden Studio script editor (Mod Manager > S): file list, tabs, line numbers, Haxe/Lua/JSON/XML highlighting, bracket match, auto-indent, Ctrl+N templates, Ctrl+S save with backup + validation (JSON/XML parse, Lua compile), undo/redo, Ctrl+R reload mods | Runtime verified: open, new-from-template, type, save, backup, Lua syntax error (file:line), undo, leave. Find, redo, tab switching, close-with-confirm, JSON/XML validation: compiled only | studio test |
 | Windows build | **Compiled in CI** (commit 8652421); not launched on Windows by anyone yet | GE-004 |
 
 Everything in `golden/ROADMAP.md` marked "NOT started" has no code.
