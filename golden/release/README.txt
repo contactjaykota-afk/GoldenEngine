@@ -23,6 +23,7 @@ DEVELOPER MODE SHORTCUTS (when enabled)
   Tab    quick mod selector
   `      debug menu (upstream)
   F8     runtime console (all logs, Lua and mod errors; filter, copy)
+  Mods > S             script editor for the selected mod (F9 there = Play-in-Editor; F9 again returns)
 
 FILES CREATED NEXT TO THE EXECUTABLE
   mods\                  your mods (one folder per mod, each with _polymod_meta.json)

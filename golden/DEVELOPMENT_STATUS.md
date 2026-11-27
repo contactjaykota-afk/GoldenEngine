@@ -21,7 +21,7 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | `golden/tests/golden-ui-linux.sh` | 43 passed, 0 failed |
 | `golden/tests/unit/run-unit-tests.sh` | 30 passed, 0 failed (MIDI parser/converter) |
 | `golden/tests/lua-linux.sh` | 18 passed, 0 failed (Lua in real gameplay) |
-| `golden/tests/studio-linux.sh` | 18 passed, 0 failed (script editor) |
+| `golden/tests/studio-linux.sh` | 26 passed, 0 failed (script editor + Play-in-Editor) |
 | `golden/tests/unit/run-unit-tests.sh` (HighlightTest) | 21 passed, 0 failed |
 | GitHub Actions `golden-build.yml` run 45953618100 (commit 8652421) | unit-tests success; Linux build success; **Windows build success** (artifact golden-engine-windows-x64, 840 MB); CI startup test success |
 
@@ -60,6 +60,8 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | Disabled mods' Lua never runs | Runtime verified | lua test |
 | Release packaging in CI (README, MODDING.md, changelog, empty mods folder) | Implemented (CI config) | not yet observed in a finished CI run |
 | Golden Studio script editor (Mod Manager > S): file list, tabs, line numbers, Haxe/Lua/JSON/XML highlighting, bracket match, auto-indent, Ctrl+N templates, Ctrl+S save with backup + validation (JSON/XML parse, Lua compile), undo/redo, Ctrl+R reload mods | Runtime verified: open, new-from-template, type, save, backup, Lua syntax error (file:line), undo, leave. Find, redo, tab switching, close-with-confirm, JSON/XML validation: compiled only | studio test |
+| Play-in-Editor (F9 in the script editor: save all, reload mods, play song in practice mode; F9 returns with tabs/text restored; survives upstream F5 state reset) | Runtime verified: play from editor, edited Lua runs in the song, return restores 2 tabs. F5-reset restore: compiled only | studio test |
+| Typing in Golden text fields no longer triggers volume keys (- + 0) | Runtime verified (studio test types "-", smoke audio check afterwards passes) | upstream VolumePlugin edit |
 | Windows build | **Compiled in CI** (commit 8652421); not launched on Windows by anyone yet | GE-004 |
 
 Everything in `golden/ROADMAP.md` marked "NOT started" has no code.

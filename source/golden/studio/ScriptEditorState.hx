@@ -84,7 +84,7 @@ class ScriptEditorState extends MusicBeatState
     add(GoldenUI.panel(0, 0, FlxG.width, FlxG.height, 0xFF120E18));
     add(GoldenUI.text(12, 8, 600, 'GOLDEN STUDIO  -  Script Editor  -  $modDir', 20, GoldenUI.GOLD));
     add(GoldenUI.text(12, 34, FlxG.width - 24,
-      'Ctrl+S save  Ctrl+Z/Y undo/redo  Ctrl+F find  Ctrl+N new  Ctrl+W close  Ctrl+Tab next  Ctrl+R reload mods  Esc back', 12, GoldenUI.MUTED));
+      'F9 play  Ctrl+S save  Ctrl+Z/Y undo/redo  Ctrl+F find  Ctrl+N new  Ctrl+W close  Ctrl+Tab next  Ctrl+R reload mods  Esc back', 12, GoldenUI.MUTED));
 
     add(GoldenUI.panel(0, TOP - 4, TREE_W, FlxG.height - TOP - 24, 0xFF1A1522));
     treeText = GoldenUI.text(8, TOP, TREE_W - 12, '', 13);
@@ -122,9 +122,20 @@ class ScriptEditorState extends MusicBeatState
 
     scanFiles();
     trace('[GOLDEN] Script editor opened for "$modDir" (${files.length} files)');
-    if (files.length > 0) openFile(files[0]);
+    var sess = GoldenStudio.session;
+    if (sess != null && sess.modDir == modDir && sess.docs.length > 0)
+    {
+      // Back from Play-in-Editor: restore tabs, carets and text exactly.
+      docs = sess.docs;
+      GoldenStudio.session = null;
+      switchTo(Std.int(Math.max(0, Math.min(sess.current, docs.length - 1))));
+      trace('[GOLDEN] Play-in-Editor: Studio session restored (${docs.length} tab(s))');
+      setStatus(sess.songId != '' ? 'Back from Play-in-Editor ("${sess.songId}"). Session restored.' : 'Editor state restored after reload.', GoldenUI.OK);
+    }
+    else if (files.length > 0) openFile(files[0]);
     else
       setStatus('This mod has no editable files yet. Ctrl+N creates one.', GoldenUI.MUTED);
+    GoldenStudio.session = null;
     redrawTree();
   }
 
@@ -544,9 +555,64 @@ class ScriptEditorState extends MusicBeatState
     setStatus('Mods reloaded' + (errs > 0 ? ' with $errs problem(s) (see F8 console)' : ' - scripts are live for the next song/menu'), errs > 0 ? GoldenUI.WARN : GoldenUI.OK);
   }
 
+  /** F9: save everything, reload mods, and play a song; F9 again during the song returns here. */
+  function play():Void
+  {
+    storeCurrent();
+    var guess = GoldenStudio.lastSong;
+    if (current >= 0)
+    {
+      var r = ~/^data\/songs\/([^\/]+)\//;
+      if (r.match(docs[current].path)) guess = r.matched(1);
+    }
+    editor.endFocus();
+    openSubState(new GoldenPromptSubState('Play-in-Editor: song id and difficulty (practice mode, F9 returns here)', '$guess ${GoldenStudio.lastDifficulty}', function(v:String)
+    {
+      var parts = v.trim().split(' ').filter(p -> p != '');
+      if (parts.length == 0) return;
+      var songId = parts[0], diff = parts.length > 1 ? parts[1] : 'normal';
+      for (i in 0...docs.length)
+        if (docs[i].text != docs[i].saved)
+        {
+          switchTo(i);
+          if (!saveCurrent()) return;
+        }
+      PolymodHandler.forceReloadAssets();
+      storeCurrent();
+      GoldenStudio.session = {modDir: modDir, docs: docs, current: current, songId: songId, difficulty: diff};
+      var err = GoldenStudio.playSong(songId, diff);
+      if (err != null)
+      {
+        GoldenStudio.session = null;
+        setStatus(err, GoldenUI.BAD);
+        UISound.play(Error);
+        trace('[GOLDEN] Play-in-Editor: $err');
+      }
+    }));
+  }
+
+  /** True when this state is being left on purpose (Esc), so destroy() must not keep a session. */
+  var leaving:Bool = false;
+
+  override function destroy():Void
+  {
+    // If the state is torn down for another reason (upstream F5 asset reload resets the state, or
+    // Play-in-Editor), keep the open tabs and unsaved text so the next editor instance restores them.
+    if (!leaving && GoldenStudio.session == null && docs.length > 0)
+    {
+      storeCurrent();
+      GoldenStudio.session = {modDir: modDir, docs: docs, current: current, songId: '', difficulty: ''};
+    }
+    super.destroy();
+  }
+
   function leave():Void
   {
-    var go = function() FlxG.switchState(() -> new golden.ui.ModManagerState());
+    var go = function()
+    {
+      leaving = true;
+      FlxG.switchState(() -> new golden.ui.ModManagerState());
+    };
     if (anyDirty())
     {
       editor.endFocus();
@@ -568,7 +634,8 @@ class ScriptEditorState extends MusicBeatState
       if (highlightTimer <= 0) highlightNow();
     }
 
-    if (ctrl && FlxG.keys.justPressed.S) saveCurrent();
+    if (FlxG.keys.justPressed.F9) play();
+    else if (ctrl && FlxG.keys.justPressed.S) saveCurrent();
     else if (ctrl && FlxG.keys.justPressed.Z) applyUndo(false);
     else if (ctrl && FlxG.keys.justPressed.Y) applyUndo(true);
     else if (ctrl && FlxG.keys.justPressed.N) newFile();

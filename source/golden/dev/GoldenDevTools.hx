@@ -51,6 +51,7 @@ class GoldenDevTools extends FlxBasic
     var dev = GoldenSettings.developerMode;
     updateOverlays(dev);
     updateConsole(dev);
+    golden.studio.GoldenStudio.update(); // Play-in-Editor: F9 returns to the Studio
     if (!dev) return;
 
     var state = FlxG.state;

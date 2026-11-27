@@ -26,6 +26,8 @@ class VolumePlugin extends FlxBasic
     super.update(elapsed);
 
     var isHaxeUIFocused:Bool = #if FEATURE_HAXEUI haxe.ui.focus.FocusManager.instance?.focus != null #else false #end;
+    // Golden Engine: also ignore volume keys (-, +, 0 by default) while typing in any text field.
+    if (golden.input.GoldenInput.isTyping()) isHaxeUIFocused = true;
 
     if (!isHaxeUIFocused)
     {

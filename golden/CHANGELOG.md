@@ -87,3 +87,12 @@ Only features that were built **and** tested are listed as done.
   (Lua callbacks, HScript Module), Ctrl+S with validation (JSON/XML parsed, Lua compiled with
   file:line errors) and a backup of the previous version in `mods/.trash/backups/`, Ctrl+R saves all
   and reloads mods. Runtime verified by `golden/tests/studio-linux.sh` (18/18); highlighter unit-tested (21/21).
+
+## Batch 6 — Play-in-Editor (2026-11-27)
+
+- **Play-in-Editor** (F9 in the script editor): saves all files (validated), reloads mods, starts the
+  song of the file being edited (or the last/typed one) in practice mode; F9 during the song stops it
+  and returns to the editor with tabs, carets and text restored. The editor also restores itself after
+  upstream's F5 asset reload. Runtime verified: a Lua script typed in the editor runs in the played song.
+- **Fixed**: upstream's volume keys (- + 0) fired while typing in Flixel text fields (Create Mod wizard,
+  script editor, console filter), changing or muting the saved master volume.
