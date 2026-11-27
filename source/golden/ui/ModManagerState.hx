@@ -475,12 +475,26 @@ class ModManagerState extends MusicBeatState
       PolymodHandler.forceReloadAssets();
       dirty = false;
     }
-    FlxG.switchState(() -> new MainMenuState());
+    // Switch only after Esc/Back is released: FNF's controls are shared between states, and the main
+    // menu would otherwise read the still-held key as its own "back" and jump to the title screen.
+    leavePending = true;
   }
+
+  var leavePending:Bool = false;
 
   override function update(elapsed:Float):Void
   {
     super.update(elapsed);
+    if (leavePending)
+    {
+      for (_ in [controls.BACK_P, controls.ACCEPT_P]) {} // keep the shared control state current
+      if (!golden.ui.GoldenSubState.anyInputHeld())
+      {
+        leavePending = false;
+        FlxG.switchState(() -> new MainMenuState());
+      }
+      return;
+    }
     if (subState != null) return;
 
     if (controls.UI_UP_P) select(selected - 1);

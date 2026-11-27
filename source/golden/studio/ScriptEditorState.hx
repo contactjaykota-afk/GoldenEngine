@@ -593,12 +593,13 @@ class ScriptEditorState extends MusicBeatState
 
   /** True when this state is being left on purpose (Esc), so destroy() must not keep a session. */
   var leaving:Bool = false;
+  var leavingDone:Bool = false;
 
   override function destroy():Void
   {
     // If the state is torn down for another reason (upstream F5 asset reload resets the state, or
     // Play-in-Editor), keep the open tabs and unsaved text so the next editor instance restores them.
-    if (!leaving && GoldenStudio.session == null && docs.length > 0)
+    if (!leaving && !leavingDone && GoldenStudio.session == null && docs.length > 0)
     {
       storeCurrent();
       GoldenStudio.session = {modDir: modDir, docs: docs, current: current, songId: '', difficulty: ''};
@@ -610,8 +611,7 @@ class ScriptEditorState extends MusicBeatState
   {
     var go = function()
     {
-      leaving = true;
-      FlxG.switchState(() -> new golden.ui.ModManagerState());
+      leaving = true; // the switch happens in update() once Esc/Enter is released (shared FNF controls)
     };
     if (anyDirty())
     {
@@ -625,6 +625,17 @@ class ScriptEditorState extends MusicBeatState
   override function update(elapsed:Float):Void
   {
     super.update(elapsed);
+    if (leaving)
+    {
+      for (_ in [controls.BACK_P, controls.ACCEPT_P]) {}
+      if (!golden.ui.GoldenSubState.anyInputHeld() && subState == null)
+      {
+        leaving = false;
+        leavingDone = true;
+        FlxG.switchState(() -> new golden.ui.ModManagerState());
+      }
+      return;
+    }
     if (subState != null) return;
     var ctrl = FlxG.keys.pressed.CONTROL;
 

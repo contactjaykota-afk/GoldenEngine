@@ -133,3 +133,14 @@ Only features that were built **and** tested are listed as done.
   also run after every branch build): launches the packaged exe on a Windows runner with Mesa software
   OpenGL and checks package contents, startup, title, main menu, Mod Manager, Freeplay + song, a Lua
   script from a mod, and no crash. Releases are published only if all checks pass.
+
+## Batch 11 — In-game AutoTest driver, Esc-bounce fix (2026-11-27)
+
+- `golden.dev.AutoTest` (only with `GOLDEN_AUTOTEST=play|mods`): drives the game from inside the process
+  with real OpenFL keyboard events, because GitHub's Windows runners do not deliver OS input to games.
+  First Windows run (commit 4bc6f5a) showed the game launches, renders llvmpipe and reaches the title,
+  but OS keystrokes never arrived — hence this driver.
+- **Fixed**: leaving the Mod Manager (or the script editor) with Esc made the next screen also read the
+  still-held key (FNF shares one control set), e.g. the main menu jumped back to the title screen. Now the
+  switch happens when the key is released. Regression step in the "mods" route.
+- `golden/tests/autotest-linux.sh` runs the same routes on Linux (8/8).

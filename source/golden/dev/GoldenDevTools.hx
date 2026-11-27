@@ -33,6 +33,7 @@ class GoldenDevTools extends FlxBasic
     if (instance != null) return;
     instance = new GoldenDevTools();
     FlxG.plugins.addPlugin(instance);
+    AutoTest.initIfRequested(); // CI smoke test driver, only with GOLDEN_AUTOTEST=1
     trace('[GOLDEN] Developer tools plugin ready (developerMode=${GoldenSettings.developerMode})');
   }
 

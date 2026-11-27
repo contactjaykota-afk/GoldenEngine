@@ -26,6 +26,7 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | GitHub Actions `golden-build.yml` | Windows build + package step green for every commit 8652421 … 57f7020 (runs 45953618100 … 45964113786; artifact golden-engine-windows-x64, 841 MB). **Compiled and packaged only — never launched on Windows.** |
 | `golden/tests/mods-extra-linux.sh` | 29 passed, 0 failed (Mod Manager actions, zip import/export via real file dialogs, selector, rebinding/reset) |
 | `golden/tests/chart-midi-linux.sh` | 7 passed, 0 failed (7 in gameplay, File > Import MIDI via real dialog, import) |
+| `golden/tests/autotest-linux.sh` | 8 passed, 0 failed (in-game AutoTest routes "play" and "mods", same as Windows CI) |
 
 ## Features
 
@@ -70,6 +71,7 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | Typing in Golden text fields no longer triggers volume keys (- + 0) | Runtime verified (studio test types "-", smoke audio check afterwards passes) | upstream VolumePlugin edit |
 | Chart Editor Golden theme (default; View > Theme > Golden) | Runtime verified (screenshots in chart-midi test). Purple menubar of the reference not replicated | chart-midi test |
 | Version 0.1.0-alpha in watermark + log | Runtime verified (log) | UI test log |
+| Esc from Mod Manager / script editor no longer bounces the next screen (main menu went back to the title) | Runtime verified + regression step in AutoTest "mods" route | found by the in-game driver |
 | Windows build | **Compiled in CI** (commit 8652421); not launched on Windows by anyone yet | GE-004 |
 
 Everything in `golden/ROADMAP.md` marked "NOT started" has no code.

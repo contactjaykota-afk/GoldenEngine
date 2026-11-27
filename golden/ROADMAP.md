@@ -82,3 +82,18 @@ Order of work: shared infrastructure first, then editors one at a time, each wit
 | P2 | Freeplay search/filter/sort on top of upstream Freeplay | Planned (batch B). |
 | P3 | Event editor improvements + Lua event timing from the Chart Editor | Planned (batch C, with D2/D3). |
 | P4 | Character Animation Studio | Planned (after D4). |
+
+## Guiding principles (engine identity, 2026-11-27)
+
+Golden Engine is a full FNF engine: it extends the official FNF source in place (no replacement engine),
+keeps FNF/Polymod formats (`_polymod_meta.json`, V-Slice charts, character/stage JSON), stays familiar to
+Psych Engine / Codename Engine users, and adds its own tools. Every feature is verified against the
+actual source and tested in the running game; other engines are references only (licenses respected).
+
+## Further directives (queued, not started unless stated)
+
+| # | Item | Plan |
+|---|---|---|
+| D10 | **Camera Editor** (focus BF/opponent/GF/object/free, X/Y + offsets + zoom with drag, follow speed/smoothing, zoom events, presets, timeline; song selector loading the real stage/characters/chart; per-song camera configs with save/save-as/reset/copy; Chart/Stage/Character Editor integration) | Must drive the real FNF camera (PlayState camFollow / FocusCamera / ZoomCamera events). Needs D4 Live Preview first. Per-song configs as JSON in the mod's `data/`, read by a gameplay hook; fallback = upstream behaviour. |
+| D11 | **3D game-development track** (Blender-compatible import via glTF/GLB/OBJ — `.blend` only through a Blender export step, never "native"; scene editor, cameras, lights, animation, scripting, 3D menus, cinematics, first/third person, horror tools) | Investigation first: OpenFL Context3D/GL offscreen rendering into a Flixel sprite, glTF loader, depth buffer; then the 6 phases the request lists, each tested on Linux and Windows. No code yet. |
+| D12 | **Whole-engine optimization** (size, RAM, CPU/GPU, loading, graphics presets) | Profile and record baselines first (current: release folder 937 MB, Linux RSS 1152 MB after gameplay + Chart Editor on llvmpipe); then small tested batches with before/after numbers. |
