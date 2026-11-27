@@ -18,10 +18,10 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | `haxelib run lime build linux -release` (with `HAXE_STD_PATH` set) | success (clean ~25 min on 4 cores, incremental ~1 min) |
 | `golden/tests/smoke-linux.sh` | 22 passed, 0 failed (RSS 1152 MB after gameplay + Chart Editor) |
 | `golden/tests/mod-enable-test.sh` | 23 passed, 0 failed |
-| `golden/tests/golden-ui-linux.sh` | 40 passed, 0 failed |
+| `golden/tests/golden-ui-linux.sh` | 43 passed, 0 failed |
 | `golden/tests/unit/run-unit-tests.sh` | 30 passed, 0 failed (MIDI parser/converter) |
 | `golden/tests/lua-linux.sh` | 18 passed, 0 failed (Lua in real gameplay) |
-| GitHub Actions `golden-build.yml` on commit 8652421 | unit-tests: success; Linux build: success; Windows build: see GE-004 |
+| GitHub Actions `golden-build.yml` run 45953618100 (commit 8652421) | unit-tests success; Linux build success; **Windows build success** (artifact golden-engine-windows-x64, 840 MB); CI startup test success |
 
 ## Features
 
@@ -44,7 +44,8 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | Golden settings persistence (`golden-settings.json`) | Runtime verified | UI test restart check |
 | UI volume applied to all UI sounds (incl. upstream menus) | Compiled | volume scaling not measured |
 | UI sound de-duplication | Compiled | |
-| Developer Mode badge + performance monitor overlay | Runtime verified (enabled; screenshot) | numbers not validated against an external profiler |
+| Developer Mode badge + performance monitor overlay | Runtime verified (visible in screenshot 07: FPS, frame time, RAM, state) | first version used OpenFL TextFields, which render nothing (and blacked out the game when created at startup) on software GL; rewritten on Flixel. Numbers not validated against an external profiler |
+| Runtime console (F8): all log lines with file:line, level tabs, filter, scroll, copy, clear | Runtime verified (open/close, renders with tabs and counts); filter/copy compiled only | UI test screenshot 07d |
 | Tab mod selector (select ≠ enable, Space toggle, Enter apply, M manager) | Runtime verified (open/close); toggle/apply compiled only | UI test |
 | Chart Editor shortcut (default 7) in menus | Runtime verified | UI test |
 | Chart Editor shortcut in gameplay (opens current chart) | Compiled | |
@@ -56,6 +57,6 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | "Lua Script (Golden)" chart event | Runtime verified (fires at 3009 ms for a 3000 ms event) | lua test |
 | Disabled mods' Lua never runs | Runtime verified | lua test |
 | Release packaging in CI (README, MODDING.md, changelog, empty mods folder) | Implemented (CI config) | not yet observed in a finished CI run |
-| Windows build | NOT verified | GE-004 |
+| Windows build | **Compiled in CI** (commit 8652421); not launched on Windows by anyone yet | GE-004 |
 
 Everything in `golden/ROADMAP.md` marked "NOT started" has no code.

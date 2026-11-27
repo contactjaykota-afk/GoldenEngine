@@ -22,6 +22,7 @@ DEVELOPER MODE SHORTCUTS (when enabled)
   7      open the Chart Editor (during a song: the current chart)
   Tab    quick mod selector
   `      debug menu (upstream)
+  F8     runtime console (all logs, Lua and mod errors; filter, copy)
 
 FILES CREATED NEXT TO THE EXECUTABLE
   mods\                  your mods (one folder per mod, each with _polymod_meta.json)

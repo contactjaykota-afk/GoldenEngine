@@ -1,54 +1,49 @@
 package golden.dev;
 
-import openfl.display.Sprite;
-import openfl.text.TextField;
-import openfl.text.TextFormat;
+import flixel.FlxSprite;
+import flixel.group.FlxSpriteGroup;
+import flixel.text.FlxText;
 
 /**
- * Golden Engine performance monitor: a small OpenFL overlay (drawn above every Flixel camera).
+ * Golden Engine performance monitor (drawn by GoldenDevTools on its overlay camera, above the game).
  * Text is rebuilt at most 4 times per second so the monitor itself costs almost nothing.
  *
- * Shows FPS, average frame time, worst frame time in the last window, current and peak process
- * memory (process RSS / working set via funkin.util.MemoryUtil.getTaskMemory, plus GC heap), current state/substate,
- * and when a song is playing: song, difficulty, BPM and position.
+ * Shows FPS, average frame time, worst frame time in the last window, process memory (RSS / working
+ * set via funkin.util.MemoryUtil.getTaskMemory) current and peak, GC heap, current state/substate, and
+ * while a song is playing: song, difficulty, BPM and position.
  */
-class PerfMonitor extends Sprite
+class PerfMonitor extends FlxSpriteGroup
 {
   static inline var REFRESH:Float = 0.25;
 
-  var field:TextField;
+  var bg:FlxSprite;
+  var field:FlxText;
   var acc:Float = 0;
-  var frames:Int = 0;
+  var frameCount:Int = 0;
   var worst:Float = 0;
   var peakMem:Float = 0;
 
   public function new()
   {
-    super();
-    mouseEnabled = mouseChildren = false;
-    field = new TextField();
-    field.selectable = false;
-    field.mouseEnabled = false;
-    field.defaultTextFormat = new TextFormat('_sans', 12, 0xFFE9B0);
-    field.background = true;
-    field.backgroundColor = 0x000000;
-    field.width = 330;
-    field.height = 150;
-    field.multiline = true;
-    addChild(field);
-    alpha = 0.85;
+    super(4, 4);
+    bg = new FlxSprite().makeGraphic(1, 1, 0xD0000000);
+    add(bg);
+    field = new FlxText(4, 2, 0, 'GOLDEN DEV', 12);
+    field.setFormat(Paths.font('vcr.ttf'), 12, 0xFFFFE9B0, LEFT);
+    add(field);
+    scrollFactor.set();
   }
 
   /** Call once per frame with the real elapsed time in seconds. */
   public function tick(elapsed:Float):Void
   {
     acc += elapsed;
-    frames++;
+    frameCount++;
     if (elapsed > worst) worst = elapsed;
     if (acc < REFRESH) return;
 
-    var fps = frames / acc;
-    var avgMs = acc / frames * 1000;
+    var fps = frameCount / acc;
+    var avgMs = acc / frameCount * 1000;
     var mem:Float = funkin.util.MemoryUtil.supportsTaskMem() ? funkin.util.MemoryUtil.getTaskMemory() : 0;
     var gc:Float = funkin.util.MemoryUtil.getGCMemory();
     if (mem > peakMem) peakMem = mem;
@@ -73,11 +68,11 @@ class PerfMonitor extends Sprite
       lines.push('BPM ${fmt(c.bpm)}  pos ${fmt(c.songPosition / 1000)} s  beat ${c.currentBeat}  step ${c.currentStep}');
     }
     field.text = lines.join('\n');
-    field.height = field.textHeight + 6;
-    field.width = Math.max(260, field.textWidth + 8);
+    bg.setGraphicSize(Std.int(field.width + 8), Std.int(field.height + 4));
+    bg.updateHitbox();
 
     acc = 0;
-    frames = 0;
+    frameCount = 0;
     worst = 0;
   }
 

@@ -5,10 +5,11 @@ A bug is only marked fixed after its regression test has been re-run.
 
 ## Open
 
-### GE-004 — No Windows build has been produced or launched by the developer — high
-- This environment is Linux-only. The Windows build relies on `.github/workflows/golden-build.yml`
-  (GitHub-hosted `windows-2022`). Until a run of that workflow succeeds AND someone launches the
-  artifact on Windows, the Windows release is UNVERIFIED.
+### GE-004 — Windows build compiled in CI but never launched — high
+- This environment is Linux-only. `.github/workflows/golden-build.yml` built Windows successfully on
+  GitHub's `windows-2022` runner (run 45953618100, commit 8652421, artifact golden-engine-windows-x64).
+  Nobody has launched that artifact on Windows yet, so Windows runtime behaviour is UNVERIFIED.
+  The artifact can only be downloaded with a GitHub login (Actions tab of the repository).
 
 ### GE-005 — Linux toolchain needed local workarounds — low (build environment only)
 - lib.haxe.org was blocked here; `golden/scripts/setup-deps-git.sh` installs every dependency from GitHub

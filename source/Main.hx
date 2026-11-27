@@ -63,6 +63,8 @@ class Main extends Sprite
     // Initialize custom logging.
     haxe.Log.trace = funkin.util.logging.AnsiTrace.trace;
     funkin.util.logging.AnsiTrace.traceBF();
+    // Golden Engine: keep every log line for the Developer Mode console (F8).
+    golden.dev.GoldenConsole.install();
 
     // Get OpenFL to stop complaining so much.
     // You can remove this line if you want to read debug messages.

@@ -112,6 +112,11 @@ before=$(count "Idle -> Exiting")
 key Escape; sleep 3
 [ "$(count "Idle -> Exiting")" = "$before" ]; check "Esc closes the selector without leaving the main menu" $?
 m=$(shot 07b-after-selector); not_black "$m"; check "main menu still shown after closing selector (mean=$m)" $?
+key F8
+wait_for "Console opened" 1 5; check "F8 opens the runtime console in Developer Mode" $?
+sleep 1; m=$(shot 07d-console); not_black "$m"; check "console renders (mean=$m)" $?
+key F8
+wait_for "Console closed" 1 5; check "F8 closes the console" $?
 
 # ---- 6. persistence across restart --------------------------------------------------------------
 start_game; check "game restarts" $?

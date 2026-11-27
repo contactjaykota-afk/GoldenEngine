@@ -11,6 +11,7 @@ class GoldenInput
   public static function isTyping():Bool
   {
     if (flixel.text.FlxInputText.globalManager?.isTyping == true) return true;
+    if (golden.dev.GoldenDevTools.consoleTyping()) return true;
     #if FEATURE_HAXEUI
     var f = haxe.ui.focus.FocusManager.instance?.focus;
     if (f != null && (Std.isOfType(f, haxe.ui.components.TextField) || Std.isOfType(f, haxe.ui.components.TextArea)

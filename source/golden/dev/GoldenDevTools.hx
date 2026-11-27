@@ -22,7 +22,11 @@ class GoldenDevTools extends FlxBasic
   public static var instance(default, null):Null<GoldenDevTools> = null;
 
   var monitor:Null<PerfMonitor> = null;
-  var badge:Null<openfl.text.TextField> = null;
+  var badge:Null<flixel.text.FlxText> = null;
+  var console:Null<GoldenConsole.GoldenConsoleOverlay> = null;
+
+  /** Camera the overlays draw on; kept last in FlxG.cameras so it renders above every state camera. */
+  var overlayCam:Null<flixel.FlxCamera> = null;
 
   public static function init():Void
   {
@@ -37,15 +41,20 @@ class GoldenDevTools extends FlxBasic
     super();
   }
 
+  /** True while the console's filter field has focus (other dev shortcuts must not fire). */
+  public static function consoleTyping():Bool
+    return instance?.console?.filter?.hasFocus == true;
+
   override function update(elapsed:Float):Void
   {
     super.update(elapsed);
     var dev = GoldenSettings.developerMode;
-    updateOverlays(dev, elapsed);
+    updateOverlays(dev);
+    updateConsole(dev);
     if (!dev) return;
 
     var state = FlxG.state;
-    if (state == null || state.subState != null) return;
+    if (state == null || state.subState != null || console != null) return;
     if (!isMenuState(state)) return;
 
     #if FEATURE_CHART_EDITOR
@@ -63,6 +72,59 @@ class GoldenDevTools extends FlxBasic
     }
   }
 
+  override function draw():Void
+  {
+    if (monitor == null && badge == null && console == null) return;
+    var cam = ensureCamera();
+    var overlays:Array<flixel.FlxSprite> = [monitor, badge, console];
+    for (o in overlays)
+    {
+      if (o == null) continue;
+      o.cameras = [cam];
+      o.draw();
+    }
+  }
+
+  function ensureCamera():flixel.FlxCamera
+  {
+    if (overlayCam == null || !overlayCam.exists || !FlxG.cameras.list.contains(overlayCam))
+    {
+      overlayCam = new flixel.FlxCamera();
+      overlayCam.bgColor = 0x00000000;
+      FlxG.cameras.add(overlayCam, false);
+    }
+    else if (FlxG.cameras.list[FlxG.cameras.list.length - 1] != overlayCam)
+    {
+      // A state added cameras after ours: move ours back on top.
+      FlxG.cameras.remove(overlayCam, false);
+      FlxG.cameras.add(overlayCam, false);
+    }
+    return overlayCam;
+  }
+
+  /** F8 toggles the runtime console (any state, Developer Mode only). */
+  function updateConsole(dev:Bool):Void
+  {
+    if ((!dev || FlxG.keys.justPressed.F8) && console != null)
+    {
+      console.filter.endFocus();
+      console.destroy();
+      console = null;
+      trace('[GOLDEN] Console closed');
+      return;
+    }
+    if (dev && console == null && FlxG.keys.justPressed.F8)
+    {
+      console = new GoldenConsole.GoldenConsoleOverlay();
+      trace('[GOLDEN] Console opened (${GoldenConsole.entries.length} lines)');
+    }
+    if (console != null)
+    {
+      console.cameras = [ensureCamera()];
+      console.update(FlxG.elapsed);
+    }
+  }
+
   /** States where global dev shortcuts are allowed: menus, not gameplay or editors. */
   static function isMenuState(state:flixel.FlxState):Bool
   {
@@ -74,49 +136,31 @@ class GoldenDevTools extends FlxBasic
     return true;
   }
 
-  function updateOverlays(dev:Bool, elapsed:Float):Void
+  function updateOverlays(dev:Bool):Void
   {
     var wantMonitor = dev && GoldenSettings.perfMonitor;
-    if (wantMonitor && monitor == null)
-    {
-      monitor = new PerfMonitor();
-      monitor.x = 4;
-      monitor.y = 4;
-      FlxG.stage.addChild(monitor);
-    }
+    if (wantMonitor && monitor == null) monitor = new PerfMonitor();
     else if (!wantMonitor && monitor != null)
     {
-      FlxG.stage.removeChild(monitor);
+      monitor.destroy();
       monitor = null;
     }
-    if (monitor != null)
-    {
-      // Use real time so the monitor is honest when the game lags or timeScale changes.
-      monitor.tick(FlxG.elapsed / Math.max(FlxG.timeScale, 0.0001));
-      // Keep the overlay on top if something else was added to the stage later.
-      if (FlxG.stage.getChildIndex(monitor) != FlxG.stage.numChildren - 1) FlxG.stage.setChildIndex(monitor, FlxG.stage.numChildren - 1);
-    }
+    // Real time, so the monitor is honest when timeScale changes.
+    if (monitor != null) monitor.tick(FlxG.elapsed / Math.max(FlxG.timeScale, 0.0001));
 
     if (dev && badge == null)
     {
-      badge = new openfl.text.TextField();
-      badge.selectable = badge.mouseEnabled = false;
-      badge.defaultTextFormat = new openfl.text.TextFormat('_sans', 11, 0xFFC83D, true);
-      badge.text = 'DEV MODE';
-      badge.width = badge.textWidth + 8;
-      badge.height = badge.textHeight + 4;
-      badge.alpha = 0.7;
-      FlxG.stage.addChild(badge);
+      badge = new flixel.text.FlxText(0, 0, 0, 'DEV MODE', 12);
+      badge.setFormat(Paths.font('vcr.ttf'), 12, 0xFFFFC83D, RIGHT);
+      badge.alpha = 0.75;
+      badge.x = FlxG.width - badge.width - 6;
+      badge.y = FlxG.height - badge.height - 4;
+      badge.scrollFactor.set();
     }
     else if (!dev && badge != null)
     {
-      FlxG.stage.removeChild(badge);
+      badge.destroy();
       badge = null;
-    }
-    if (badge != null)
-    {
-      badge.x = FlxG.stage.stageWidth - badge.width - 6;
-      badge.y = FlxG.stage.stageHeight - badge.height - 4;
     }
   }
 }

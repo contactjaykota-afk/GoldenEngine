@@ -42,3 +42,23 @@ framebuffer) so 3D content composites like any other sprite inside existing came
 Requirements before starting: model format choice (glTF 2.0 binary), a loader, depth buffer support
 in the offscreen target, and a decision on WebGL/mobile support. Away3D for OpenFL is unmaintained;
 re-evaluating it vs. a minimal in-house renderer is the first task of stage 16.
+
+## Next-generation directives (received 2026-11-27) — planning status
+
+None of the items below has code yet unless stated. Ordered by dependency.
+
+| # | Item | Plan / constraints |
+|---|---|---|
+| N1 | Development environment shell ("Golden Studio" state inside the game) | A Golden state hosting panels (project browser, editor tabs, console) built with the HaxeUI stack the upstream editors already use. Runs inside the real game, not a separate app. |
+| N2 | Project browser / asset management | Lists the mod being edited (mods/<id>), file tree, missing-reference check reusing `ModScanner.validateContent`. |
+| N3 | Built-in script editor (.hx/.hxc/.lua/.json/.xml) | HaxeUI TextArea is too limited for highlighting/folding; needs a custom text-editing component (OpenFL TextField + token colouring, line numbers, undo, search). Large; staged: plain edit + save + line numbers first, then highlighting, then brackets/folding/autocomplete. |
+| N4 | Haxe compile workflow | Mod `.hxc` scripts reload at runtime (Polymod, already supported by `forceReloadAssets`). Compiling engine `.hx` requires Haxe + haxelibs + a C++ compiler; Studio will detect them (haxe/haxelib on PATH, MSVC on Windows) and run `lime build` as a child process with output in the console. Never pretends source compiles without them. |
+| N5 | Lua in Studio | Lua already runs (batch 3); Studio adds editing + reload of `scripts/lua` without restarting the song. |
+| N6 | Play-in-Editor | Practical path: Play = save → validate → `forceReloadAssets()` → switch to PlayState/target state with a "return to Studio" hook that restores the Studio session (state switch inside the same process, like the upstream Chart Editor playtest). Engine `.hx` changes = controlled rebuild + relaunch of a second process. An embedded viewport inside the editor UI is not planned (same GL context/renderer constraints). |
+| N7 | Runtime console | Hook `haxe.Log.trace` (already centralised in `AnsiTrace`) into a ring buffer; filter/search; Lua/Polymod/asset errors are already collected (`GoldenLua.errors`, `GoldenMods.loadErrors`). |
+| N8 | Visual Main Menu Editor | Menu layout moves from code to a JSON file read by MainMenuState (entries, positions, background, logo, colours, music); editor edits that JSON with live preview. |
+| N9 | State/scene templates | Templates for ScriptedMusicBeatState / ScriptedModule (.hxc) — upstream supports scripted states. |
+| N10 | 3D renderer | See "3D support — practical path". Requires depth-buffer offscreen rendering through OpenFL Context3D + a glTF (GLB) loader. Must stay optional and cost nothing when unused. Not started. |
+| N11 | 3D scene editor, hybrid 2D/3D stages | After N10. |
+| N12 | Character Animation Studio (body parts, pose assembly, talking/directional sections, timeline, spritesheet export) | Non-AI parts are feasible: part import/categorisation, variation library, pose assembly (transform per part), keyframe timeline with tweening, onion skin, export to Sparrow atlas + character JSON. **AI image generation is not available in this engine/environment**; it can only be an optional hook to an external service the user configures — never required, never faked. |
+| N13 | Performance gates & benchmarks | Measure on real Windows hardware (startup time, RSS at menu/gameplay, frame-time percentiles). Linux/llvmpipe numbers exist only as a software-render baseline (RSS 1152 MB after gameplay + Chart Editor). |

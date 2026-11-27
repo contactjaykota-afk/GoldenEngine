@@ -69,3 +69,12 @@ Only features that were built **and** tested are listed as done.
   script name and line, never crash the game. Runtime verified by `golden/tests/lua-linux.sh` (18/18).
 - Starter template: Lua event example `scripts/events/<mod>-flash.lua`; scripts README updated.
 - Release packaging step in CI (README.txt, MODDING.md, GOLDEN-CHANGELOG.md, empty `mods/`).
+
+## Batch 4 — Runtime console, overlay rendering fix (2026-11-27)
+
+- **Runtime console** (F8, Developer Mode): every log line (game, Polymod, Lua, Golden) with file:line,
+  tabs All/Errors/Warnings/Lua/Mods with counts, text filter, mouse-wheel scrollback, Copy, Clear.
+- **Fixed**: the performance monitor and DEV MODE badge were OpenFL stage TextFields, which rendered no
+  text on the software-GL path and blacked out the game when the monitor was enabled at startup. All
+  Golden overlays now draw with Flixel on a dedicated top-most camera. (The earlier status entry
+  "monitor runtime verified" was wrong and has been corrected.)

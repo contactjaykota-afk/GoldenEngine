@@ -99,14 +99,14 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
   function toggleDev():Void
   {
     GoldenSettings.developerMode = !GoldenSettings.developerMode;
-    trace('[GOLDEN] Options: Developer Mode -> ${GoldenSettings.developerMode} (frame ${FlxG.game.ticks})');
+    trace('[GOLDEN] Options: Developer Mode -> ${GoldenSettings.developerMode}');
     UISound.play(Toggle);
   }
 
   function togglePerf():Void
   {
     GoldenSettings.perfMonitor = !GoldenSettings.perfMonitor;
-    trace('[GOLDEN] Options: Performance Monitor -> ${GoldenSettings.perfMonitor} (frame ${FlxG.game.ticks})');
+    trace('[GOLDEN] Options: Performance Monitor -> ${GoldenSettings.perfMonitor}');
     UISound.play(Toggle);
     if (GoldenSettings.perfMonitor && !GoldenSettings.developerMode) descText.text = 'Enabled — it becomes visible when Developer Mode is ON.';
   }
