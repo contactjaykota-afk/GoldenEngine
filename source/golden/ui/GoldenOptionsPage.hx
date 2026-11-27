@@ -127,6 +127,7 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
     }
     confirmReset = false;
     GoldenSettings.resetDeveloperSettings();
+    trace('[GOLDEN] Options: developer settings reset');
     UISound.play(Toggle);
   }
 
@@ -155,6 +156,7 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
           if (rebinding == 'chart') GoldenSettings.chartEditorKey = name;
           else
             GoldenSettings.modSelectorKey = name;
+          trace('[GOLDEN] Options: ${rebinding == 'chart' ? 'Chart Editor' : 'Mod Selector'} key -> $name');
           UISound.play(Select);
         }
         rebinding = null;

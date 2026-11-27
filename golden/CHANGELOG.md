@@ -101,3 +101,18 @@ Only features that were built **and** tested are listed as done.
 
 - Main menu: hovering an entry selects it, clicking the selected entry opens it, the mouse wheel moves
   the selection (desktop). Runtime verified.
+
+## Batch 8 — Verification of earlier work, two critical fixes (2026-11-27, session 2)
+
+- Windows CI: every commit 8652421 … 57f7020 builds and packages on Windows; still never launched (GE-004).
+- **Fixed (critical)**: a mod with a missing dependency froze startup on upstream's blocking popup.
+  Mods with unmet dependencies are now skipped with a reason; per-mod Polymod errors go to the Mod
+  Manager instead of modal popups (GE-007).
+- **Fixed**: MIDI import dialog track rows were empty (GE-008); File > Import MIDI now sits after Open Chart.
+- Conflict reports only consider files the game loads (no README noise).
+- Mod Manager / selector / options actions are logged (visible in the F8 console).
+- New tests: `mods-extra-linux.sh` (29/29: enable/disable all, duplicate, delete, dependency + conflict
+  reports, zip import/export through real file dialogs, path-traversal refusal, selector toggle/apply,
+  key rebinding, reset) and `chart-midi-linux.sh` (7/7: 7 in gameplay opens the chart, File > Import
+  MIDI via the real dialog, 12 notes + BPM imported). All suites now start their own audio sink.
+- MODDING.md documents the folder-based mod workflow (no import needed).

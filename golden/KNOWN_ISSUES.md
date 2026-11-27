@@ -17,7 +17,9 @@ A bug is only marked fixed after its regression test has been re-run.
   locally by Ubuntu's cairo 1.18.0 / pixman 0.42.2 sources (+ a `config.h` shim and empty
   `pixman-riscv.c`). CI on GitHub runners does not need this.
 
-### GE-006 — File dialogs (Mod import/export, MIDI import) untested in automation — medium
+### GE-006 — File dialogs — mostly resolved (2026-11-27)
+- Mod zip import/export and MIDI import are now tested through the real native dialogs (zenity on Linux).
+  Windows dialogs (tinyfiledialogs/Win32) remain untested (see GE-004). Original note:
 - They use lime's native dialogs; the automated tests cannot drive them. The underlying operations
   (zip import/export, MIDI parse/convert) are covered only partly (MIDI by unit tests; zip import/export
   not yet). Manual test needed.
@@ -32,6 +34,15 @@ A bug is only marked fixed after its regression test has been re-run.
   must be re-measured on a real GPU on Windows before optimizing.
 
 ## Fixed
+
+### GE-007 — A mod with a missing dependency froze startup on a blocking popup — critical (FIXED)
+- Upstream PolymodErrorHandler shows a native modal for every per-mod error; with zenity/message boxes
+  the game waits. Golden now drops mods with unmet dependencies before loading (reason in the Mod
+  Manager) and routes per-mod Polymod errors to the Mod Manager instead of popups. Script error
+  popups are unchanged (upstream behaviour). Retested: mods-extra-linux.sh 29/29.
+
+### GE-008 — MIDI import dialog showed empty track rows — high (FIXED)
+- Percent widths collapse inside HaxeUI ScrollView; explicit widths now. Retested: chart-midi-linux.sh.
 
 ### GE-001 — Black screen on software OpenGL (Mesa llvmpipe) — high (FIXED)
 - **Seen in:** upstream FNF itself (not a Golden change); Linux build under Xvfb + Mesa llvmpipe.

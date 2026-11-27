@@ -85,8 +85,46 @@ class GoldenMods
       if (m.errors.length == 0) valid.push(m.dir);
       else if (list.isEnabled(m.dir)) loadErrors.push('${m.dir}: not loaded — ' + m.errors.join(' '));
     }
+    var candidates = list.enabledIn(valid);
+    // Drop mods whose required dependencies will not be loaded (missing, disabled, invalid, or wrong
+    // version). Polymod would otherwise raise an error that upstream shows as a blocking popup.
+    // Repeat until stable, since dropping one mod can break another that depends on it.
+    var changed = true;
+    while (changed)
+    {
+      changed = false;
+      for (dir in candidates.copy())
+      {
+        var m = find(dir);
+        if (m == null) continue;
+        for (dep => rule in m.dependencies)
+        {
+          var problem:Null<String> = null;
+          var other = find(dep);
+          if (!candidates.contains(dep)) problem = other == null ? 'requires mod "$dep", which is not installed' : 'requires mod "$dep", which is disabled or not loadable';
+          else if (other != null && other.modVersion != '' && rule != '' && rule != '*')
+          {
+            try
+            {
+              var v:thx.semver.Version = other.modVersion;
+              var r:thx.semver.VersionRule = rule;
+              if (!r.isSatisfiedBy(v)) problem = 'requires "$dep" $rule, but ${other.modVersion} is installed';
+            }
+            catch (e:Dynamic)
+              problem = 'has an invalid version rule "$rule" for "$dep"';
+          }
+          if (problem != null)
+          {
+            loadErrors.push('$dir: not loaded — $problem.');
+            candidates.remove(dir);
+            changed = true;
+            break;
+          }
+        }
+      }
+    }
     for (err in loadErrors) trace('[GOLDEN] Mod problem: $err');
-    loadedDirs = list.enabledIn(valid);
+    loadedDirs = candidates;
     trace('[GOLDEN] Mods enabled: ${loadedDirs.length > 0 ? loadedDirs.join(', ') : '(none)'}; disabled: '
       + [for (d in installedDirs) if (!list.isEnabled(d)) d].join(', '));
     return loadedDirs;
@@ -96,6 +134,17 @@ class GoldenMods
   public static function recordPolymodError(code:String, message:String, severity:String):Void
   {
     if (severity == 'ERROR' || severity == 'error') loadErrors.push('Polymod: $message ($code)');
+  }
+
+  /**
+   * Golden Engine replacement for upstream's blocking "Mod ... Error" popups: the problem is logged
+   * and listed in the Mod Manager (which shows why a mod did not load) without stopping the game.
+   */
+  public static function reportModError(title:String, message:String):Void
+  {
+    var line = '$title: $message';
+    trace('[GOLDEN] Mod problem: $line');
+    if (!loadErrors.contains(line)) loadErrors.push(line);
   }
 
   public static function find(dir:String):Null<ModInfo>

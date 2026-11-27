@@ -63,3 +63,22 @@ None of the items below has code yet unless stated. Ordered by dependency.
 | N11 | 3D scene editor, hybrid 2D/3D stages | After N10. |
 | N12 | Character Animation Studio (body parts, pose assembly, talking/directional sections, timeline, spritesheet export) | Non-AI parts are feasible: part import/categorisation, variation library, pose assembly (transform per part), keyframe timeline with tweening, onion skin, export to Sparrow atlas + character JSON. **AI image generation is not available in this engine/environment**; it can only be an optional hook to an external service the user configures — never required, never faked. |
 | N13 | Performance gates & benchmarks | Measure on real Windows hardware (startup time, RSS at menu/gameplay, frame-time percentiles). Linux/llvmpipe numbers exist only as a software-render baseline (RSS 1152 MB after gameplay + Chart Editor). |
+
+## Directives received 2026-11-27 (second session) — queued, with current status
+
+Order of work: shared infrastructure first, then editors one at a time, each with tests.
+
+| # | Item | Status / plan |
+|---|---|---|
+| D1 | **Design direction for all editors**: dark FNF/Psych/Codename-style editors (compact toolbars, animation lists, X/Y + camera offsets, FNF note lanes), not a generic engine UI | Applies to every editor below. Upstream FNF editors (chart, animation, stage) are extended, not replaced. |
+| D2 | **Chart Editor dark theme** like the Codename screenshot (dark checkered grid, purple header) | Next small batch: add a theme to upstream's existing View > Theme system. |
+| D3 | **Chart Editor controls** (7, Space, Left/Right sections, Shift jumps, W/S, R / Shift+R, Shift fine snap, Ctrl both sides, E / hold E / Shift+E extend sustain, Q shorten) | Audit upstream keys first; add only what is missing, configurable, never active while typing; tests per key. |
+| D4 | **Universal Live Preview framework** (right-side preview, zoom/fit/reset, grid, drag with synced X/Y, undo/redo, checkerboard, unsaved marker) | Build once as shared Golden component, then integrate editor by editor. |
+| D5 | **Mod Asset Manager** (shared import/placement/validation/reveal/"referenced by" for all editors; folder conventions table) | Shared infrastructure, before the editors that import assets. Paths must match what FNF/Polymod actually loads. |
+| D6 | **Game Over Editor** (default FNF game over loaded, layers, per-song configurations in `data/gameovers/`, custom music from `music/`) | After D4/D5. Needs a runtime hook in GameOverSubState to read the configuration. |
+| D7 | **Combined `voices.ogg` and separate vocals** with auto-detection and priority rule | Inspect upstream vocal loading first (it already has some single-file fallback); test the 9 listed cases. |
+| D8 | **UI sound + animation polish** everywhere (hover/confirm/back/toggle on/off/disabled, editor sounds, notifications, mute, preview in Options) | Extend the existing `golden.audio.UISound` manager (UI volume, de-dup already there); needs an original sound set. |
+| D9 | **Psych-style folder workflow** (drop folders in `mods/`, enable/disable, import optional) | Already how Golden works; documented in MODDING.md. Manifest stays `_polymod_meta.json` (FNF/Polymod convention). |
+| P2 | Freeplay search/filter/sort on top of upstream Freeplay | Planned (batch B). |
+| P3 | Event editor improvements + Lua event timing from the Chart Editor | Planned (batch C, with D2/D3). |
+| P4 | Character Animation Studio | Planned (after D4). |

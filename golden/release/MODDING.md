@@ -3,6 +3,18 @@
 Golden Engine loads mods with FNF's own mod loader (Polymod). Mods made for vanilla FNF
 (V-Slice, API version 0.8.x) work as-is.
 
+## Installing mods (no import needed)
+
+Put each mod's folder inside `mods/` next to the game. On start, and whenever you open the Mod Manager
+or press **Reload (R)**, Golden Engine scans `mods/`:
+
+- **Installed** = the folder exists in `mods/` and has a valid `_polymod_meta.json`.
+- **Enabled** = turned on in the Mod Manager (new folders start enabled). Only enabled mods load their
+  songs, characters, stages, scripts and assets.
+- **Disabled** = still installed, nothing from it loads; its files are never changed or deleted.
+
+Zip import (Mods > Import) is only a convenience; copying the folder works the same.
+
 ## Create a mod
 
 Main menu → **Mods** → **New (N)**. Enter a title (the folder name is generated from it), author,

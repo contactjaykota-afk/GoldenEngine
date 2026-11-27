@@ -154,6 +154,14 @@ class ModManagerState extends MusicBeatState
       if (mods[i].dir == keep) selected = i;
     clampScroll();
     redraw();
+    // Report problems once per rescan (also visible in the F8 console).
+    for (m in mods)
+    {
+      for (d in ModOps.dependencyProblems(m))
+        trace('[GOLDEN] Mod Manager: ${m.dir}: DEPENDENCY: $d');
+      for (c in conflicts.get(m.dir) ?? [])
+        trace('[GOLDEN] Mod Manager: ${m.dir}: CONFLICT: $c');
+    }
   }
 
   function saveList():Void
@@ -309,6 +317,7 @@ class ModManagerState extends MusicBeatState
     dirty = true;
     UISound.play(Toggle);
     conflicts = ModOps.findConflicts(list.enabledIn([for (x in mods) if (x.errors.length == 0) x.dir]));
+    trace('[GOLDEN] Mod Manager: ${now ? 'enabled' : 'disabled'} "${m.dir}"');
     if (now && m.errors.length > 0) setStatus('"${m.title}" is enabled but will NOT load until its errors are fixed.', GoldenUI.BAD);
     else
       setStatus('"${m.title}" ${now ? 'enabled' : 'disabled'}. Changes apply when you leave or press Reload.', GoldenUI.TEXT);
@@ -324,6 +333,7 @@ class ModManagerState extends MusicBeatState
     dirty = true;
     UISound.play(Toggle);
     conflicts = ModOps.findConflicts(GoldenMods.getList().enabledIn([for (x in mods) if (x.errors.length == 0) x.dir]));
+    trace('[GOLDEN] Mod Manager: ${v ? 'enabled' : 'disabled'} all ${mods.length} mods');
     setStatus((v ? 'All mods enabled.' : 'All mods disabled.') + ' Changes apply when you leave or press Reload.', GoldenUI.TEXT);
     redraw();
   }
@@ -349,6 +359,7 @@ class ModManagerState extends MusicBeatState
     dirty = true;
     rescanMods();
     UISound.play(Select);
+    trace('[GOLDEN] Mod Manager: duplicated to "${r.newDir}"');
     setStatus('Duplicated to "${r.newDir}".', GoldenUI.OK);
   }
 
@@ -364,6 +375,7 @@ class ModManagerState extends MusicBeatState
       if (selected >= mods.length - 1) selected = Std.int(Math.max(0, mods.length - 2));
       pendingSelect = null;
       rescanMods();
+      trace('[GOLDEN] Mod Manager: deleted "${m.dir}" (moved to trash)');
       setStatus('Deleted "${m.title}".', GoldenUI.TEXT);
     }));
   }
@@ -385,6 +397,7 @@ class ModManagerState extends MusicBeatState
     UISound.play(Open);
     FileUtil.saveFile('Export mod as .zip', bytes, [FileUtil.FILE_FILTER_ZIP], function(path:String)
     {
+      trace('[GOLDEN] Mod Manager: exported "${m.dir}" to $path');
       setStatus('Exported "${m.title}" to $path', GoldenUI.OK);
       UISound.play(Select);
     }, function() setStatus('Export cancelled.', GoldenUI.MUTED), '${m.dir}-${m.modVersion == '' ? '1.0.0' : m.modVersion}.zip');
@@ -403,6 +416,7 @@ class ModManagerState extends MusicBeatState
       dirty = true;
       rescanMods();
       var m = GoldenMods.find(r.newDir);
+      trace('[GOLDEN] Mod Manager: imported "${r.newDir}" from ${file.fullPath}');
       if (m != null && m.errors.length > 0) setStatus('Imported "${r.newDir}", but it has errors and will not load (see details).', GoldenUI.BAD);
       else
         setStatus('Imported "${r.newDir}". It is enabled and loads after Reload.', GoldenUI.OK);

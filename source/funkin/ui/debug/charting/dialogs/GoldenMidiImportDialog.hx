@@ -78,13 +78,13 @@ class GoldenMidiImportDialog extends Dialog
     scroll.percentWidth = 100;
     scroll.height = 260;
     var list = new VBox();
-    list.percentWidth = 100;
+    list.width = 700; // explicit: percent sizes collapse inside a ScrollView
     var suggestions = MidiImport.suggestMappings(midi);
     for (i in 0...midi.tracks.length)
     {
       var t = midi.tracks[i];
       var row = new HBox();
-      row.percentWidth = 100;
+      row.width = 690;
       var label = new Label();
       label.width = 330;
       if (t.notes.length > 0)

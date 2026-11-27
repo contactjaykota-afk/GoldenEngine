@@ -31,6 +31,7 @@ jsonget() { python3 -c "import json,sys; d=json.load(open('$1')); print(eval('d'
 
 Xvfb "$DISPLAY" -screen 0 1280x720x24 -nolisten tcp >/dev/null 2>&1 & XVFB=$!
 sleep 1
+pulseaudio --check 2>/dev/null || pulseaudio -D --exit-idle-time=-1 -n --load=module-native-protocol-unix --load="module-null-sink sink_name=golden_test" >/dev/null 2>&1  # FNF timing follows the music clock
 openbox >/dev/null 2>&1 & WM=$!
 
 BACKUP="$OUT/user-backup"; rm -rf "$BACKUP"; mkdir -p "$BACKUP"
@@ -126,7 +127,7 @@ wait_for "Mods enabled: test-mod" 1 10; check "enabled mod still loads after res
 # ---- 7. Chart Editor shortcut + Editors entry (Developer Mode on) --------------------------------
 sleep 16; key Return
 wait_for "Idle -> EnteringMainMenu" 1 20
-sleep 3; typetext 7
+sleep 3; key 7
 wait_for "Chart Editor shortcut" 1 5; check "7 opens the Chart Editor in Developer Mode" $?
 wait_for "ChartEditorState" 1 30; check "Chart Editor state reached" $?
 sleep 4; m=$(shot 07c-chart-editor); not_black "$m"; check "Chart Editor renders (mean=$m)" $?

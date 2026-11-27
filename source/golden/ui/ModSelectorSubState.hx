@@ -186,6 +186,7 @@ class ModSelectorSubState extends GoldenSubState
     var m = mods[selected];
     var list = GoldenMods.getList();
     list.setEnabled(m.dir, !list.isEnabled(m.dir));
+    trace('[GOLDEN] Mod selector: ${list.isEnabled(m.dir) ? 'enabled' : 'disabled'} "${m.dir}" (applies on Enter/reload)');
     try
     {
       list.save();

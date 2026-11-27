@@ -41,9 +41,28 @@ class GoldenInput
   /** Whether the key named `keyName` (FlxKey name, e.g. "SEVEN", "TAB") was just pressed, and nobody is typing. */
   public static function shortcutPressed(keyName:String):Bool
   {
-    if (isTyping()) return false;
     var key:FlxKey = FlxKey.fromString(keyName);
     if (key == FlxKey.NONE) return false;
-    return FlxG.keys.checkStatus(key, JUST_PRESSED);
+    if (!FlxG.keys.checkStatus(key, JUST_PRESSED)) return false;
+    if (isTyping())
+    {
+      trace('[GOLDEN] Shortcut $keyName ignored: a text field has focus (${typingReason()})');
+      return false;
+    }
+    return true;
+  }
+
+  /** Which kind of text field currently has focus (for diagnostics). */
+  public static function typingReason():String
+  {
+    if (flixel.text.FlxInputText.globalManager?.isTyping == true) return 'Flixel input text';
+    if (golden.dev.GoldenDevTools.consoleTyping()) return 'console filter';
+    #if FEATURE_HAXEUI
+    var f = haxe.ui.focus.FocusManager.instance?.focus;
+    if (f != null) return 'HaxeUI ' + Type.getClassName(Type.getClass(f));
+    #end
+    var stageFocus = FlxG.stage?.focus;
+    if (stageFocus != null) return 'OpenFL ' + Type.getClassName(Type.getClass(stageFocus));
+    return 'none';
   }
 }

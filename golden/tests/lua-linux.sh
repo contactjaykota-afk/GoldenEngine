@@ -21,6 +21,7 @@ key() { xdotool windowactivate --sync "$(xdotool search --name 'Golden Engine' |
 
 Xvfb "$DISPLAY" -screen 0 1280x720x24 -nolisten tcp >/dev/null 2>&1 & XVFB=$!
 sleep 1; openbox >/dev/null 2>&1 & WM=$!
+pulseaudio --check 2>/dev/null || pulseaudio -D --exit-idle-time=-1 -n --load=module-native-protocol-unix --load="module-null-sink sink_name=golden_test" >/dev/null 2>&1  # FNF timing follows the music clock
 BACKUP="$OUT/user-backup"; rm -rf "$BACKUP"; mkdir -p "$BACKUP"
 for f in mods golden-mods.json; do [ -e "$BIN/$f" ] && mv "$BIN/$f" "$BACKUP/$f"; done
 restore() { pkill -9 -x Funkin 2>/dev/null; rm -rf "$BIN/mods" "$BIN/golden-mods.json"

@@ -21,13 +21,13 @@ class PolymodErrorHandler
         // A mod directory was included in the list of mods to load, but it isn't installed.
         trace(' WARNING '.warning() + 'Tried to load a mod that was not installed: ${error.message}');
         // Notify the user via popup.
-        funkin.util.WindowUtil.showError('Mod Load Error', error.message);
+        golden.modding.GoldenMods.reportModError('Mod Load Error', error.message);
 
       case MOD_MISSING_ID:
         // A mod ID was included in the list of mods to load, but it isn't installed.
         trace(' WARNING '.warning() + ' Tried to load a mod that was not installed: ${error.message}');
         // Notify the user via popup.
-        funkin.util.WindowUtil.showError('Mod Load Error', error.message);
+        golden.modding.GoldenMods.reportModError('Mod Load Error', error.message);
 
       case MOD_MISSING_METADATA:
         // A mod ID was included in the list of mods to load, but the mod folder doesn't have metadata.
@@ -37,19 +37,19 @@ class PolymodErrorHandler
         // Polymod tries to load the mod's metadata, but it could not be parsed.
         trace(' ERROR '.error() + ' Failed to parse mod metadata: ${error.message}');
         // Notify the user via popup.
-        funkin.util.WindowUtil.showError('Mod Metadata Parse Error', error.message);
+        golden.modding.GoldenMods.reportModError('Mod Metadata Parse Error', error.message);
 
       case MOD_VERSION_PARSE_FAILED:
         // Polymod tries to load the mod's version, but it could not be parsed.
         trace(' ERROR '.error() + ' Failed to parse mod version: ${error.message}');
         // Notify the user via popup.
-        funkin.util.WindowUtil.showError('Mod Version Parse Error', error.message);
+        golden.modding.GoldenMods.reportModError('Mod Version Parse Error', error.message);
 
       case MOD_API_VERSION_PARSE_FAILED:
         // Polymod tries to load the mod's API version, but it could not be parsed.
         trace(' ERROR '.error() + ' Failed to parse mod API version: ${error.message}');
         // Notify the user via popup.
-        funkin.util.WindowUtil.showError('Mod API Version Parse Error', error.message);
+        golden.modding.GoldenMods.reportModError('Mod API Version Parse Error', error.message);
 
       case MOD_MISSING_ICON:
         // A mod is missing an icon.
@@ -75,12 +75,12 @@ class PolymodErrorHandler
           var message:String = 'Installed mod "$modId" was built for modding version "v$modVersion". It is not compatible with game version ${Constants.GENERATED_BY}, and must be skipped.'
             + '\n\nPlease inform the mod developer that "$modId" must be updated for compatibility.';
 
-          funkin.util.WindowUtil.showError('Mod Outdated', message);
+          golden.modding.GoldenMods.reportModError('Mod Outdated', message);
         }
         else
         {
           // Notify the user via standard popup.
-          funkin.util.WindowUtil.showError('Mod Outdated', error.message);
+          golden.modding.GoldenMods.reportModError('Mod Outdated', error.message);
         }
 
       case MOD_LOAD_FAILED:
@@ -106,13 +106,13 @@ class PolymodErrorHandler
             // This is an important warning that should be shown to the user.
             trace(' WARNING '.warning() + ' Installed mod is missing a dependency: ${error.message}');
             // Notify the user via popup.
-            funkin.util.WindowUtil.showError('Mod Dependency Error', error.message);
+            golden.modding.GoldenMods.reportModError('Mod Dependency Error', error.message);
           default:
             // Polymod tried to load a mod, but failed because it has a dependency that wasn't met.
             // This is a major error that should be shown to the user.
             trace(' ERROR '.error() + ' Failed to load mod due to missing dependency: ${error.message}');
             // Notify the user via popup.
-            funkin.util.WindowUtil.showError('Mod Dependency Error', error.message);
+            golden.modding.GoldenMods.reportModError('Mod Dependency Error', error.message);
         }
 
       case MOD_DEPENDENCY_VERSION_MISMATCH:
@@ -124,13 +124,13 @@ class PolymodErrorHandler
             // This is an important warning that should be shown to the user.
             trace(' WARNING '.warning() + ' Installed mod has a mismatched dependency: ${error.message}');
             // Notify the user via popup.
-            funkin.util.WindowUtil.showError('Mod Dependency Error', error.message);
+            golden.modding.GoldenMods.reportModError('Mod Dependency Error', error.message);
           default:
             // Polymod tried to load a mod, but failed because one of its dependencies was the wrong version.
             // This is a major error that should be shown to the user.
             trace(' ERROR '.error() + ' Failed to load mod due to mismatched dependency: ${error.message}');
             // Notify the user via popup.
-            funkin.util.WindowUtil.showError('Mod Dependency Error', error.message);
+            golden.modding.GoldenMods.reportModError('Mod Dependency Error', error.message);
         }
 
       case MOD_DEPENDENCY_CYCLICAL:
@@ -138,7 +138,7 @@ class PolymodErrorHandler
         // This is a major error that should be shown to the user.
         trace(' ERROR '.error() + ' Failed to load mod due to cyclical dependency: ${error.message}');
         // Notify the user via popup.
-        funkin.util.WindowUtil.showError('Mod Dependency Error', error.message);
+        golden.modding.GoldenMods.reportModError('Mod Dependency Error', error.message);
 
       //
       // Script Parsing Errors

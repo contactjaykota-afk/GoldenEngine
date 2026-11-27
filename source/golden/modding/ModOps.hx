@@ -344,6 +344,8 @@ class ModOps
       for (f in files)
       {
         if (!f.startsWith('data/') || f.startsWith('_append') || f.startsWith('_merge')) continue;
+        // Only files the game actually loads count (not READMEs or notes).
+        if (!['json', 'xml', 'hxc', 'lua', 'csv'].contains(haxe.io.Path.extension(f).toLowerCase())) continue;
         var prev = owner.get(f);
         if (prev != null && prev != dir)
         {

@@ -31,20 +31,29 @@ class GoldenChartEditorHandler
     item.text = 'Import MIDI...';
     item.shortcutText = 'Ctrl+Shift+M';
     item.onClick = _ -> browseMidi(state);
-    var anchor = state.menubarOpenRecent;
-    var index = anchor != null ? fileMenu.getComponentIndex(anchor) + 1 : fileMenu.numComponents;
+    // After "Open Recent" (or after "Open Chart..." if that is not found); never above "New Chart".
+    var index = -1;
+    for (anchor in [state.menubarOpenRecent, state.menubarItemOpenChart])
+      if (index < 0 && anchor != null && fileMenu.getComponentIndex(anchor) >= 0) index = fileMenu.getComponentIndex(anchor) + 1;
+    if (index < 0) index = fileMenu.numComponents;
     fileMenu.addComponentAt(item, index);
   }
 
   /** Per-frame shortcut handling (called from ChartEditorState.handleFileKeybinds). */
   public static function handleKeybinds(state:ChartEditorState):Void
   {
-    if (state.isHaxeUIDialogOpen || golden.input.GoldenInput.isTyping()) return;
-    if (FlxG.keys.pressed.CONTROL && FlxG.keys.pressed.SHIFT && FlxG.keys.justPressed.M) browseMidi(state);
+    if (!(FlxG.keys.pressed.CONTROL && FlxG.keys.pressed.SHIFT && FlxG.keys.justPressed.M)) return;
+    if (state.isHaxeUIDialogOpen || golden.input.GoldenInput.isTyping())
+    {
+      trace('[GOLDEN] Chart Editor: Ctrl+Shift+M ignored (dialog open: ${state.isHaxeUIDialogOpen}, focus: ${golden.input.GoldenInput.typingReason()})');
+      return;
+    }
+    browseMidi(state);
   }
 
   public static function browseMidi(state:ChartEditorState):Void
   {
+    trace('[GOLDEN] Chart Editor: opening MIDI file dialog');
     FileUtil.browseForFile('Import MIDI file', [FILE_FILTER_MIDI], function(file)
     {
       importMidiBytes(state, file.bytes, file.name);
