@@ -72,6 +72,7 @@ Record 'main_menu' (Wait-For 'AUTOTEST  main menu reached' 60) ''
 Start-Sleep -Seconds 2
 $m = Save-Shot '02-main-menu'
 Record 'main_menu_not_black' ($m -gt 12) "mean=$m"
+Record 'golden_menu_music' ((Log-Text) -match 'Menu music: goldenMenu') ''
 Record 'mod_manager_opens' (Wait-For 'Mod Manager opened' 40) ''
 Start-Sleep -Seconds 1
 $null = Save-Shot '03-mod-manager'

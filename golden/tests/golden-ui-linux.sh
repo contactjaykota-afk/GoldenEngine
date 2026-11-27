@@ -56,6 +56,7 @@ start_game; check "game boots" $?
 sleep 16; key Return
 wait_for "Idle -> EnteringMainMenu" 1 20; check "main menu reached" $?
 sleep 2; m=$(shot 01-main-menu); not_black "$m"; check "main menu renders with Golden entries (mean=$m)" $?
+wait_for "Menu music: goldenMenu" 1 3; check "Golden Engine menu music plays by default" $?
 key Down Down Return
 wait_for "Mod Manager opened: 0 installed" 1 20; check "Mods entry opens the Mod Manager (empty)" $?
 sleep 1.5; m=$(shot 02-mod-manager-empty); not_black "$m"; check "Mod Manager renders (mean=$m)" $?
@@ -99,6 +100,10 @@ key Return; sleep 0.5          # Developer Mode ON
 [ "$(jsonget "$BIN/golden-settings.json" "['developerMode']")" = "True" ]; check "Developer Mode toggled on and saved" $?
 key Down Left Left Left; sleep 0.5
 [ "$(jsonget "$BIN/golden-settings.json" "['uiVolume']")" = "0.7" ]; check "UI volume lowered to 70% and saved" $?
+key Down Return; sleep 0.8     # Menu Music -> classic
+[ "$(jsonget "$BIN/golden-settings.json" "['menuMusic']")" = "classic" ]; check "Menu Music switched to classic and saved" $?
+key Return; sleep 0.8          # Menu Music -> golden again
+[ "$(jsonget "$BIN/golden-settings.json" "['menuMusic']")" = "golden" ]; check "Menu Music switched back to Golden" $?
 key Down Return; sleep 0.5     # Performance Monitor ON
 [ "$(jsonget "$BIN/golden-settings.json" "['perfMonitor']")" = "True" ]; check "Performance monitor enabled and saved" $?
 sleep 1; m=$(shot 06-dev-mode-monitor); check "screenshot with performance monitor taken" 0

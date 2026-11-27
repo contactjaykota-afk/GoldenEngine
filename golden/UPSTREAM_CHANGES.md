@@ -32,3 +32,5 @@ Upstream base commit: `94ee0f2a9386d80e445be39ee2ed4b4a630cfbac` (FunkinCrew/Fun
 | `source/funkin/save/Save.hx`, `save/migrator/SaveDataMigrator.hx` | Default Chart Editor theme = Golden (existing saves keep their chosen theme). | Theme |
 | `source/Main.hx`, `MainMenuState.hx` | Golden version logged at start and shown in the main-menu watermark. | Release |
 | `source/funkin/audio/FunkinSound.hx` | `stopped()` override: breaks the endless looped-restart cycle when no audio device exists (GE-009). | Release QA |
+| `source/funkin/audio/FunkinSound.hx` (`playMusic`) | Upstream's `freakyMenu` key is mapped to the selected menu theme (Golden Engine theme by default, classic Freaky Menu as an option). | Identity |
+| `source/funkin/FunkinMemory.hx` | Permanently caches the selected menu theme instead of always `freakyMenu`. | Identity |

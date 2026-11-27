@@ -47,6 +47,13 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
       accept: () -> {}
     });
     rows.push({
+      label: 'Menu Music',
+      desc: 'Golden Engine theme (default) or the classic FNF "Freaky Menu". Changes from the next menu visit.',
+      value: () -> GoldenSettings.menuMusic == 'classic' ? 'Classic (Freaky Menu)' : 'Golden Engine',
+      change: (_) -> toggleMenuMusic(),
+      accept: toggleMenuMusic
+    });
+    rows.push({
       label: 'Performance Monitor',
       desc: 'Shows FPS, frame time, RAM (current/peak), state, song, difficulty, BPM and position. Needs Developer Mode.',
       value: () -> GoldenSettings.perfMonitor ? 'ON' : 'OFF',
@@ -101,6 +108,15 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
     GoldenSettings.developerMode = !GoldenSettings.developerMode;
     trace('[GOLDEN] Options: Developer Mode -> ${GoldenSettings.developerMode}');
     UISound.play(Toggle);
+  }
+
+  function toggleMenuMusic():Void
+  {
+    GoldenSettings.menuMusic = GoldenSettings.menuMusic == 'classic' ? 'golden' : 'classic';
+    UISound.play(Toggle);
+    trace('[GOLDEN] Options: Menu Music -> ${GoldenSettings.menuMusic}');
+    // Switch the playing menu music right away so the choice can be heard.
+    funkin.audio.FunkinSound.playMusic('freakyMenu', {overrideExisting: true, restartTrack: true, persist: true});
   }
 
   function togglePerf():Void

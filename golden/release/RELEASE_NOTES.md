@@ -23,7 +23,10 @@ are not built yet (see "Not included yet").
 - **Script editor** for mods (Mods → S) with syntax highlighting, validated saving with backups, and **Play-in-Editor** (F9).
 - **MIDI import** in the Chart Editor (File → Import MIDI…).
 - **Developer Mode** (Options → Golden Engine): performance monitor, F8 log console, Tab quick mod selector, 7 = Chart Editor.
-- Separate UI sound volume; mouse support in the main menu; software-OpenGL fallback for VMs/remote desktops.
+- Golden Engine menu theme (switch back to the classic FNF menu music in Options → Golden Engine).
+- Chart Editor "Golden" dark theme (View → Theme), Golden Engine app icon.
+- Separate UI sound volume; mouse support in the main menu; software-OpenGL fallback for VMs/remote desktops;
+  no freeze when the PC has no audio output device.
 
 ## Controls (defaults)
 
@@ -44,12 +47,16 @@ All gameplay and menu keys can be rebound in Options → Controls.
 
 ## Not included yet (planned)
 
-Freeplay search/filter/sort additions, Chart Editor dark theme and extra sustain keys, Golden Event editor
+Freeplay search/filter/sort additions, Chart Editor Codename-style toolbar layout and extra sustain keys, Golden Event editor
 improvements, Character Animation Studio, Game Over / Note Skin / Main Menu / Cutscene / Week editors,
-Live Preview framework, shared Mod Asset Manager, combined `voices.ogg` detection, UI sound redesign,
-3D support. See `golden/ROADMAP.md` in the repository.
+Live Preview framework, shared Mod Asset Manager, Camera Editor, combined `voices.ogg` detection, UI sound
+redesign, graphics presets / optimization pass, 3D support. See `golden/ROADMAP.md` in the repository.
 
 ## Known limitations
 
-See `golden/KNOWN_ISSUES.md` in the repository. Tested on Linux (automated suites) and launched on a
-GitHub-hosted Windows runner with software OpenGL; not yet tested on a Windows PC with a real GPU.
+- Tested on Linux with automated suites (real input on a virtual display) and launched + driven on a
+  GitHub-hosted Windows Server 2022 runner (software OpenGL, no audio output). **Not yet tested on a Windows PC
+  with a real GPU and speakers** — please report problems.
+- Without any audio output device, songs cannot be timed (FNF syncs to the audio clock); menus still work.
+- Not code-signed (SmartScreen warning). Download is large (~800 MB) because it contains the full FNF assets.
+- See `golden/KNOWN_ISSUES.md` in the repository for everything else.

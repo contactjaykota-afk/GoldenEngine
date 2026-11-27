@@ -150,3 +150,9 @@ Only features that were built **and** tested are listed as done.
 - **Fixed (critical, GE-009)**: with no audio output device the game froze at the title screen (endless
   looped-sound restart). Found by the Windows CI runner; reproduced and verified on Linux.
 - Windows runtime test installs a virtual audio device and echoes the game's log into the CI output.
+
+## Batch 13 — Golden Engine menu music (2026-11-27)
+
+- Official **Golden Engine menu theme** (`golden/assets/music/goldenMenu`, 102 BPM estimated from the
+  audio) is the default menu music; Options > Golden Engine > Menu Music switches to FNF's classic
+  "Freaky Menu" (applied immediately, saved). Only the selected theme is kept in the permanent cache.

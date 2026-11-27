@@ -284,8 +284,17 @@ class FunkinSound extends FlxSound implements ICloneable<FunkinSound>
    *   Data should be at `music/<key>/<key>-metadata.json`.
    * @return Whether the music was started. `false` if music was already playing or could not be started
    */
+  static var goldenLastMenuMusic:String = '';
+
   public static function playMusic(key:String, params:FunkinSoundPlayMusicParams):Bool
   {
+    // Golden Engine: the menu theme is configurable (Options > Golden Engine > Menu Music).
+    if (key == 'freakyMenu' && golden.GoldenSettings.menuMusicKey() != key && Assets.exists(Paths.music('${golden.GoldenSettings.menuMusicKey()}/${golden.GoldenSettings.menuMusicKey()}')))
+    {
+      key = golden.GoldenSettings.menuMusicKey();
+      if (key != goldenLastMenuMusic) trace('[GOLDEN] Menu music: $key');
+      goldenLastMenuMusic = key;
+    }
     if (!(params.overrideExisting ?? false) && (FlxG.sound.music?.exists ?? false) && FlxG.sound.music.playing) return false;
 
     if (!(params.restartTrack ?? false) && FlxG.sound.music?.playing)

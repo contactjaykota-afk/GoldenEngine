@@ -113,7 +113,7 @@ wait_for "Mods enabled: cool-pack; disabled: alpha" 1 15; check "after apply, al
 # --- Options: rebind Chart Editor key, then reset developer settings ----------------------------
 sleep 3; key Down Down Down Return; sleep 2   # main menu remembers "mods" (2); options is index 5
 key Down Return; sleep 1                          # GOLDEN ENGINE page
-key Down Down Down Return; sleep 0.6; key f; sleep 0.6
+key Down Down Down Down Return; sleep 0.6; key f; sleep 0.6
 wait_for "Options: Chart Editor key -> F" 1 5; check "Chart Editor key rebound to F" $?
 [ "$(jsonget "$BIN/golden-settings.json" "['chartEditorKey']")" = "F" ]; check "rebinding persisted" $?
 key Down Down Return Return; sleep 0.6

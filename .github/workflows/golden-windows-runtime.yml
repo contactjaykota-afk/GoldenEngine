@@ -59,7 +59,7 @@ jobs:
       - name: 'Check: main menu (in-game key input)'
         if: always()
         shell: pwsh
-        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.main_menu.ok -or -not $r.main_menu_not_black.ok) { exit 1 }'
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.main_menu.ok -or -not $r.main_menu_not_black.ok -or -not $r.golden_menu_music.ok) { exit 1 }'
       - name: 'Check: Mod Manager opens and closes'
         if: always()
         shell: pwsh

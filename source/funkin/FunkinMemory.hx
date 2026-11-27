@@ -84,7 +84,8 @@ class FunkinMemory
     permanentCacheSound(Paths.sound('soundtray/Voldown'));
     permanentCacheSound(Paths.sound('soundtray/VolMAX'));
     permanentCacheSound(Paths.sound('soundtray/Volup'));
-    permanentCacheSound(Paths.music('freakyMenu/freakyMenu'));
+    // Golden Engine: keep only the selected menu theme (Golden or classic) permanently cached.
+    permanentCacheSound(Paths.music('${golden.GoldenSettings.menuMusicKey()}/${golden.GoldenSettings.menuMusicKey()}'));
     permanentCacheSound(Paths.music('offsetsLoop/offsetsLoop'));
     permanentCacheSound(Paths.music('offsetsLoop/drumsLoop'));
     permanentCacheSound(Paths.sound('missnote1', 'shared'));
@@ -415,7 +416,7 @@ class FunkinMemory
     Assets.cache.clear('songs');
     Assets.cache.clear('music');
     // Felt lazy.
-    var key = Paths.music('freakyMenu/freakyMenu');
+    var key = Paths.music('${golden.GoldenSettings.menuMusicKey()}/${golden.GoldenSettings.menuMusicKey()}'); // Golden Engine
     var sound:Null<Sound> = Assets.getSound(key, true);
     if (sound != null)
     {

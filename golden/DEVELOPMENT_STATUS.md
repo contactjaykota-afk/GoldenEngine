@@ -23,7 +23,8 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | `golden/tests/lua-linux.sh` | 18 passed, 0 failed (Lua in real gameplay) |
 | `golden/tests/studio-linux.sh` | 26 passed, 0 failed (script editor + Play-in-Editor) |
 | `golden/tests/unit/run-unit-tests.sh` (HighlightTest) | 21 passed, 0 failed |
-| GitHub Actions `golden-build.yml` | Windows build + package step green for every commit 8652421 … 57f7020 (runs 45953618100 … 45964113786; artifact golden-engine-windows-x64, 841 MB). **Compiled and packaged only — never launched on Windows.** |
+| GitHub Actions `golden-build.yml` | Windows build + package step green for every commit since 8652421 (artifact golden-engine-windows-x64, ~841 MB). |
+| GitHub Actions `golden-windows-runtime.yml` (run 46077878192, commit e150587) | **19/19 on a GitHub-hosted Windows Server 2022 runner**: packaged Funkin.exe launched with Mesa llvmpipe (no GPU), virtual audio driver installed but OpenAL found no output (game continued silently, GE-009); title, main menu, Mod Manager open/close, Bopeebo started, Lua from a mod ran, frames not black, no crash. Input generated in-game (AutoTest) — OS input does not reach games on these runners. **Not yet run on a Windows PC with a GPU and sound.** |
 | `golden/tests/mods-extra-linux.sh` | 29 passed, 0 failed (Mod Manager actions, zip import/export via real file dialogs, selector, rebinding/reset) |
 | `golden/tests/chart-midi-linux.sh` | 7 passed, 0 failed (7 in gameplay, File > Import MIDI via real dialog, import) |
 | `golden/tests/autotest-linux.sh` | 8 passed, 0 failed (in-game AutoTest routes "play" and "mods", same as Windows CI) |
@@ -72,6 +73,8 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | Chart Editor Golden theme (default; View > Theme > Golden) | Runtime verified (screenshots in chart-midi test). Purple menubar of the reference not replicated | chart-midi test |
 | Version 0.1.0-alpha in watermark + log | Runtime verified (log) | UI test log |
 | Esc from Mod Manager / script editor no longer bounces the next screen (main menu went back to the title) | Runtime verified + regression step in AutoTest "mods" route | found by the in-game driver |
+| Golden Engine menu music (default) / classic Freaky Menu option (Options > Golden Engine > Menu Music); only the selected track is permanently cached | Runtime verified on Linux (log + settings persistence); Windows check added to the runtime test | UI test |
+| Freeze when no audio output device exists (GE-009) | Fixed, runtime verified on Linux (no audio server) and Windows CI | |
 | Windows build | **Compiled in CI** (commit 8652421); not launched on Windows by anyone yet | GE-004 |
 
 Everything in `golden/ROADMAP.md` marked "NOT started" has no code.

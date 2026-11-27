@@ -26,6 +26,9 @@ class GoldenSettings
   /** Show the Golden performance monitor overlay (only while Developer Mode is on). */
   public static var perfMonitor(default, set):Bool = false;
 
+  /** Menu music: "golden" (Golden Engine theme, default) or "classic" (FNF's Freaky Menu). */
+  public static var menuMusic(default, set):String = 'golden';
+
   /** Key (FlxKey name) that opens the Chart Editor from gameplay/menus in Developer Mode. */
   public static var chartEditorKey(default, set):String = 'SEVEN';
 
@@ -56,6 +59,7 @@ class GoldenSettings
       if (Reflect.hasField(data, 'developerMode')) developerMode = Reflect.field(data, 'developerMode') == true;
       if (Reflect.hasField(data, 'uiVolume')) uiVolume = Std.parseFloat(Std.string(Reflect.field(data, 'uiVolume')));
       if (Reflect.hasField(data, 'perfMonitor')) perfMonitor = Reflect.field(data, 'perfMonitor') == true;
+      if (Reflect.hasField(data, 'menuMusic')) menuMusic = Std.string(Reflect.field(data, 'menuMusic'));
       if (Reflect.hasField(data, 'chartEditorKey')) chartEditorKey = Std.string(Reflect.field(data, 'chartEditorKey'));
       if (Reflect.hasField(data, 'modSelectorKey')) modSelectorKey = Std.string(Reflect.field(data, 'modSelectorKey'));
     }
@@ -89,6 +93,7 @@ class GoldenSettings
         developerMode: developerMode,
         uiVolume: uiVolume,
         perfMonitor: perfMonitor,
+        menuMusic: menuMusic,
         chartEditorKey: chartEditorKey,
         modSelectorKey: modSelectorKey
       }, null, '  ');
@@ -137,6 +142,17 @@ class GoldenSettings
     save();
     return v;
   }
+
+  static function set_menuMusic(v:String):String
+  {
+    menuMusic = v == 'classic' ? 'classic' : 'golden';
+    save();
+    return menuMusic;
+  }
+
+  /** The music key to use for upstream's "freakyMenu". */
+  public static function menuMusicKey():String
+    return menuMusic == 'classic' ? 'freakyMenu' : 'goldenMenu';
 
   static function set_chartEditorKey(v:String):String
   {
