@@ -19,6 +19,10 @@ jobs:
         with:
           name: ${{ inputs.artifact }}
           path: test-bin
+      # GitHub's Windows runners have no audio device; FNF's title/menu timing follows the music clock,
+      # so without one the game never leaves the title screen. This installs a virtual audio driver.
+      - name: Virtual audio device
+        uses: LABSN/sound-ci-helpers@v1
       - name: Install Mesa software OpenGL (test copy only, not part of the release)
         shell: pwsh
         env:

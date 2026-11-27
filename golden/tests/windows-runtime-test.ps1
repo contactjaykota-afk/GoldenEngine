@@ -101,6 +101,13 @@ if (Test-Path (Join-Path $Bin 'logs')) { Copy-Item -Recurse (Join-Path $Bin 'log
 if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force }
 Start-Sleep -Seconds 1
 Remove-Item -Recurse -Force $testMod -ErrorAction SilentlyContinue
+# Echo the important game log lines into the CI output (artifacts need a login to download).
+foreach ($f in Get-ChildItem $Out -Filter 'game-*.log') {
+  Write-Host "----- $($f.Name) (key lines) -----"
+  Get-Content $f.FullName | Select-String -Pattern 'GOLDEN|AUTOTEST|State transition|started song|ERROR|rror|WARN|audio|Audio|OpenAL|TitleState' | Select-Object -First 80 | ForEach-Object { Write-Host $_.Line }
+  Write-Host "----- last lines -----"
+  Get-Content $f.FullName -Tail 15 | ForEach-Object { Write-Host $_ }
+}
 $results | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $Out 'results.json')
 $failed = @($results.Keys | Where-Object { -not $results[$_].ok })
 Write-Host "`n$($results.Count - $failed.Count) passed, $($failed.Count) failed"
