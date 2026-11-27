@@ -1617,10 +1617,10 @@ class Project extends HXProject
     }
     else
     {
-      addIcon("art/icons/icon16.png", 16);
-      addIcon("art/icons/icon32.png", 32);
-      addIcon("art/icons/icon64.png", 64);
-      addIcon("art/icons/iconOG.png");
+      // Golden Engine: application / window / executable icon (golden/icons, generated from golden-icon-source.webp).
+      for (size in [16, 32, 48, 64, 128, 256])
+        addIcon('golden/icons/icon${size}.png', size);
+      addIcon("golden/icons/icon512.png");
     }
 
     info('Done configuring icons.');

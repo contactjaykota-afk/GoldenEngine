@@ -7,7 +7,7 @@ import haxe.macro.Expr;
 #end
 
 #if (linux && !macro)
-@:image('art/icons/iconOG.png')
+@:image('golden/icons/icon256.png') // Golden Engine: window icon
 class ApplicationIcon extends lime.graphics.Image {}
 #end
 
