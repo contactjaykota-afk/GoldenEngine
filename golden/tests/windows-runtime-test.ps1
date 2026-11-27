@@ -27,7 +27,8 @@ function Save-Shot([string]$name) {
     return [math]::Round($sum / [math]::Max($n, 1), 1)
   } catch { Write-Host "screenshot failed: $_"; return -1 }
 }
-function Log-Text { if (Test-Path $script:log) { return (Get-Content $script:log -Raw -ErrorAction SilentlyContinue) } return '' }
+# Game log text with ANSI colour codes removed (the game's logger colours its labels).
+function Log-Text { if (Test-Path $script:log) { return ((Get-Content $script:log -Raw -ErrorAction SilentlyContinue) -replace "\x1b\[[0-9;]*m", '') } return '' }
 function Wait-For([string]$pattern, [int]$seconds) {
   $end = (Get-Date).AddSeconds($seconds)
   while ((Get-Date) -lt $end) { if ((Log-Text) -match $pattern) { return $true }; Start-Sleep -Milliseconds 500 }

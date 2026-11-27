@@ -7,6 +7,7 @@ import openfl.ui.Keyboard;
 private enum Step
 {
   WaitState(name:String, timeout:Float);
+  WaitStateOptional(name:String, timeout:Float); // like WaitState, but timing out is not a failure
   Delay(seconds:Float);
   Press(keyCode:Int);
   PressIf(state:String, keyCode:Int); // only if the current state is `state`
@@ -50,7 +51,9 @@ class AutoTest extends FlxBasic
     super();
     steps = [
       WaitState('TitleState', 180), Delay(20),
-      Press(Keyboard.ENTER), Delay(2), PressIf('TitleState', Keyboard.ENTER),
+      // One Enter normally leaves the title; on slow machines the state switch can take seconds, so only
+      // press again if the title is still there after waiting.
+      Press(Keyboard.ENTER), WaitStateOptional('MainMenuState', 8), PressIf('TitleState', Keyboard.ENTER),
       WaitState('MainMenuState', 30), Log('main menu reached'), Delay(7)
     ];
     if (route == 'mods') steps = steps.concat([
@@ -105,6 +108,9 @@ class AutoTest extends FlxBasic
           trace('[GOLDEN AUTOTEST] FAILED waiting for $name (current: ${stateName()})');
           steps = [];
         }
+      case WaitStateOptional(name, timeout):
+        waited += dt;
+        if (stateName() == name || waited > timeout) next();
       case Delay(seconds):
         timer += dt;
         if (timer >= seconds) next();
