@@ -71,6 +71,7 @@ class Main extends Sprite
     openfl.utils._internal.Log.level = openfl.utils._internal.Log.LogLevel.INFO;
 
     // Golden Engine: engine settings (Developer Mode, UI volume, shortcuts) from golden-settings.json.
+    trace('[GOLDEN] ' + golden.GoldenVersion.NAME + ' ' + golden.GoldenVersion.VERSION + ' starting');
     golden.GoldenSettings.load();
 
     // Load mods to override assets.

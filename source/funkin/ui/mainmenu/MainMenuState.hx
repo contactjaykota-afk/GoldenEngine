@@ -330,7 +330,7 @@ class MainMenuState extends MusicBeatState
   {
     if (leftWatermarkText == null) return;
 
-    leftWatermarkText.text = Constants.VERSION;
+    leftWatermarkText.text = golden.GoldenVersion.label(); // Golden Engine: engine + FNF version
 
     #if FEATURE_NEWGROUNDS
     if (NewgroundsClient.instance.isLoggedIn())

@@ -100,3 +100,10 @@ jobs:
     uses: ./.github/workflows/golden-test.yml
     with:
       run_id: ${{ github.run_id }}
+
+  # Launch the packaged Windows build on a Windows runner (see golden-windows-runtime.yml).
+  windows-runtime-test:
+    needs: build
+    uses: ./.github/workflows/golden-windows-runtime.yml
+    with:
+      artifact: golden-engine-windows-x64

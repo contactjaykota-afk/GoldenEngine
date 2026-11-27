@@ -1,0 +1,111 @@
+# Golden Engine — release pipeline.
+#
+# Triggered by pushing a version tag (v*). Builds the Windows x64 game from EXACTLY the tagged commit,
+# launches the packaged executable on a Windows runner (Mesa software OpenGL, since runners have no GPU)
+# and checks startup, menus, the Mod Manager and gameplay. The GitHub Release is created ONLY if the
+# build, the package check and every runtime check pass.
+name: Golden Engine release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Create the GitHub Release if all checks pass'
+        type: boolean
+        default: false
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.3.7
+      - name: Unit tests
+        run: golden/tests/unit/run-unit-tests.sh
+
+  build-windows:
+    runs-on: windows-2022
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: krdlab/setup-haxe@v1
+        with:
+          haxe-version: 4.3.7
+      - name: Cache haxelibs
+        uses: actions/cache@v4
+        with:
+          path: .haxelib
+          key: golden-haxelib-${{ runner.os }}-${{ hashFiles('hmm.json') }}
+      - name: Install Haxe libraries
+        run: golden/scripts/setup-deps.sh
+      - name: Rebuild lime
+        run: haxelib run lime rebuild windows -64 -release
+      - name: Create empty .env
+        run: touch .env
+      - name: Build Golden Engine (Windows x64, release)
+        run: haxelib run lime build windows -release
+      - name: Package release folder
+        run: |
+          BIN=export/release/windows/bin
+          cp golden/release/README.txt golden/release/MODDING.md "$BIN/"
+          cp golden/CHANGELOG.md "$BIN/GOLDEN-CHANGELOG.md"
+          mkdir -p "$BIN/mods"
+          echo "Put mods here (one folder per mod), or use Main menu > Mods." > "$BIN/mods/README.txt"
+          echo "${GITHUB_SHA}" > "$BIN/BUILD_COMMIT.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: golden-engine-windows-x64-release
+          path: export/release/windows/bin
+
+  windows-runtime-test:
+    needs: build-windows
+    uses: ./.github/workflows/golden-windows-runtime.yml
+    with:
+      artifact: golden-engine-windows-x64-release
+
+  release:
+    needs: [unit-tests, build-windows, windows-runtime-test]
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.publish
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: golden-engine-windows-x64-release
+          path: GoldenEngine
+      - name: Create release zip
+        id: zip
+        run: |
+          set -e
+          VER="${GITHUB_REF_NAME}"
+          [ "${GITHUB_REF_TYPE}" = tag ] || VER="manual-${GITHUB_SHA::7}"
+          ZIP="GoldenEngine-${VER}-windows-x64.zip"
+          test -f GoldenEngine/Funkin.exe
+          test "$(cat GoldenEngine/BUILD_COMMIT.txt)" = "${GITHUB_SHA}"
+          zip -q -r -9 "$ZIP" GoldenEngine
+          unzip -l "$ZIP" | grep -q "GoldenEngine/Funkin.exe"
+          unzip -l "$ZIP" | grep -q "GoldenEngine/assets/golden/mod-template/starter/"
+          sha256sum "$ZIP" | tee "$ZIP.sha256"
+          ls -la "$ZIP"
+          echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
+          echo "ver=$VER" >> "$GITHUB_OUTPUT"
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('manual-{0}', github.sha) }}
+          name: Golden Engine ${{ steps.zip.outputs.ver }} (Windows x64)
+          body_path: golden/release/RELEASE_NOTES.md
+          prerelease: true
+          files: |
+            ${{ steps.zip.outputs.zip }}
+            ${{ steps.zip.outputs.zip }}.sha256

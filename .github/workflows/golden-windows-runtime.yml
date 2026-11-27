@@ -1,0 +1,71 @@
+# Golden Engine — Windows runtime test (reusable). Downloads the packaged Windows build from the
+# calling run, launches it with Mesa software OpenGL and drives it; each check is its own step.
+name: Golden Engine Windows runtime test
+
+on:
+  workflow_call:
+    inputs:
+      artifact:
+        description: 'Name of the uploaded Windows build artifact (folder with Funkin.exe)'
+        type: string
+        required: true
+
+jobs:
+  windows-runtime-test:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact }}
+          path: test-bin
+      - name: Install Mesa software OpenGL (test copy only, not part of the release)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $rel = Invoke-RestMethod -Uri https://api.github.com/repos/pal1000/mesa-dist-win/releases/latest -Headers @{ Authorization = "Bearer $env:GH_TOKEN" }
+          $asset = $rel.assets | Where-Object { $_.name -match 'release-msvc\.7z$' } | Select-Object -First 1
+          Write-Host "Mesa: $($rel.tag_name) $($asset.name)"
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile mesa.7z
+          7z x mesa.7z -omesa | Out-Null
+          foreach ($d in 'opengl32.dll', 'libgallium_wgl.dll', 'libglapi.dll', 'dxil.dll') { if (Test-Path "mesa/x64/$d") { Copy-Item "mesa/x64/$d" test-bin/ } }
+          Get-ChildItem test-bin -Filter *.dll | ForEach-Object Name
+      - name: Launch and drive the packaged game
+        shell: pwsh
+        run: ./golden/tests/windows-runtime-test.ps1 -Bin test-bin -Out win-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-runtime-test-results
+          path: win-results
+      # One step per check, so each result is visible on its own.
+      - name: 'Check: package contents'
+        if: always()
+        shell: pwsh
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; Write-Host $r.package_contents.detail; if (-not $r.package_contents.ok) { exit 1 }'
+      - name: 'Check: process starts'
+        if: always()
+        shell: pwsh
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.process_started.ok -or -not $r.golden_engine_started.ok) { exit 1 }'
+      - name: 'Check: reaches the title screen'
+        if: always()
+        shell: pwsh
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; Write-Host $r.renderer_detected.detail; if (-not $r.reached_title.ok -or -not $r.title_not_black.ok) { exit 1 }'
+      - name: 'Check: main menu'
+        if: always()
+        shell: pwsh
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.main_menu.ok -or -not $r.main_menu_not_black.ok) { exit 1 }'
+      - name: 'Check: Mod Manager opens and closes'
+        if: always()
+        shell: pwsh
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.mod_manager_opens.ok -or -not $r.back_to_main_menu.ok) { exit 1 }'
+      - name: 'Check: Freeplay and a song plays'
+        if: always()
+        shell: pwsh
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.freeplay_opens.ok -or -not $r.song_started.ok -or -not $r.gameplay_not_black.ok) { exit 1 }'
+      - name: 'Check: no crash, no uncaught errors'
+        if: always()
+        shell: pwsh
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; Write-Host $r.no_uncaught_errors.detail; if (-not $r.still_running.ok -or -not $r.no_uncaught_errors.ok) { exit 1 }'
+
