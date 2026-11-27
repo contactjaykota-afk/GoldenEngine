@@ -13,4 +13,10 @@ for t in MidiTest HighlightTest; do
   echo "== $t"
   haxe -cp "$TMP" -cp "$ROOT/golden/tests/unit" -main "$t" --interp || status=1
 done
+# PowerShell scripts used by CI must at least parse (skipped where pwsh is not installed).
+if command -v pwsh >/dev/null; then
+  for ps in "$ROOT"/golden/tests/*.ps1; do
+    pwsh -NoProfile -Command "\$e=\$null; [System.Management.Automation.Language.Parser]::ParseFile('$ps',[ref]\$null,[ref]\$e) | Out-Null; if (\$e.Count) { \$e | % { \$_.ToString() }; exit 1 }" && echo "PASS  $(basename "$ps") parses" || { echo "FAIL  $(basename "$ps") does not parse"; status=1; }
+  done
+fi
 exit $status
