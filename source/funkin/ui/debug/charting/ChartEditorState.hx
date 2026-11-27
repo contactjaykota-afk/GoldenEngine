@@ -7699,4 +7699,9 @@ enum abstract ChartEditorTheme(String)
    * A theme which introduces darker colors.
    */
   public var Dark;
+
+  /**
+   * Golden Engine: dark checkered grid with gold selection (default).
+   */
+  public var Golden;
 }

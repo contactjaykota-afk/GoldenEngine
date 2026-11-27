@@ -22,28 +22,36 @@ class ChartEditorThemeHandler
   // ================================
   static final BACKGROUND_COLOR_LIGHT:FlxColor = 0xFF673AB7;
   static final BACKGROUND_COLOR_DARK:FlxColor = 0xFF361E60;
+  static final BACKGROUND_COLOR_GOLDEN:FlxColor = 0xFF1C1A21; // Golden Engine theme
   // Color 1 of the grid pattern. Alternates with Color 2.
   public static final GRID_COLOR_1_LIGHT:FlxColor = 0xFFE7E6E6;
   public static final GRID_COLOR_1_DARK:FlxColor = 0xFF181919;
+  public static final GRID_COLOR_1_GOLDEN:FlxColor = 0xFF2C2C30; // Golden Engine theme
   // Color 2 of the grid pattern. Alternates with Color 1.
   public static final GRID_COLOR_2_LIGHT:FlxColor = 0xFFF8F8F8;
   public static final GRID_COLOR_2_DARK:FlxColor = 0xFF202020;
+  public static final GRID_COLOR_2_GOLDEN:FlxColor = 0xFF3A3A3F; // Golden Engine theme
   // Color 3 of the grid pattern. Borders the other colors.
   public static final GRID_COLOR_3_LIGHT:FlxColor = 0xFFD9D5D5;
   public static final GRID_COLOR_3_DARK:FlxColor = 0xFF262A2A;
+  public static final GRID_COLOR_3_GOLDEN:FlxColor = 0xFF242427; // Golden Engine theme
   // Vertical divider between characters.
   public static final GRID_STRUMLINE_DIVIDER_COLOR_LIGHT:FlxColor = 0xFF111111;
   public static final GRID_STRUMLINE_DIVIDER_COLOR_DARK:FlxColor = 0xFFC4C4C4;
+  public static final GRID_STRUMLINE_DIVIDER_COLOR_GOLDEN:FlxColor = 0xFFE8E8E8; // Golden Engine theme
   static final GRID_STRUMLINE_DIVIDER_WIDTH:Float = ChartEditorState.GRID_SELECTION_BORDER_WIDTH;
   // Horizontal divider between measures.
   public static final GRID_MEASURE_DIVIDER_COLOR_LIGHT:FlxColor = 0xFF111111;
   public static final GRID_MEASURE_DIVIDER_COLOR_DARK:FlxColor = 0xFFC4C4C4;
+  public static final GRID_MEASURE_DIVIDER_COLOR_GOLDEN:FlxColor = 0xFFE8E8E8; // Golden Engine theme
   static final GRID_MEASURE_DIVIDER_WIDTH:Float = ChartEditorState.GRID_SELECTION_BORDER_WIDTH;
   public static final MEASTURE_TICKS_BACKING_COLOR_LIGHT:FlxColor = 0xFFC1C1C1;
   public static final MEASTURE_TICKS_BACKING_COLOR_DARK:FlxColor = 0xFF484848;
+  public static final MEASTURE_TICKS_BACKING_COLOR_GOLDEN:FlxColor = 0xFF2A282F; // Golden Engine theme
   // Border on the square highlighting selected notes.
   static final SELECTION_SQUARE_BORDER_COLOR_LIGHT:FlxColor = 0xFF339933;
   static final SELECTION_SQUARE_BORDER_COLOR_DARK:FlxColor = 0xFF339933;
+  static final SELECTION_SQUARE_BORDER_COLOR_GOLDEN:FlxColor = 0xFFFFC83D; // Golden Engine theme
 
   /**
    * The width of the opaque border around the square highlighting selected notes.
@@ -54,6 +62,7 @@ class ChartEditorThemeHandler
   // Make sure this is transparent so you can see the notes underneath.
   static final SELECTION_SQUARE_FILL_COLOR_LIGHT:FlxColor = 0x4033FF33;
   static final SELECTION_SQUARE_FILL_COLOR_DARK:FlxColor = 0x4033FF33;
+  static final SELECTION_SQUARE_FILL_COLOR_GOLDEN:FlxColor = 0x40FFC83D; // Golden Engine theme
   static final PLAYHEAD_BLOCK_BORDER_WIDTH:Int = 2;
   static final PLAYHEAD_BLOCK_BORDER_COLOR:FlxColor = 0xFF9D0011;
   static final PLAYHEAD_BLOCK_FILL_COLOR:FlxColor = 0xFFBD0231;
@@ -64,9 +73,11 @@ class ChartEditorThemeHandler
   // Border on the square over the note preview.
   static final NOTE_PREVIEW_VIEWPORT_BORDER_COLOR_LIGHT = 0xFFF8A657;
   static final NOTE_PREVIEW_VIEWPORT_BORDER_COLOR_DARK = 0xFFF8A657;
+  static final NOTE_PREVIEW_VIEWPORT_BORDER_COLOR_GOLDEN = 0xFFB77CFF; // Golden Engine theme
   // Fill on the square over the note preview.
   static final NOTE_PREVIEW_VIEWPORT_FILL_COLOR_LIGHT = 0x80F8A657;
   static final NOTE_PREVIEW_VIEWPORT_FILL_COLOR_DARK = 0x80F8A657;
+  static final NOTE_PREVIEW_VIEWPORT_FILL_COLOR_GOLDEN = 0x60B77CFF; // Golden Engine theme
   public static final TOTAL_COLUMN_COUNT:Int = ChartEditorState.STRUMLINE_SIZE * 2 + 1;
 
   /**
@@ -96,6 +107,8 @@ class ChartEditorThemeHandler
         BACKGROUND_COLOR_LIGHT;
       case ChartEditorTheme.Dark:
         BACKGROUND_COLOR_DARK;
+      case ChartEditorTheme.Golden:
+        BACKGROUND_COLOR_GOLDEN;
       default:
         BACKGROUND_COLOR_LIGHT;
     }
@@ -113,6 +126,8 @@ class ChartEditorThemeHandler
         GRID_COLOR_1_LIGHT;
       case Dark:
         GRID_COLOR_1_DARK;
+      case Golden:
+        GRID_COLOR_1_GOLDEN;
       default:
         GRID_COLOR_1_LIGHT;
     };
@@ -123,6 +138,8 @@ class ChartEditorThemeHandler
         GRID_COLOR_2_LIGHT;
       case Dark:
         GRID_COLOR_2_DARK;
+      case Golden:
+        GRID_COLOR_2_GOLDEN;
       default:
         GRID_COLOR_2_LIGHT;
     };
@@ -133,6 +150,8 @@ class ChartEditorThemeHandler
         GRID_STRUMLINE_DIVIDER_COLOR_LIGHT;
       case Dark:
         GRID_STRUMLINE_DIVIDER_COLOR_DARK;
+      case Golden:
+        GRID_STRUMLINE_DIVIDER_COLOR_GOLDEN;
       default:
         GRID_STRUMLINE_DIVIDER_COLOR_LIGHT;
     }
@@ -152,6 +171,8 @@ class ChartEditorThemeHandler
         GRID_COLOR_3_LIGHT;
       case Dark:
         GRID_COLOR_3_DARK;
+      case Golden:
+        GRID_COLOR_3_GOLDEN;
       default:
         GRID_COLOR_3_LIGHT;
     };
@@ -255,6 +276,8 @@ class ChartEditorThemeHandler
         SELECTION_SQUARE_BORDER_COLOR_LIGHT;
       case Dark:
         SELECTION_SQUARE_BORDER_COLOR_DARK;
+      case Golden:
+        SELECTION_SQUARE_BORDER_COLOR_GOLDEN;
       default:
         SELECTION_SQUARE_BORDER_COLOR_LIGHT;
     };
@@ -265,6 +288,8 @@ class ChartEditorThemeHandler
         SELECTION_SQUARE_FILL_COLOR_LIGHT;
       case Dark:
         SELECTION_SQUARE_FILL_COLOR_DARK;
+      case Golden:
+        SELECTION_SQUARE_FILL_COLOR_GOLDEN;
       default:
         SELECTION_SQUARE_FILL_COLOR_LIGHT;
     };
@@ -300,6 +325,8 @@ class ChartEditorThemeHandler
         NOTE_PREVIEW_VIEWPORT_BORDER_COLOR_LIGHT;
       case Dark:
         NOTE_PREVIEW_VIEWPORT_BORDER_COLOR_DARK;
+      case Golden:
+        NOTE_PREVIEW_VIEWPORT_BORDER_COLOR_GOLDEN;
       default:
         NOTE_PREVIEW_VIEWPORT_BORDER_COLOR_LIGHT;
     };
@@ -310,6 +337,8 @@ class ChartEditorThemeHandler
         NOTE_PREVIEW_VIEWPORT_FILL_COLOR_LIGHT;
       case Dark:
         NOTE_PREVIEW_VIEWPORT_FILL_COLOR_DARK;
+      case Golden:
+        NOTE_PREVIEW_VIEWPORT_FILL_COLOR_GOLDEN;
       default:
         NOTE_PREVIEW_VIEWPORT_FILL_COLOR_LIGHT;
     };

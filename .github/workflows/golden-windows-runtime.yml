@@ -64,6 +64,10 @@ jobs:
         if: always()
         shell: pwsh
         run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.freeplay_opens.ok -or -not $r.song_started.ok -or -not $r.gameplay_not_black.ok) { exit 1 }'
+      - name: 'Check: Lua script from a mod runs'
+        if: always()
+        shell: pwsh
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.lua_runs_on_windows.ok) { exit 1 }'
       - name: 'Check: no crash, no uncaught errors'
         if: always()
         shell: pwsh

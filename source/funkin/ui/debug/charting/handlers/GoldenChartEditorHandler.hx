@@ -2,6 +2,7 @@ package funkin.ui.debug.charting.handlers;
 
 #if FEATURE_CHART_EDITOR
 import funkin.ui.debug.charting.dialogs.GoldenMidiImportDialog;
+import funkin.ui.debug.charting.ChartEditorState.ChartEditorTheme;
 import funkin.util.FileUtil;
 import golden.charting.MidiFile;
 import haxe.ui.containers.menus.MenuItem;
@@ -37,6 +38,24 @@ class GoldenChartEditorHandler
       if (index < 0 && anchor != null && fileMenu.getComponentIndex(anchor) >= 0) index = fileMenu.getComponentIndex(anchor) + 1;
     if (index < 0) index = fileMenu.numComponents;
     fileMenu.addComponentAt(item, index);
+    setupThemeMenu(state);
+  }
+
+  /** View > Theme > Golden (the Golden Engine default theme). */
+  public static function setupThemeMenu(state:ChartEditorState):Void
+  {
+    var themeMenu = state.menuBarItemThemeDark?.parentComponent;
+    if (themeMenu == null) return;
+    var golden = new haxe.ui.containers.menus.MenuOptionBox();
+    golden.id = 'menuBarItemThemeGolden';
+    golden.text = 'Golden';
+    golden.componentGroup = 'menubarItemThemeGroup';
+    golden.onChange = function(event)
+    {
+      if (event.target.value) state.currentTheme = ChartEditorTheme.Golden;
+    };
+    themeMenu.addComponent(golden);
+    golden.selected = state.currentTheme == ChartEditorTheme.Golden;
   }
 
   /** Per-frame shortcut handling (called from ChartEditorState.handleFileKeybinds). */

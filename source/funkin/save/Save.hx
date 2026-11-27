@@ -159,7 +159,7 @@ class Save implements ConsoleClass
         previousFiles: [],
         noteQuant: 3,
         chartEditorLiveInputStyle: ChartEditorLiveInputStyle.None,
-        theme: ChartEditorTheme.Light,
+        theme: ChartEditorTheme.Golden, // Golden Engine default theme
         playtestStartTime: false,
         playtestAudioSettings: false,
         playtestResultsSettings: false,
@@ -268,7 +268,7 @@ class Save implements ConsoleClass
   public var chartEditorPlaytestAudioSettings:SaveProperty<Bool>;
   @:saveProperty(data.optionsChartEditor.playtestResultsSettings, false)
   public var chartEditorPlaytestResultsSettings:SaveProperty<Bool>;
-  @:saveProperty(data.optionsChartEditor.theme, ChartEditorTheme.Light)
+  @:saveProperty(data.optionsChartEditor.theme, ChartEditorTheme.Golden) // Golden Engine default
   public var chartEditorTheme:SaveProperty<ChartEditorTheme>;
   @:saveProperty(data.optionsChartEditor.metronomeVolume, 1.0)
   public var chartEditorMetronomeVolume:SaveProperty<Float>;

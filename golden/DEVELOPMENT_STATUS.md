@@ -68,6 +68,8 @@ Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the dev
 | Golden Studio script editor (Mod Manager > S): file list, tabs, line numbers, Haxe/Lua/JSON/XML highlighting, bracket match, auto-indent, Ctrl+N templates, Ctrl+S save with backup + validation (JSON/XML parse, Lua compile), undo/redo, Ctrl+R reload mods | Runtime verified: open, new-from-template, type, save, backup, Lua syntax error (file:line), undo, leave. Find, redo, tab switching, close-with-confirm, JSON/XML validation: compiled only | studio test |
 | Play-in-Editor (F9 in the script editor: save all, reload mods, play song in practice mode; F9 returns with tabs/text restored; survives upstream F5 state reset) | Runtime verified: play from editor, edited Lua runs in the song, return restores 2 tabs. F5-reset restore: compiled only | studio test |
 | Typing in Golden text fields no longer triggers volume keys (- + 0) | Runtime verified (studio test types "-", smoke audio check afterwards passes) | upstream VolumePlugin edit |
+| Chart Editor Golden theme (default; View > Theme > Golden) | Runtime verified (screenshots in chart-midi test). Purple menubar of the reference not replicated | chart-midi test |
+| Version 0.1.0-alpha in watermark + log | Runtime verified (log) | UI test log |
 | Windows build | **Compiled in CI** (commit 8652421); not launched on Windows by anyone yet | GE-004 |
 
 Everything in `golden/ROADMAP.md` marked "NOT started" has no code.

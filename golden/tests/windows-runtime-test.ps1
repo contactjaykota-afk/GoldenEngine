@@ -52,6 +52,12 @@ Record 'package_contents' ($missing.Count -eq 0) ("missing: " + ($missing -join 
 $dlls = @(Get-ChildItem -Path $Bin -Filter *.dll | ForEach-Object Name)
 Write-Host "DLLs in package: $($dlls -join ', ')"
 
+# A throw-away test mod with a Lua script (removed again at the end; not part of the release).
+$testMod = Join-Path $Bin 'mods\zz-windows-test'
+New-Item -ItemType Directory -Force -Path (Join-Path $testMod 'scripts\lua') | Out-Null
+'{"title":"Windows Test","api_version":"0.8.7","mod_version":"1.0.0"}' | Set-Content -Encoding ascii (Join-Path $testMod '_polymod_meta.json')
+'function onCreate() print("LUAT windows lua ok song=" .. tostring(getSongName())) end' | Set-Content -Encoding ascii (Join-Path $testMod 'scripts\lua\wintest.lua')
+
 # Launch
 $env:GALLIUM_DRIVER = 'llvmpipe'
 $script:proc = Start-Process -FilePath (Join-Path $Bin 'Funkin.exe') -WorkingDirectory $Bin -PassThru `
@@ -85,6 +91,7 @@ Record 'freeplay_opens' (Wait-For 'EnteringFreeplay' 30) ''
 Start-Sleep -Seconds 4
 Send '{DOWN}'; Send '{ENTER}'
 Record 'song_started' (Wait-For 'started song at' 90) ''
+Record 'lua_runs_on_windows' (Wait-For 'LUAT windows lua ok song=bopeebo' 20) ''
 Start-Sleep -Seconds 6
 $m = Save-Shot '04-gameplay'
 Record 'gameplay_not_black' ($m -gt 12) "mean=$m"
@@ -97,6 +104,8 @@ Record 'no_uncaught_errors' ($crash -le 0) "count=$crash"
 if (Test-Path (Join-Path $Bin 'logs')) { Copy-Item -Recurse (Join-Path $Bin 'logs') (Join-Path $Out 'crash-logs') }
 
 if (-not $proc.HasExited) { Stop-Process -Id $proc.Id -Force }
+Start-Sleep -Seconds 1
+Remove-Item -Recurse -Force $testMod -ErrorAction SilentlyContinue
 $results | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $Out 'results.json')
 $failed = @($results.Keys | Where-Object { -not $results[$_].ok })
 Write-Host "`n$($results.Count - $failed.Count) passed, $($failed.Count) failed"

@@ -27,3 +27,7 @@ Upstream base commit: `94ee0f2a9386d80e445be39ee2ed4b4a630cfbac` (FunkinCrew/Fun
 | `source/funkin/modding/module/ModuleHandler.hx` | With `FEATURE_LUA`, registers the built-in `golden.lua.GoldenLuaModule` so Lua scripts receive module events. New file in an upstream package: `source/funkin/play/event/GoldenLuaSongEvent.hx` ("Lua Script (Golden)" chart event). | 9 |
 | `source/funkin/ui/debug/charting/ChartEditorState.hx` | Two calls into `handlers/GoldenChartEditorHandler` (File > Import MIDI... menu entry, Ctrl+Shift+M). New Golden files in the same package: `commands/GoldenMidiImportCommand.hx`, `dialogs/GoldenMidiImportDialog.hx`, `handlers/GoldenChartEditorHandler.hx`. | 7 |
 | `templates/haxe/ApplicationMain.hx` | Linux window icon embedded from `golden/icons/icon256.png` instead of `art/icons/iconOG.png`. | Identity |
+| `source/funkin/ui/debug/charting/ChartEditorState.hx` (enum) | `ChartEditorTheme.Golden` added. | Theme |
+| `source/funkin/ui/debug/charting/handlers/ChartEditorThemeHandler.hx`, `components/ChartEditorMeasureTicks.hx` | Golden theme colours (dark checkered grid, light dividers, gold selection) as an extra case in each existing theme switch. | Theme |
+| `source/funkin/save/Save.hx`, `save/migrator/SaveDataMigrator.hx` | Default Chart Editor theme = Golden (existing saves keep their chosen theme). | Theme |
+| `source/Main.hx`, `MainMenuState.hx` | Golden version logged at start and shown in the main-menu watermark. | Release |

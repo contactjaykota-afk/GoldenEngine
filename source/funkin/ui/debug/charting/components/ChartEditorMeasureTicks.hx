@@ -91,6 +91,8 @@ class ChartEditorMeasureTicks extends FlxTypedSpriteGroup<FlxSprite>
         ChartEditorThemeHandler.MEASTURE_TICKS_BACKING_COLOR_LIGHT;
       case Dark:
         ChartEditorThemeHandler.MEASTURE_TICKS_BACKING_COLOR_DARK;
+      case Golden:
+        ChartEditorThemeHandler.MEASTURE_TICKS_BACKING_COLOR_GOLDEN;
       default:
         ChartEditorThemeHandler.MEASTURE_TICKS_BACKING_COLOR_LIGHT;
     };
@@ -100,6 +102,8 @@ class ChartEditorMeasureTicks extends FlxTypedSpriteGroup<FlxSprite>
         ChartEditorThemeHandler.GRID_MEASURE_DIVIDER_COLOR_LIGHT;
       case Dark:
         ChartEditorThemeHandler.GRID_MEASURE_DIVIDER_COLOR_DARK;
+      case Golden:
+        ChartEditorThemeHandler.GRID_MEASURE_DIVIDER_COLOR_GOLDEN;
       default:
         ChartEditorThemeHandler.GRID_MEASURE_DIVIDER_COLOR_LIGHT;
     };
@@ -252,6 +256,8 @@ class ChartEditorMeasureTicks extends FlxTypedSpriteGroup<FlxSprite>
         ChartEditorThemeHandler.GRID_MEASURE_DIVIDER_COLOR_LIGHT;
       case Dark:
         ChartEditorThemeHandler.GRID_MEASURE_DIVIDER_COLOR_DARK;
+      case Golden:
+        ChartEditorThemeHandler.GRID_MEASURE_DIVIDER_COLOR_GOLDEN;
       default:
         ChartEditorThemeHandler.GRID_MEASURE_DIVIDER_COLOR_LIGHT;
     };

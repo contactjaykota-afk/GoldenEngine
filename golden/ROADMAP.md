@@ -71,7 +71,7 @@ Order of work: shared infrastructure first, then editors one at a time, each wit
 | # | Item | Status / plan |
 |---|---|---|
 | D1 | **Design direction for all editors**: dark FNF/Psych/Codename-style editors (compact toolbars, animation lists, X/Y + camera offsets, FNF note lanes), not a generic engine UI | Applies to every editor below. Upstream FNF editors (chart, animation, stage) are extended, not replaced. |
-| D2 | **Chart Editor dark theme** like the Codename screenshot (dark checkered grid, purple header) | Next small batch: add a theme to upstream's existing View > Theme system. |
+| D2 | **Chart Editor dark theme** like the Codename screenshot (dark checkered grid, purple header) | Done (Golden theme, default): grid, background, ticks, dividers, selection. Purple HaxeUI menubar: not yet. |
 | D3 | **Chart Editor controls** (7, Space, Left/Right sections, Shift jumps, W/S, R / Shift+R, Shift fine snap, Ctrl both sides, E / hold E / Shift+E extend sustain, Q shorten) | Audit upstream keys first; add only what is missing, configurable, never active while typing; tests per key. |
 | D4 | **Universal Live Preview framework** (right-side preview, zoom/fit/reset, grid, drag with synced X/Y, undo/redo, checkerboard, unsaved marker) | Build once as shared Golden component, then integrate editor by editor. |
 | D5 | **Mod Asset Manager** (shared import/placement/validation/reveal/"referenced by" for all editors; folder conventions table) | Shared infrastructure, before the editors that import assets. Paths must match what FNF/Polymod actually loads. |
