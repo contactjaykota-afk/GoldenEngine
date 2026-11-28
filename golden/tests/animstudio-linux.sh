@@ -52,6 +52,7 @@ drag "$bx" "$by" $((bx + 25)) "$by"
 wait_for "Animation Studio: move body (anim frame 6)" 1 5; check "moving a part on frame 6 creates a keyframe (auto-key)" $?
 key Return; sleep 1.5; shot 05-playing >/dev/null; key Return
 shot 05-timeline >/dev/null
+key Home period period period period period period; sleep 0.3   # back to frame 6 (playback moved the playhead)
 combo ctrl+d; wait_for "Duplicated" 1 4; check "Ctrl+D duplicates the frame's keys to the next frame" $?
 key o; sleep 0.5; shot 06-onion >/dev/null; key o
 
