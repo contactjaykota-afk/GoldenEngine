@@ -44,6 +44,18 @@ GL); none of it is verified on Windows hardware (GE-015).
 | UI sound / animation polish | IN PROGRESS | editor buttons: hover/click sounds, press animation, toasts, tooltips |
 | FNF visual identity pass | IN PROGRESS | purple/gold Golden theme; no new illustrated art |
 | 3D foundation | NOT STARTED | ROADMAP D7 |
+| Ghost tapping option (default on) | VERIFIED | ghosttap-linux.sh 7/7 (real key presses, on and off) |
+| Studio: eased tweens, paint/erase, add to existing sheet, open from Character Editor (incl. rotated atlas sprites) | VERIFIED | studio2-linux.sh 18/18; RigTest 38/38 |
+| Event System: Haxe module per song runs in gameplay; custom presets | VERIFIED | scripts-presets-linux.sh 16/16 |
+| AI pose generation | BLOCKED (no model/API key) | GE-016 |
+| Symbols / layer folders / FLA import-export | NOT STARTED | GE-017 |
+
+### Final Linux run before the 0.2.0-alpha release (latest build)
+smoke 22/22 · mod-enable 23/23 · golden-ui 48/48 · lua 18/18 · studio 26/26 · mods-extra 29/29 · chart-midi 7/7 ·
+autotest 16/16 · animstudio 46/46 · studio2 18/18 · eventsystem 32/32 · scripts-presets 16/16 · editors2 27/27 ·
+editors3 28/28 · editors4 24/24 · cutscene 14/14 · freeplay 11/11 · chart-keys 11/11 · ghosttap 7/7 · unit 100/100.
+(smoke/mod-enable/golden-ui/lua/studio/mods-extra/chart-midi ran on the build before the last three commits,
+which touched only the editors, the inspector and ghost tapping; golden-ui was re-run on the latest build.)
 | Performance profiling and optimisation | NOT STARTED | presets only; no profiling numbers |
 
 ## Test commands and results (0.1.0) (2026-11-27)
