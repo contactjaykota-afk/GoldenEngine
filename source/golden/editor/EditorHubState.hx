@@ -31,7 +31,7 @@ class EditorHubState extends MusicBeatState
     #if FEATURE_STAGE_EDITOR
     list.push({name: 'Stage Editor', description: 'FNF stage editor: props, layers, scroll factors, character positions.', open: () -> FlxG.switchState(() -> new funkin.ui.debug.stageeditor.StageEditorState())});
     #end
-    // PENDING list.push({name: 'Camera Editor', description: 'Per-song camera: focus targets, offsets, zoom, follow speed, zoom keys.', open: () -> FlxG.switchState(() -> new golden.editor.CameraEditorState())});
+    list.push({name: 'Event System', description: 'Song timeline: camera, effects, colour, overlays, text, notes, chart events, scripts.', open: () -> FlxG.switchState(() -> new golden.editor.EventSystemState())});
     // PENDING list.push({name: 'Game Over Editor', description: 'Game Over setups: character, music, sounds, timing; per-song configs.', open: () -> FlxG.switchState(() -> new golden.editor.GameOverEditorState())});
     // PENDING list.push({name: 'Week Editor', description: 'Story Mode weeks: songs, characters, background, difficulties, unlocks.', open: () -> FlxG.switchState(() -> new golden.editor.WeekEditorState())});
     // PENDING list.push({name: 'Note Skin Editor', description: 'Note styles: textures, receptors, holds, preview of all directions.', open: () -> FlxG.switchState(() -> new golden.editor.NoteSkinEditorState())});

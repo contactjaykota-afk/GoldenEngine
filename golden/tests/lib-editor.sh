@@ -24,9 +24,9 @@ not_black() { python3 -c "import sys; sys.exit(0 if float('${1:-0}') > 0.03 else
 jsonget() { python3 -c "import json,sys; d=json.load(open('$1')); print(eval('d'+sys.argv[1]))" "$2" 2>/dev/null; }
 # Last logged rectangle of a UI id -> "cx cy"
 where() { clean_log | grep -F "GOLDEN UI" | grep -F " $1 @ " | tail -1 | sed -E 's/.* @ ([-0-9.]+),([-0-9.]+),([0-9.]+),([0-9.]+).*/\1 \2 \3 \4/' | awk '{printf "%d %d", $1+$3/2, $2+$4/2}'; }
-# Game coordinates (1280x720) -> window pixels (the window manager may resize the window; Flixel letterboxes)
+# Game coordinates (1280x720) -> window pixels (the window manager may resize the window)
 to_win() { local W; W=$(win); eval "$(xdotool getwindowgeometry --shell "$W")"
-  python3 -c "w,h=$WIDTH,$HEIGHT; s=min(w/1280,h/720); print(int((w-1280*s)/2+$1*s), int((h-720*s)/2+$2*s))"; }
+  python3 -c "w,h=$WIDTH,$HEIGHT; s=min(w/1280,h/720); print(int($1*s), int($2*s))"; }  # FNF scales uniformly, anchored top-left
 mouse_to() { local W p; W=$(win); xdotool windowactivate --sync "$W" 2>/dev/null; p=$(to_win "$1" "$2"); xdotool mousemove --window "$W" $p; sleep 0.12
   p=$(to_win $(( $1 + 1 )) $(( $2 + 1 ))); xdotool mousemove --window "$W" $p; sleep 0.15; }
 click_at() { mouse_to "$1" "$2"; xdotool mousedown 1; sleep 0.12; xdotool mouseup 1; sleep 0.5; }

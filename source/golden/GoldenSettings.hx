@@ -41,6 +41,9 @@ class GoldenSettings
   /** Graphics preset: low, medium, high, ultra or custom (see golden.GoldenGraphics). */
   public static var graphicsPreset(default, set):String = 'high';
 
+  /** Screen shader effects (Event System colour grading, blur, glitch...): auto | on | off. */
+  public static var screenShaders(default, set):String = 'auto';
+
   static var loaded:Bool = false;
   static var suspendSave:Bool = false;
 
@@ -68,6 +71,7 @@ class GoldenSettings
       if (Reflect.hasField(data, 'menuMusic')) menuMusic = Std.string(Reflect.field(data, 'menuMusic'));
       if (Reflect.hasField(data, 'chartEditorKey')) chartEditorKey = Std.string(Reflect.field(data, 'chartEditorKey'));
       if (Reflect.hasField(data, 'editorTarget')) editorTarget = Reflect.field(data, 'editorTarget');
+      if (Reflect.hasField(data, 'screenShaders')) screenShaders = Std.string(Reflect.field(data, 'screenShaders'));
       if (Reflect.hasField(data, 'graphicsPreset')) graphicsPreset = Std.string(Reflect.field(data, 'graphicsPreset'));
       if (Reflect.hasField(data, 'modSelectorKey')) modSelectorKey = Std.string(Reflect.field(data, 'modSelectorKey'));
     }
@@ -105,7 +109,8 @@ class GoldenSettings
         chartEditorKey: chartEditorKey,
         modSelectorKey: modSelectorKey,
         editorTarget: editorTarget,
-        graphicsPreset: graphicsPreset
+        graphicsPreset: graphicsPreset,
+        screenShaders: screenShaders
       }, null, '  ');
       File.saveContent(p + '.tmp', text);
       if (FileSystem.exists(p)) FileSystem.deleteFile(p);
@@ -176,6 +181,22 @@ class GoldenSettings
     graphicsPreset = ['low', 'medium', 'high', 'ultra', 'custom'].contains(v) ? v : 'high';
     save();
     return graphicsPreset;
+  }
+
+  static function set_screenShaders(v:String):String
+  {
+    screenShaders = ['auto', 'on', 'off'].contains(v) ? v : 'auto';
+    save();
+    return screenShaders;
+  }
+
+  /** Whether camera shader/filter effects should be used now. */
+  public static function shaderEffectsEnabled():Bool
+  {
+    if (screenShaders == 'on') return true;
+    if (screenShaders == 'off') return false;
+    var r = (golden.render.RendererGuard.rendererName ?? '').toLowerCase();
+    return !(r.indexOf('llvmpipe') >= 0 || r.indexOf('softpipe') >= 0 || r.indexOf('software') >= 0 || r.indexOf('swrast') >= 0);
   }
 
   static function set_chartEditorKey(v:String):String

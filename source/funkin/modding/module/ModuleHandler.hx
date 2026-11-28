@@ -49,6 +49,8 @@ class ModuleHandler
     // Golden Engine: Lua scripts receive module events through this built-in module.
     addToModuleCache(new golden.lua.GoldenLuaModule());
     #end
+    // Golden Engine: Event System effects (data/golden/events/<song>.json) run through this module.
+    addToModuleCache(new golden.events.GoldenFxModule());
     reorderModuleCache();
 
     trace('[MODULEHANDLER] Module cache loaded.');

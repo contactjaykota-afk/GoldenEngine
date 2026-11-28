@@ -478,7 +478,10 @@ class Browser extends FlxSpriteGroup
   public var pw:Int;
   public var ph:Int;
   public var onSelect:Null<BrowserItem->Void>;
+  /** Called when an item is pressed in the browser and released outside it (drag and drop). */
+  public var onDragOut:Null<BrowserItem->Void>;
   public var selected(default, null):Null<BrowserItem>;
+  var pressedItem:Null<BrowserItem> = null;
   public var search:EField;
 
   var items:Array<BrowserItem> = [];
@@ -585,11 +588,34 @@ class Browser extends FlxSpriteGroup
     EditorUI.mapLog(isFolder ? 'folder:$folder' : 'item:$folder/$label', x + 4, y + ry, pw - 8, h);
   }
 
+  function itemAt(viewY:Float):Null<{y:Float, h:Float, item:Null<BrowserItem>, folder:String}>
+  {
+    var my = viewY - y + scrollY;
+    for (r in rowRects)
+      if (my >= r.y && my < r.y + r.h) return r;
+    return null;
+  }
+
   override function update(elapsed:Float):Void
   {
     super.update(elapsed);
     if (needsRebuild) rebuild();
-    if (!EditorUI.mouseOver(camera, x, y + 30, pw, ph - 30)) return;
+    var inside = EditorUI.mouseOver(camera, x, y + 30, pw, ph - 30);
+    if (FlxG.mouse.justPressed && inside)
+    {
+      var p = FlxG.mouse.getViewPosition(camera);
+      pressedItem = itemAt(p.y)?.item;
+      p.put();
+    }
+    if (FlxG.mouse.justReleased && pressedItem != null && !inside)
+    {
+      var it = pressedItem;
+      pressedItem = null;
+      if (onDragOut != null) onDragOut(it);
+      return;
+    }
+    if (FlxG.mouse.justReleased && !inside) pressedItem = null;
+    if (!inside) return;
     if (FlxG.mouse.wheel != 0 && contentH > ph - 34)
     {
       scrollY = Math.max(0, Math.min(contentH - ph + 40, scrollY - FlxG.mouse.wheel * 40));
@@ -597,6 +623,7 @@ class Browser extends FlxSpriteGroup
     }
     if (FlxG.mouse.justReleased)
     {
+      pressedItem = null;
       var p = FlxG.mouse.getViewPosition(camera);
       var my = p.y - y + scrollY;
       p.put();
