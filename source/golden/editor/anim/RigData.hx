@@ -52,7 +52,10 @@ typedef RigPose =
 typedef RigKey =
 {
   f:Int,
-  t:PartT
+  t:PartT,
+  /** Tween to the next key: linear (default), quadIn/Out/InOut, cubeIn/Out/InOut, sineIn/Out/InOut,
+      backOut, elasticOut, bounceOut, or "hold" (no tween: frame-by-frame step). */
+  ?e:String
 }
 
 typedef RigAnim =
@@ -314,6 +317,49 @@ class RigData
       c: lerpColor(a.c, b.c, k)
     };
 
+  public static final EASES:Array<String> = [
+    'linear', 'hold', 'quadIn', 'quadOut', 'quadInOut', 'cubeIn', 'cubeOut', 'cubeInOut', 'sineIn', 'sineOut', 'sineInOut', 'backOut', 'elasticOut', 'bounceOut'
+  ];
+
+  /** Easing curve (0..1 -> 0..1). */
+  public static function ease(name:Null<String>, t:Float):Float
+  {
+    return switch (name)
+    {
+      case 'hold': 0;
+      case 'quadIn': t * t;
+      case 'quadOut': 1 - (1 - t) * (1 - t);
+      case 'quadInOut': t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      case 'cubeIn': t * t * t;
+      case 'cubeOut': 1 - Math.pow(1 - t, 3);
+      case 'cubeInOut': t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      case 'sineIn': 1 - Math.cos(t * Math.PI / 2);
+      case 'sineOut': Math.sin(t * Math.PI / 2);
+      case 'sineInOut': -(Math.cos(Math.PI * t) - 1) / 2;
+      case 'backOut':
+        var c1 = 1.70158, c3 = c1 + 1;
+        1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+      case 'elasticOut':
+        t == 0 ? 0 : (t == 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI / 3)) + 1);
+      case 'bounceOut':
+        var n1 = 7.5625, d1 = 2.75;
+        if (t < 1 / d1) n1 * t * t;
+        else if (t < 2 / d1) n1 * (t - 1.5 / d1) * (t - 1.5 / d1) + 0.75;
+        else if (t < 2.5 / d1) n1 * (t - 2.25 / d1) * (t - 2.25 / d1) + 0.9375;
+        else n1 * (t - 2.625 / d1) * (t - 2.625 / d1) + 0.984375;
+      default: t;
+    };
+  }
+
+  /** Set the tween easing of the key a part has at a frame. */
+  public static function setKeyEase(an:RigAnim, id:String, f:Int, e:String):Bool
+  {
+    var k = keyAt(an, id, f);
+    if (k == null) return false;
+    k.e = e == 'linear' ? null : e;
+    return true;
+  }
+
   public static function sortedKeys(an:RigAnim, id:String):Array<RigKey>
   {
     var k = an.tracks.get(id);
@@ -339,7 +385,7 @@ class RigData
         while (i < keys.length - 1 && keys[i + 1].f <= frame)
           i++;
         var k0 = keys[i], k1 = keys[i + 1];
-        out.set(x.id, lerpT(k0.t, k1.t, (frame - k0.f) / (k1.f - k0.f)));
+        out.set(x.id, lerpT(k0.t, k1.t, ease(k0.e, (frame - k0.f) / (k1.f - k0.f))));
       }
     }
     return out;

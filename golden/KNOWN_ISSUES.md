@@ -13,6 +13,16 @@ A bug is only marked fixed after its regression test has been re-run.
 - Mitigation: Options > Golden Engine > Screen Shaders (default Auto = off on software renderers;
   colour grading then uses an overlay approximation, the other three are skipped with a log line).
 
+### GE-016 — No AI pose/art generation — blocked
+- Requested: AI that draws new poses of a reference character. No image-generation model or API key exists
+  in this build environment, so nothing was implemented or faked. The Studio's *Generate* is rule-based
+  (transforms existing parts). A future integration needs a chosen provider and a key.
+
+### GE-017 — Symbols, layer folders and FLA compatibility not implemented — medium
+- The Studio has parts (with variants), per-part keyframes, eased tweens, onion skin and paint/erase, but no
+  reusable nested symbols or layer folders, and no Adobe Animate (.fla/.xfl) import/export. It imports FNF's
+  Animate *texture atlases* (Animation.json + spritemap) and exports Sparrow sheets.
+
 ### GE-014 — Event System preview has no scrolling notes — low
 - The in-editor preview shows the real stage/characters/cameras/effects and characters sing on notes,
   but notes do not scroll; Bot Preview (real gameplay) shows everything.

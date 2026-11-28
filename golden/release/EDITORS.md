@@ -42,11 +42,25 @@ Animate characters from separate body-part PNGs, without Adobe Animate.
   Ctrl+D = copy keys to the next frame, drag a key to move it, click/drag the ruler to scrub,
   `,` / `.` step frames, Enter play/pause, O onion skin (frames before/after and opacity in the
   properties). Keyframes interpolate linearly; image swaps (variants) switch at the key.
+- **Tweens**: select a part (or none = all parts) on a keyed frame and choose *Tween (key at frame)*:
+  linear, quad/cube/sine in/out/in-out, back, elastic, bounce, or *hold* (no tween, frame by frame).
+- **Fixing artwork**: Paint (B) and Erase (E) tools draw on the selected part's image (or the variant
+  shown); brush colour/size in the properties; *Undo stroke* (paint strokes have their own undo).
 - **Face**: give a part variants (*Add variant*: open mouth, closed eyes…) and key the *Variant*.
   Presets *Blink* and *Talk* build those animations.
 - **Generate** adds the missing standard poses/animations (idle, sing, miss, hey, death) as editable
   starting points; it never overwrites existing ones (*Regenerate all* does, after asking). Results
   depend on how the parts were drawn; adjust them by hand.
+- **Sprite sheets**: *Frame spacing* sets the gap between packed frames. *Add to existing sheet…* takes a
+  Sparrow PNG (with its XML next to it), keeps all its frames and adds this project's animations
+  (prefixes `golden <animation>`; numbered if the name is taken), repacked into one sheet: with
+  *Replace original* the files are overwritten after a timestamped `.bak` copy, otherwise
+  `<name>-golden.png/.xml` is written next to them.
+- **Open from the Character Editor**: *Open in Animation Studio* opens the character's saved Studio project,
+  or imports an Animate-atlas character (like BF) as editable parts. Sparrow characters are whole-body
+  drawings per frame and cannot be split automatically.
+- **AI pose generation is not available**: no image-generation model or API is included or reachable in this
+  build. *Generate* is rule-based (it moves and rotates the parts you have); it does not draw new art.
 - **Export** writes a normal FNF character into the mod: `images/characters/<id>.png/.xml`
   (several sheets for big characters, FNF "multisparrow"), `data/characters/<id>.json` and a health
   icon from the head (`images/icons/icon-<id>.png`). **Test Play** exports and plays a song with the

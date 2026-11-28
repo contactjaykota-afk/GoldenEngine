@@ -125,7 +125,8 @@ class AnimationStudioState extends GoldenEditorState
     var tools = [
       ['move', 'V', 'Select / move tool (V)'], ['rotate', 'R', 'Rotate tool (R)'], ['scale', 'S', 'Scale tool (S)'],
       ['pivot', 'P', 'Pivot tool (P): drag the pivot point'], ['pan', 'H', 'Pan tool (H) - or middle/right drag, Space+drag'],
-      ['zoom', 'Z', 'Zoom tool (Z): click = in, Alt+click = out']
+      ['zoom', 'Z', 'Zoom tool (Z): click = in, Alt+click = out'], ['paint', 'B', 'Paint (B): draw on the selected part (colour/size in properties)'],
+      ['erase', 'E', 'Erase (E): erase pixels of the selected part']
     ];
     for (i in 0...tools.length)
     {
@@ -145,9 +146,58 @@ class AnimationStudioState extends GoldenEditorState
     resetHistory();
   }
 
+  /** Set by the Character Editor's "Open in Animation Studio". */
+  public static var openCharacter:Null<{id:String, assetPath:String, renderType:String, name:String}> = null;
+
+  /** Open a game character: its saved Studio project, or an import of its Animate atlas. */
+  function openGameCharacter(c:{id:String, assetPath:String, renderType:String, name:String}):Bool
+  {
+    var mod = EditorFiles.target();
+    if (mod != null && RigExport.listProjects(mod).contains(EditorFiles.safeId(c.id)))
+    {
+      var r = new RigRenderer();
+      var res = RigExport.loadProject(EditorFiles.safeId(c.id), r, mod);
+      if (res.project != null)
+      {
+        renderer = r;
+        project = res.project;
+        trace('[GOLDEN EDITOR] Animation Studio: opened the saved project of "${c.id}"');
+        return true;
+      }
+    }
+    if (c.renderType == 'animateatlas' || c.renderType == 'multianimateatlas')
+    {
+      try
+      {
+        var r = new RigRenderer();
+        project = AnimateAtlasImport.loadAtlas(c.assetPath, c.id, c.name, r);
+        renderer = r;
+        return true;
+      }
+      catch (e:Dynamic)
+        notify('Could not import ${c.id}: $e', 0xFFFF5C5C);
+    }
+    else
+      notify('"${c.id}" is a ${c.renderType} sprite sheet (whole-body drawings), not separate parts; it cannot be split automatically. Import its parts as PNGs instead.', 0xFFFFB347);
+    return false;
+  }
+
   /** Boyfriend from the game's own atlas (the example character); the drawn example if that fails. */
   function loadDefaultCharacter():Void
   {
+    if (openCharacter != null)
+    {
+      var c = openCharacter;
+      openCharacter = null;
+      if (openGameCharacter(c))
+      {
+        selectedPart = null;
+        hidden = [];
+        var idle = animByName('idle');
+        if (idle >= 0) openAnim(idle, false) else openRest();
+        return;
+      }
+    }
     renderer = new RigRenderer();
     try
     {
@@ -173,7 +223,7 @@ class AnimationStudioState extends GoldenEditorState
       'move' => 'V', 'rotate' => 'R', 'scale' => 'S', 'pivot' => 'P', 'pan' => 'H', 'zoom' => 'Z', 'play' => 'ENTER',
       'prevFrame' => 'COMMA', 'nextFrame' => 'PERIOD', 'firstFrame' => 'HOME', 'lastFrame' => 'END', 'key' => 'K',
       'deleteKey' => 'DELETE', 'onion' => 'O', 'layerUp' => 'PAGEUP', 'layerDown' => 'PAGEDOWN', 'rotLeft' => 'LBRACKET',
-      'rotRight' => 'RBRACKET', 'focus' => 'F'
+      'rotRight' => 'RBRACKET', 'focus' => 'F', 'paint' => 'B', 'erase' => 'E'
     ];
     var path = Path.normalize(Path.join([golden.modding.GoldenMods.modRoot(), '..', 'golden-animstudio-keys.json']));
     var custom:Dynamic = EditorFiles.exists(path) ? EditorFiles.loadJson(path) : null;
@@ -854,6 +904,20 @@ class AnimationStudioState extends GoldenEditorState
         an.loop = v;
         changed();
       });
+      inspector.addChoice('Tween (key at frame)', () -> RigData.EASES, () ->
+      {
+        var id = selectedPart ?? (project.parts.length > 0 ? project.parts[0].id : '');
+        return RigData.keyAt(an, id, frame)?.e ?? 'linear';
+      }, v ->
+      {
+        var n = 0;
+        for (x in project.parts)
+          if ((selectedPart == null || selectedPart == x.id) && RigData.setKeyEase(an, x.id, frame, v)) n++;
+        changed();
+        trace('[GOLDEN EDITOR] Animation Studio: tween $v on $n key(s) at frame $frame');
+        if (n == 0) notify('No key at frame $frame${selectedPart != null ? " for the selected part" : ""}: add one (K) first.', 0xFFFFB347);
+      });
+      inspector.addNote('The tween goes from this key to the next one ("hold" = no tween, frame by frame).');
       var poseNames = () -> [for (p in project.poses) p.folder + '/' + p.name];
       var chosen = project.poses.length > 0 ? poseNames()[0] : '';
       inspector.addChoice('Pose', poseNames, () -> chosen, v -> chosen = v);
@@ -1024,6 +1088,17 @@ class AnimationStudioState extends GoldenEditorState
       needsRender = true;
     }, 0.05, 0.05, 1);
 
+    inspector.addHeader('Paint / erase (tools B / E)');
+    inspector.addText('Brush colour', () -> brushColor, v -> brushColor = v.trim());
+    inspector.addNumber('Brush size', () -> brushSize, v -> brushSize = Std.int(v), 1, 1, 64);
+    inspector.addButtons([{caption: 'Undo stroke', fn: undoStroke, tooltip: 'Paint strokes have their own undo'}]);
+
+    inspector.addHeader('Sprite sheet export');
+    inspector.addNumber('Frame spacing (px)', () -> RigExport.spacing, v -> RigExport.spacing = Std.int(v), 1, 0, 32);
+    inspector.addToggle('Replace original', () -> appendReplace, v -> appendReplace = v);
+    inspector.addNote('Add to existing: pick a Sparrow PNG (XML next to it). Replace = overwrite after a timestamped .bak backup; off = write <name>-golden.png/.xml.');
+    inspector.addButtons([{caption: 'Add to existing sheet...', fn: addToExistingSheet}]);
+
     inspector.addHeader('Test in gameplay');
     var songs = () -> funkin.data.song.SongRegistry.instance.listEntryIds();
     inspector.addChoice('Song', songs, () -> testSong, v -> testSong = v);
@@ -1096,6 +1171,28 @@ class AnimationStudioState extends GoldenEditorState
       notify('Imported pose "${d.name}" ($matched parts matched).');
     }, () -> {});
     #end
+  }
+
+  var appendReplace:Bool = false;
+
+  function addToExistingSheet():Void
+  {
+    #if sys
+    FileUtil.browseForFile('Existing sprite sheet (PNG with its XML next to it)', [FileUtil.FILE_FILTER_PNG], file -> appendTo(file.fullPath), () -> {});
+    #end
+  }
+
+  public function appendTo(pngPath:String):Void
+  {
+    var r = RigExport.appendToSheet(project, renderer, pngPath, appendReplace);
+    if (r.error != null)
+    {
+      UISound.play(Error);
+      notify('Add to sheet failed: ${r.error}', 0xFFFF5C5C);
+      return;
+    }
+    UISound.play(Confirm);
+    notify('Added ${r.prefixes.length} animations to ${haxe.io.Path.withoutDirectory(r.png)} (prefixes: ${r.prefixes.map(x -> x.prefix).join(", ")}).', 0xFF6BE36B);
   }
 
   function editT(id:String, fn:PartT->Void):Void
@@ -1318,6 +1415,15 @@ class AnimationStudioState extends GoldenEditorState
         needsRender = true;
         return;
       }
+      if (tool == 'paint' || tool == 'erase')
+      {
+        if (selectedPart == null)
+        {
+          var hit = renderer.hitTest(project, currentTM(), mx, my, hidden);
+          if (hit != null) selectPart(hit);
+        }
+        if (selectedPart != null) beginStroke();
+      }
       var h = handles();
       var kind:Null<String> = null;
       if (h != null)
@@ -1350,6 +1456,13 @@ class AnimationStudioState extends GoldenEditorState
           pivot: {x: p.pivotX, y: p.pivotY}
         };
       }
+    }
+    if (stroking)
+    {
+      if (FlxG.mouse.pressed) paintAt(mx, my);
+      else
+        endStroke();
+      return;
     }
     if (drag != null && FlxG.mouse.pressed)
     {
@@ -1408,6 +1521,77 @@ class AnimationStudioState extends GoldenEditorState
       drag = null;
       changed();
     }
+  }
+
+  // ---- paint / erase (fixing artwork) ----
+  public var brushColor:String = '#1A1424';
+  public var brushSize:Int = 6;
+  var stroking:Bool = false;
+  var strokeUndo:Array<{name:String, bmp:BitmapData}> = [];
+  var strokePixels:Int = 0;
+
+  function strokeImageName():Null<String>
+  {
+    var p = RigData.part(project, selectedPart);
+    if (p == null) return null;
+    var v = currentTM().get(p.id)?.v ?? 0;
+    return v > 0 && v <= p.variants.length ? p.variants[v - 1] : p.image;
+  }
+
+  function beginStroke():Void
+  {
+    var name = strokeImageName();
+    var img = name != null ? renderer.images.get(name) : null;
+    if (img == null) return;
+    strokeUndo.push({name: name, bmp: img.clone()});
+    if (strokeUndo.length > 30) strokeUndo.shift().bmp.dispose();
+    stroking = true;
+    strokePixels = 0;
+  }
+
+  function paintAt(wx:Float, wy:Float):Void
+  {
+    var p = RigData.part(project, selectedPart);
+    var name = strokeImageName();
+    var img = name != null ? renderer.images.get(name) : null;
+    if (p == null || img == null) return;
+    var w = RigData.world(project, currentTM()).get(p.id);
+    var q = RigData.imageMatrix(p, w).invert().apply(wx, wy);
+    var r = brushSize;
+    var col = 0xFF000000 | golden.events.FxModel.parseColor(brushColor, 0);
+    for (dy in -r...r + 1)
+      for (dx in -r...r + 1)
+      {
+        if (dx * dx + dy * dy > r * r) continue;
+        var px = Std.int(q.x) + dx, py = Std.int(q.y) + dy;
+        if (px < 0 || py < 0 || px >= img.width || py >= img.height) continue;
+        img.setPixel32(px, py, tool == 'erase' ? 0 : col);
+        strokePixels++;
+      }
+    needsRender = true;
+  }
+
+  function endStroke():Void
+  {
+    stroking = false;
+    dirty = true;
+    browserDirty = true;
+    trace('[GOLDEN EDITOR] Animation Studio: ${tool} stroke on ${RigData.part(project, selectedPart)?.name} ($strokePixels px)');
+  }
+
+  public function undoStroke():Void
+  {
+    var u = strokeUndo.pop();
+    if (u == null)
+    {
+      notify('No paint stroke to undo.');
+      return;
+    }
+    var img = renderer.images.get(u.name);
+    if (img != null) img.copyPixels(u.bmp, u.bmp.rect, new openfl.geom.Point(0, 0));
+    u.bmp.dispose();
+    needsRender = browserDirty = true;
+    trace('[GOLDEN EDITOR] Animation Studio: paint stroke undone');
   }
 
   function nudge(dx:Float, dy:Float):Void
@@ -1549,7 +1733,7 @@ class AnimationStudioState extends GoldenEditorState
       }
       return;
     }
-    for (t in ['move', 'rotate', 'scale', 'pivot', 'pan', 'zoom'])
+    for (t in ['move', 'rotate', 'scale', 'pivot', 'pan', 'zoom', 'paint', 'erase'])
       if (pressed(t)) setTool(t);
     var step = shift ? 10 : 1;
     if (FlxG.keys.justPressed.LEFT) nudge(-step, 0);

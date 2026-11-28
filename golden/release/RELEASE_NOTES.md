@@ -20,13 +20,15 @@ tested on a Windows PC with a real GPU and speakers yet (see "Known limitations"
 - **Editors hub** (Main menu → Editors) with Golden editors that share one layout and save into a mod:
   - **Character Animation Studio** — FNF Boyfriend as editable parts with his real poses and animations;
     import your own body-part PNGs; pose library with thumbnails; keyframe timeline with onion skin;
-    face variants; generated starting poses; export to a playable FNF character; Test Play.
+    face variants; eased tweens; paint/erase fixes; generated starting poses (rule-based, not AI); export to a
+    playable FNF character or add to an existing sprite sheet (with backup); Test Play.
   - **Event System** (replaces the Camera Editor) — song timeline: camera, zoom, shake, flashes, colour
     grading, overlays, text, jumpscares, note layout (middle scroll…), character animation, sounds, Lua
     calls; notes and chart events editable (originals locked by default, saved as a mod copy); real stage
     preview; Bot Preview in the real game; Reset to Original.
   - **Cutscene Editor**, **Character Editor** (with health bar colours), **Game Over Editor** (per-song
     setups), **Week Editor**, **Note Skin Editor**, **Main Menu Editor**, **Mod Asset Manager**.
+- **Ghost tapping** option (Options → Golden Engine), **on by default**.
 - **Freeplay**: Ctrl+F search as you type, filter by mod, sort A-Z or recently played.
 - **Chart Editor**: E / hold E / Shift+E extend sustains, Q shortens; info panel; purple menubar.
 - **Vocals**: one combined `voices.ogg` or separate `Voices-Player.ogg` / `Voices-Opponent.ogg` work

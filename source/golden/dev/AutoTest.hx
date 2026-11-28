@@ -82,7 +82,7 @@ class AutoTest extends FlxBasic
     ]);
     else steps = steps.concat([
       PlaySong('bopeebo', 'normal'),
-      WaitState('PlayState', 90), Log('gameplay reached'), Delay(15),
+      WaitState('PlayState', 90), Log('gameplay reached'), Delay(1), Press(Keyboard.LEFT), Delay(14),
       Log('done')
     ]);
   }

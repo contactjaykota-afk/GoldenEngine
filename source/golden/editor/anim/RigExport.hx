@@ -29,6 +29,9 @@ class RigExport
   public static function prefix(index:Int, an:RigAnim):String
     return 'a' + StringTools.lpad(Std.string(index), '0', 2) + ' ' + an.fnfName;
 
+  /** Pixels between packed frames (Export settings). */
+  public static var spacing:Int = 2;
+
   /** Returns {error} or {files, frames, size}. */
   public static function export(p:RigProject, r:RigRenderer, mod:String):{error:Null<String>, files:Array<String>, frames:Int, sheet:String}
   {
@@ -106,16 +109,16 @@ class RigExport
         for (i in idx)
         {
           var fw = frames[i].bmp.width, fh = frames[i].bmp.height;
-          if (fw + 2 > SHEET || fh + 2 > SHEET) return null;
-          if (x + fw + 2 > SHEET)
+          if (fw + spacing > SHEET || fh + spacing > SHEET) return null;
+          if (x + fw + spacing > SHEET)
           {
             x = 0;
-            y += rh + 2;
+            y += rh + spacing;
             rh = 0;
           }
           if (y + fh > SHEET) return null;
           out.push({x: x, y: y});
-          x += fw + 2;
+          x += fw + spacing;
           rh = Std.int(Math.max(rh, fh));
         }
         return {x: x, y: y, r: rh, p: out};
@@ -348,4 +351,130 @@ class RigExport
     return null;
     #end
   }
+  /**
+   * Add this project's animations to an EXISTING Sparrow sprite sheet (PNG + XML next to it): the existing
+   * frames are kept (names, trims, offsets), the new frames are added and everything is repacked into one
+   * sheet. `replace` = overwrite the original files after copying them to "<name>.<timestamp>.bak";
+   * otherwise a new "<name>-golden.png/.xml" is written next to them. Animation names that already exist in
+   * the sheet get a numbered prefix so nothing is overwritten. Returns the new animation prefixes.
+   */
+  public static function appendToSheet(p:RigProject, r:RigRenderer, pngPath:String, replace:Bool):{error:Null<String>, png:String, prefixes:Array<{name:String, prefix:String, fps:Int, loop:Bool}>}
+  {
+    #if sys
+    var xmlPath = Path.withoutExtension(pngPath) + '.xml';
+    if (!sys.FileSystem.exists(pngPath) || !sys.FileSystem.exists(xmlPath)) return {error: 'Need the PNG and its matching XML side by side.', png: '', prefixes: []};
+    var sheetBmp = loadImage(pngPath);
+    if (sheetBmp == null) return {error: 'Could not load $pngPath', png: '', prefixes: []};
+    var xml:Xml;
+    try
+      xml = Xml.parse(sys.io.File.getContent(xmlPath)).firstElement()
+    catch (e:Dynamic)
+      return {error: 'Invalid XML: $e', png: '', prefixes: []};
+    // existing frames
+    var frames:Array<{name:String, bmp:BitmapData, fx:Int, fy:Int, fw:Int, fh:Int}> = [];
+    var names:Map<String, Bool> = [];
+    for (st in xml.elementsNamed('SubTexture'))
+    {
+      inline function a(n:String, d:Int = 0):Int
+        return st.exists(n) ? Std.parseInt(st.get(n)) : d;
+      var w = a('width'), h = a('height');
+      if (w <= 0 || h <= 0) continue;
+      if (st.get('rotated') == 'true') return {error: 'Rotated frames in the existing sheet are not supported.', png: '', prefixes: []};
+      var b = new BitmapData(w, h, true, 0);
+      b.copyPixels(sheetBmp, new Rectangle(a('x'), a('y'), w, h), new Point(0, 0));
+      frames.push({name: st.get('name'), bmp: b, fx: -a('frameX'), fy: -a('frameY'), fw: a('frameWidth', w), fh: a('frameHeight', h)});
+      names.set(st.get('name'), true);
+    }
+    var existingCount = frames.length;
+    // new frames (same rendering as export)
+    var anims = p.anims.filter(x -> x.fnfName != null && x.fnfName != '');
+    if (anims.length == 0) return {error: 'No animations to add.', png: '', prefixes: []};
+    var minX = 0.0, maxX = 0.0, minY = 0.0, maxY = 0.0;
+    for (an in anims)
+      for (f in 0...an.length)
+      {
+        var b = r.bounds(p, RigData.sample(p, an, f));
+        minX = Math.min(minX, b.x);
+        maxX = Math.max(maxX, b.right);
+        minY = Math.min(minY, b.y);
+        maxY = Math.max(maxY, b.bottom);
+      }
+    var half = Math.ceil(Math.max(-minX, maxX)) + 2, top = Math.floor(minY) - 2, bottom = Math.ceil(Math.max(0, maxY)) + 2;
+    var cw = half * 2, ch = bottom - top;
+    var view = new Affine(1, 0, 0, 1, half, -top);
+    var canvas = new BitmapData(cw, ch, true, 0);
+    var prefixes = [];
+    for (i in 0...anims.length)
+    {
+      var base = 'golden ' + anims[i].fnfName;
+      var pre = base, n = 2;
+      while ([for (k in names.keys()) k].exists(k -> k.startsWith(pre) && ~/^[0-9]+$/.match(k.substr(pre.length))))
+        pre = base + ' ' + n++;
+      prefixes.push({name: anims[i].fnfName, prefix: pre, fps: anims[i].fps, loop: anims[i].loop});
+      for (f in 0...anims[i].length)
+      {
+        canvas.fillRect(canvas.rect, 0);
+        r.draw(p, RigData.sample(p, anims[i], f), canvas, view);
+        var tr = canvas.getColorBoundsRect(0xFF000000, 0, false);
+        if (tr.width <= 0 || tr.height <= 0) tr = new Rectangle(0, 0, 1, 1);
+        var fb = new BitmapData(Std.int(tr.width), Std.int(tr.height), true, 0);
+        fb.copyPixels(canvas, tr, new Point(0, 0));
+        var nm = pre + StringTools.lpad(Std.string(f), '0', 4);
+        frames.push({name: nm, bmp: fb, fx: Std.int(tr.x), fy: Std.int(tr.y), fw: cw, fh: ch});
+        names.set(nm, true);
+      }
+    }
+    canvas.dispose();
+    // repack everything (tallest first)
+    var order = [for (i in 0...frames.length) i];
+    order.sort((a, b) -> frames[b].bmp.height - frames[a].bmp.height);
+    var pos:Array<{x:Int, y:Int}> = [for (_ in frames) null];
+    var x = 0, y = 0, rh = 0;
+    for (i in order)
+    {
+      var fw = frames[i].bmp.width, fh = frames[i].bmp.height;
+      if (x + fw + spacing > SHEET)
+      {
+        x = 0;
+        y += rh + spacing;
+        rh = 0;
+      }
+      pos[i] = {x: x, y: y};
+      x += fw + spacing;
+      rh = Std.int(Math.max(rh, fh));
+    }
+    var h = y + rh;
+    if (h > SHEET) return {error: 'The combined sheet would be ${SHEET}x$h (max $SHEET): export a new sheet instead.', png: '', prefixes: []};
+    var sheet = new BitmapData(SHEET, Std.int(Math.max(1, h)), true, 0);
+    var outName = Path.withoutDirectory(replace ? pngPath : Path.withoutExtension(pngPath) + '-golden.png');
+    var sb = new StringBuf();
+    sb.add('<?xml version="1.0" encoding="utf-8"?>\n<!-- Extended by Golden Engine Animation Studio (${frames.length - existingCount} frames added) -->\n<TextureAtlas imagePath="$outName">\n');
+    for (i in 0...frames.length)
+    {
+      var f = frames[i];
+      sheet.copyPixels(f.bmp, f.bmp.rect, new Point(pos[i].x, pos[i].y));
+      sb.add('  <SubTexture name="${StringTools.htmlEscape(f.name, true)}" x="${pos[i].x}" y="${pos[i].y}" width="${f.bmp.width}" height="${f.bmp.height}" frameX="${-f.fx}" frameY="${-f.fy}" frameWidth="${f.fw}" frameHeight="${f.fh}"/>\n');
+      f.bmp.dispose();
+    }
+    sb.add('</TextureAtlas>\n');
+    var outPng = replace ? pngPath : Path.withoutExtension(pngPath) + '-golden.png';
+    var outXml = Path.withoutExtension(outPng) + '.xml';
+    if (replace)
+    {
+      var stamp = DateTools.format(Date.now(), '%Y%m%d-%H%M%S');
+      sys.io.File.copy(pngPath, '$pngPath.$stamp.bak');
+      sys.io.File.copy(xmlPath, '$xmlPath.$stamp.bak');
+    }
+    var err = EditorFiles.saveBytes(outPng, png(sheet));
+    sheet.dispose();
+    if (err != null) return {error: err, png: '', prefixes: []};
+    err = EditorFiles.saveText(outXml, sb.toString());
+    if (err != null) return {error: err, png: '', prefixes: []};
+    trace('[GOLDEN EDITOR] Sprite sheet extended: $outPng ($existingCount existing + ${frames.length - existingCount} new frames, ${SHEET}x$h)');
+    return {error: null, png: outPng, prefixes: prefixes};
+    #else
+    return {error: 'Desktop only.', png: '', prefixes: []};
+    #end
+  }
+
 }

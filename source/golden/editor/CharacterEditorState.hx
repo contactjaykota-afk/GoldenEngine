@@ -82,6 +82,13 @@ class CharacterEditorState extends GoldenEditorState
     inspector = ui(new Inspector(FlxG.width - rightW, GoldenEditorState.TOP, rightW, FlxG.height - GoldenEditorState.TOP - GoldenEditorState.BOTTOM));
     addTool('Play Anim (Space)', playAnim);
     addTool('Test Play', testPlay, 'Save, then play a song with this character as the player (F9 returns)');
+    addTool('Open in Animation Studio', () ->
+    {
+      golden.editor.anim.AnimationStudioState.openCharacter = {id: charId, assetPath: data.assetPath, renderType: data.renderType, name: data.name ?? charId};
+      trace('[GOLDEN EDITOR] Character Editor: opening "$charId" in the Animation Studio');
+      leaving = true;
+      FlxG.switchState(() -> new golden.editor.anim.AnimationStudioState());
+    }, 'Edit this character\'s parts and animations (Animate-atlas characters and Studio projects)');
     loadChar(keepId ?? 'bf');
     keepId = null;
   }

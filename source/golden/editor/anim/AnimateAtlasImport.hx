@@ -435,19 +435,34 @@ class AnimateAtlasImport
     return Math.abs(a.x - b.x) < 0.01 && Math.abs(a.y - b.y) < 0.01 && Math.abs(a.r - b.r) < 0.01 && Math.abs(a.sx - b.sx) < 0.001
       && Math.abs(a.sy - b.sy) < 0.001 && a.a == b.a && a.v == b.v;
 
+  /**
+   * Import any Animate-atlas character by its FNF asset path (e.g. "shared:characters/bf"), through the
+   * asset system (so mods can provide/override it).
+   */
+  public static function loadAtlas(assetPath:String, id:String, name:String, renderer:RigRenderer):RigProject
+  {
+    var lib:Null<String> = null, key = assetPath;
+    if (assetPath.indexOf(':') >= 0)
+    {
+      lib = assetPath.split(':')[0];
+      key = assetPath.split(':')[1];
+    }
+    var a = funkin.Assets.getText(Paths.file('images/$key/Animation.json', TEXT, lib));
+    var sm = funkin.Assets.getText(Paths.file('images/$key/spritemap1.json', TEXT, lib));
+    var png = openfl.utils.Assets.getBitmapData(Paths.file('images/$key/spritemap1.png', IMAGE, lib), false);
+    if (a == null || sm == null || png == null) throw 'Animate atlas not found for "$assetPath".';
+    var imp = new AnimateAtlasImport(a, sm, png);
+    var p = imp.build(id, name, renderer);
+    RigData.autoRig(p);
+    trace('[GOLDEN EDITOR] Imported "$assetPath" from its Animate atlas: ${p.parts.length} parts, ${p.poses.length} poses, ${p.anims.length} animations');
+    return p;
+  }
+
   /** Load FNF's Boyfriend from the game assets (through the asset system, so mods can override it). */
   public static function loadBoyfriend(renderer:RigRenderer):RigProject
   {
-    var base = 'shared:assets/shared/images/characters/bf/';
-    var a = funkin.Assets.getText(base + 'Animation.json');
-    var s = funkin.Assets.getText(base + 'spritemap1.json');
-    var png = openfl.utils.Assets.getBitmapData(base + 'spritemap1.png', false);
-    if (a == null || s == null || png == null) throw 'Boyfriend atlas not found in the game assets.';
-    var imp = new AnimateAtlasImport(a, s, png);
-    var p = imp.build('bf-studio', 'Boyfriend (FNF example)', renderer);
+    var p = loadAtlas('shared:characters/bf', 'bf-studio', 'Boyfriend (FNF example)', renderer);
     p.healthColor = '#31B0D1';
-    p.flipX = false;
-    RigData.autoRig(p);
     trace('[GOLDEN EDITOR] Boyfriend imported from the game atlas: ${p.parts.length} parts, ${p.poses.length} poses, ${p.anims.length} animations');
     return p;
   }

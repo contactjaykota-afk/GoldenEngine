@@ -87,6 +87,12 @@ class RigTest
     var s = RigData.sample(p, an, 5).get('body');
     check('linear interpolation halfway', near(s.x, 50) && near(s.r, 45), s);
     check('length grows to include keys', an.length == 11);
+    RigData.setKeyEase(an, 'body', 0, 'quadOut');
+    check('quadOut easing at the midpoint', near(RigData.sample(p, an, 5).get('body').x, 75), RigData.sample(p, an, 5).get('body').x);
+    RigData.setKeyEase(an, 'body', 0, 'hold');
+    check('hold easing keeps the first key until the next one', near(RigData.sample(p, an, 9).get('body').x, 0));
+    RigData.setKeyEase(an, 'body', 0, 'linear');
+    check('easing curves end at 1', [for (e in RigData.EASES) if (e != 'hold') Math.abs(RigData.ease(e, 1) - 1) < 1e-6].indexOf(false) < 0);
     check('move key', RigData.moveKey(an, 'body', 10, 12) && RigData.keyAt(an, 'body', 12) != null);
     check('move key refuses collisions', !RigData.moveKey(an, 'body', 0, 12));
     check('remove key', RigData.removeKey(an, 'body', 0) && RigData.keyAt(an, 'body', 0) == null);

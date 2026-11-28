@@ -44,6 +44,16 @@ class GoldenSettings
   /** Screen shader effects (Event System colour grading, blur, glitch...): auto | on | off. */
   public static var screenShaders(default, set):String = 'auto';
 
+  /** Ghost tapping: pressing a key with no note nearby is not a miss. On by default. */
+  public static var ghostTapping(default, set):Bool = true;
+
+  static function set_ghostTapping(v:Bool):Bool
+  {
+    ghostTapping = v;
+    save();
+    return v;
+  }
+
   /** Recently played song ids, newest first (Freeplay "Recently played" sort). */
   public static var recentSongs:Array<String> = [];
 
@@ -83,6 +93,7 @@ class GoldenSettings
       if (Reflect.hasField(data, 'chartEditorKey')) chartEditorKey = Std.string(Reflect.field(data, 'chartEditorKey'));
       if (Reflect.hasField(data, 'editorTarget')) editorTarget = Reflect.field(data, 'editorTarget');
       if (Reflect.hasField(data, 'recentSongs') && Std.isOfType(Reflect.field(data, 'recentSongs'), Array)) recentSongs = [for (x in (Reflect.field(data, 'recentSongs') : Array<Dynamic>)) Std.string(x)];
+      if (Reflect.hasField(data, 'ghostTapping')) ghostTapping = Reflect.field(data, 'ghostTapping') != false;
       if (Reflect.hasField(data, 'screenShaders')) screenShaders = Std.string(Reflect.field(data, 'screenShaders'));
       if (Reflect.hasField(data, 'graphicsPreset')) graphicsPreset = Std.string(Reflect.field(data, 'graphicsPreset'));
       if (Reflect.hasField(data, 'modSelectorKey')) modSelectorKey = Std.string(Reflect.field(data, 'modSelectorKey'));
@@ -123,7 +134,8 @@ class GoldenSettings
         editorTarget: editorTarget,
         graphicsPreset: graphicsPreset,
         screenShaders: screenShaders,
-        recentSongs: recentSongs
+        recentSongs: recentSongs,
+        ghostTapping: ghostTapping
       }, null, '  ');
       File.saveContent(p + '.tmp', text);
       if (FileSystem.exists(p)) FileSystem.deleteFile(p);

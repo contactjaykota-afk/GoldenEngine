@@ -26,7 +26,7 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
   var confirmReset:Bool = false;
 
   /** Row height (rows are tighter now that there are 9). */
-  static inline var ROW:Int = 50;
+  static inline var ROW:Int = 46;
 
   public function new()
   {
@@ -83,6 +83,13 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
       value: () -> confirmReset ? 'press again to confirm' : '',
       change: (_) -> {},
       accept: resetDev
+    });
+    rows.push({
+      label: 'Ghost Tapping',
+      desc: 'On: pressing a key when no note is near never counts as a miss. Off: FNF\'s anti-spam penalty.',
+      value: () -> GoldenSettings.ghostTapping ? 'ON' : 'OFF',
+      change: (_) -> GoldenSettings.ghostTapping = !GoldenSettings.ghostTapping,
+      accept: () -> GoldenSettings.ghostTapping = !GoldenSettings.ghostTapping
     });
     rows.push({
       label: 'Graphics Preset',

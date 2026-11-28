@@ -3054,10 +3054,11 @@ class PlayState extends MusicBeatSubState
 
       var notesInDirection:Array<NoteSprite> = notesByDirection[input.noteDirection];
 
+      // Golden Engine: Options > Golden Engine > Ghost Tapping (on by default): pressing with no note nearby is never penalized.
       #if FEATURE_GHOST_TAPPING
-      if ((!playerStrumline.mayGhostTap()) && notesInDirection.length == 0)
+      if (!golden.GoldenSettings.ghostTapping && (!playerStrumline.mayGhostTap()) && notesInDirection.length == 0)
       #else
-      if (notesInDirection.length == 0)
+      if (!golden.GoldenSettings.ghostTapping && notesInDirection.length == 0)
       #end
       {
         // Pressed a wrong key with no notes nearby.
