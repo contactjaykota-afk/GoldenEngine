@@ -1046,6 +1046,9 @@ class FreeplayState extends MusicBeatSubState
           if (filteredSong == null) return true; // Random
           return filteredSong.data.songName.toLowerCase().startsWith(songFilter.filterData ?? '');
         });
+      case GOLDEN:
+        // Golden Engine: search + mod filter + sort (golden.ui.FreeplaySearch).
+        songsToFilter = golden.ui.FreeplaySearch.apply(songsToFilter, songFilter.filterData);
       case ALL:
         // no filter!
       case FAVORITE:
@@ -1684,6 +1687,8 @@ class FreeplayState extends MusicBeatSubState
       }
 
       if (controls.FREEPLAY_FAVORITE) favoriteSong();
+      // Golden Engine: song search / filter / sort (Ctrl+F or F3).
+      if ((FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.F) || FlxG.keys.justPressed.F3) openSubState(new golden.ui.FreeplaySearch(this));
       if (controls.FREEPLAY_JUMP_TO_TOP) changeSelection(-curSelected);
       if (controls.FREEPLAY_JUMP_TO_BOTTOM) changeSelection(grpCapsules.countLiving() - curSelected - 1);
     }
@@ -3265,6 +3270,11 @@ enum abstract FilterType(String)
    * Filter to all songs
    */
   public var ALL;
+
+  /**
+   * Golden Engine: text search, mod filter and sorting (see golden.ui.FreeplaySearch).
+   */
+  public var GOLDEN;
 }
 
 /**

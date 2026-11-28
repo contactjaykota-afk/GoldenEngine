@@ -207,6 +207,7 @@ class GoldenFxModule extends Module
     stop();
     var ps = PlayState.instance;
     if (ps == null) return;
+    golden.GoldenSettings.addRecentSong(event.id);
     golden.editor.NoteSkinEditorState.clearColors();
     @:privateAccess var styleId:String = ps.noteStyle?.id ?? '';
     noteTints = golden.editor.NoteSkinEditorState.tintsFor(styleId);
