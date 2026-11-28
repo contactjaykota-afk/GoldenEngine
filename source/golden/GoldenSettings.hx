@@ -35,6 +35,12 @@ class GoldenSettings
   /** Key (FlxKey name) that opens the mod selector in Developer Mode. */
   public static var modSelectorKey(default, set):String = 'TAB';
 
+  /** Mod folder the Golden editors save into (see golden.editor.EditorFiles). */
+  public static var editorTarget(default, set):Null<String> = null;
+
+  /** Graphics preset: low, medium, high, ultra or custom (see golden.GoldenGraphics). */
+  public static var graphicsPreset(default, set):String = 'high';
+
   static var loaded:Bool = false;
   static var suspendSave:Bool = false;
 
@@ -61,6 +67,8 @@ class GoldenSettings
       if (Reflect.hasField(data, 'perfMonitor')) perfMonitor = Reflect.field(data, 'perfMonitor') == true;
       if (Reflect.hasField(data, 'menuMusic')) menuMusic = Std.string(Reflect.field(data, 'menuMusic'));
       if (Reflect.hasField(data, 'chartEditorKey')) chartEditorKey = Std.string(Reflect.field(data, 'chartEditorKey'));
+      if (Reflect.hasField(data, 'editorTarget')) editorTarget = Reflect.field(data, 'editorTarget');
+      if (Reflect.hasField(data, 'graphicsPreset')) graphicsPreset = Std.string(Reflect.field(data, 'graphicsPreset'));
       if (Reflect.hasField(data, 'modSelectorKey')) modSelectorKey = Std.string(Reflect.field(data, 'modSelectorKey'));
     }
     catch (e:Dynamic)
@@ -95,7 +103,9 @@ class GoldenSettings
         perfMonitor: perfMonitor,
         menuMusic: menuMusic,
         chartEditorKey: chartEditorKey,
-        modSelectorKey: modSelectorKey
+        modSelectorKey: modSelectorKey,
+        editorTarget: editorTarget,
+        graphicsPreset: graphicsPreset
       }, null, '  ');
       File.saveContent(p + '.tmp', text);
       if (FileSystem.exists(p)) FileSystem.deleteFile(p);
@@ -153,6 +163,20 @@ class GoldenSettings
   /** The music key to use for upstream's "freakyMenu". */
   public static function menuMusicKey():String
     return menuMusic == 'classic' ? 'freakyMenu' : 'goldenMenu';
+
+  static function set_editorTarget(v:Null<String>):Null<String>
+  {
+    editorTarget = v;
+    save();
+    return v;
+  }
+
+  static function set_graphicsPreset(v:String):String
+  {
+    graphicsPreset = ['low', 'medium', 'high', 'ultra', 'custom'].contains(v) ? v : 'high';
+    save();
+    return graphicsPreset;
+  }
 
   static function set_chartEditorKey(v:String):String
   {

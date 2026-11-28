@@ -134,6 +134,7 @@ class GoldenDevTools extends FlxBasic
     var name = Type.getClassName(Type.getClass(state));
     if (name.indexOf('.debug.') >= 0) return false; // chart/stage/animation editors and debug states
     if (name.indexOf('ModManagerState') >= 0) return false;
+    if (Std.isOfType(state, golden.editor.GoldenEditorState) || name.indexOf('ScriptEditorState') >= 0) return false; // Golden editors use these keys
     if (name.indexOf('TitleState') >= 0 || name.indexOf('InitState') >= 0) return false;
     return true;
   }

@@ -66,8 +66,26 @@ class GoldenStudio
   }
 
   /** Called every frame by GoldenDevTools: F9 outside the editor returns to it. (F5 is upstream's asset reload.) */
+  /** Set by Golden editors' "Test in gameplay": F9 during the song returns to that editor. */
+  public static var editorReturn:Null<Void->Void> = null;
+
   public static function update():Void
   {
+    if (editorReturn != null && Std.isOfType(FlxG.state, funkin.play.PlayState) && FlxG.keys.justPressed.F9)
+    {
+      trace('[GOLDEN] Editor test: F9, returning to the editor');
+      FlxG.sound.music?.stop();
+      var back = editorReturn;
+      editorReturn = null;
+      golden.GoldenPlayOverrides.clear();
+      back();
+      return;
+    }
+    if (editorReturn == null && (golden.GoldenPlayOverrides.player != null || golden.GoldenPlayOverrides.opponent != null))
+    {
+      var n = Type.getClassName(Type.getClass(FlxG.state));
+      if (n.indexOf('MainMenuState') >= 0 || n.indexOf('FreeplayState') >= 0 || n.indexOf('StoryMenuState') >= 0) golden.GoldenPlayOverrides.clear();
+    }
     if (session == null || session.songId == '') return;
     if (Std.isOfType(FlxG.state, ScriptEditorState)) return;
     if (FlxG.keys.justPressed.F9)

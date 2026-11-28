@@ -14,6 +14,8 @@ enum abstract UISoundKind(String) to String
   var Toggle = 'toggle';
   var Slider = 'slider';
   var Error = 'error';
+  var Click = 'click';
+  var Confirm = 'confirm';
 }
 
 /**
@@ -39,7 +41,9 @@ class UISound
     'close' => {key: 'cancelMenu', volume: 0.5},
     'toggle' => {key: 'remote_click', volume: 0.9},
     'slider' => {key: 'scrollMenu', volume: 0.4},
-    'error' => {key: 'CS_locked', volume: 0.6}
+    'error' => {key: 'CS_locked', volume: 0.6},
+    'click' => {key: 'remote_click', volume: 0.45},
+    'confirm' => {key: 'confirmMenu', volume: 0.55}
   ];
 
   /** Sound files treated as UI sounds everywhere in the game (upstream menus included). */

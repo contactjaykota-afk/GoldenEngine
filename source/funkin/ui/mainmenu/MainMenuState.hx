@@ -679,7 +679,8 @@ class MainMenuState extends MusicBeatState
     {
       persistentUpdate = false;
       uiStateMachine.transition(Interacting);
-      FlxG.state.openSubState(new DebugMenuSubState());
+      // Golden Engine: the Editors hub (Golden + FNF editors). The upstream debug menu stays on ` (backquote).
+      FlxG.switchState(() -> new golden.editor.EditorHubState());
     };
     if (golden.GoldenSettings.developerMode)
     {

@@ -8,9 +8,10 @@ TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/golden"
 cp -r "$ROOT/source/golden/charting" "$ROOT/source/golden/studio" "$TMP/golden/"
 mkdir -p "$TMP/golden/audio"; cp "$ROOT/source/golden/audio/VoiceResolver.hx" "$TMP/golden/audio/"
+mkdir -p "$TMP/golden/editor/anim"; cp "$ROOT/source/golden/editor/anim/RigData.hx" "$TMP/golden/editor/anim/"
 rm -f "$TMP/golden/studio/"*State.hx "$TMP/golden/studio/"*Panel.hx  # engine-dependent files
 status=0
-for t in MidiTest HighlightTest VoiceTest; do
+for t in MidiTest HighlightTest VoiceTest RigTest; do
   echo "== $t"
   haxe -cp "$TMP" -cp "$ROOT/golden/tests/unit" -main "$t" --interp || status=1
 done

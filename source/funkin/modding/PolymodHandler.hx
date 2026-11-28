@@ -605,7 +605,10 @@ class PolymodHandler
       {
         Polymod.clearCache();
       }
-      catch (e:Dynamic) {}
+      catch (e:Dynamic)
+      {
+        trace('[GOLDEN] Polymod.clearCache failed: $e');
+      }
     }
     // (Textures are purged by the Mod Manager when it applies changes, not here: callers of this
     // function may still draw the current state for a frame before resetting it.)

@@ -2145,7 +2145,7 @@ class PlayState extends MusicBeatSubState
     //
     // DAD
     //
-    var dad:Null<BaseCharacter> = CharacterDataParser.fetchCharacter(currentCharacterData.opponent);
+    var dad:Null<BaseCharacter> = CharacterDataParser.fetchCharacter(golden.GoldenPlayOverrides.opponentOr(currentCharacterData.opponent)); // Golden Engine: editor test override
 
     if (dad != null)
     {
@@ -2180,7 +2180,7 @@ class PlayState extends MusicBeatSubState
     //
     // BOYFRIEND
     //
-    var boyfriend:Null<BaseCharacter> = CharacterDataParser.fetchCharacter(currentCharacterData.player);
+    var boyfriend:Null<BaseCharacter> = CharacterDataParser.fetchCharacter(golden.GoldenPlayOverrides.playerOr(currentCharacterData.player)); // Golden Engine: editor test override
 
     if (boyfriend != null)
     {
