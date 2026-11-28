@@ -35,6 +35,8 @@ class AnimateAtlasImport
   var sheet:BitmapData;
   var sprites:Map<String, Rectangle> = [];
   var spriteCache:Map<String, BitmapData> = [];
+  /** Sprites stored rotated in the sheet (Flixel: ANGLE_NEG_90). */
+  var rotated:Map<String, Bool> = [];
   var topSymbols:Map<String, Bool> = [];
 
   public var images(default, null):Map<String, {bmp:BitmapData, ox:Float, oy:Float}> = [];
@@ -47,8 +49,8 @@ class AnimateAtlasImport
     for (s in (sm.ATLAS.SPRITES : Array<Dynamic>))
     {
       var sp:Dynamic = s.SPRITE;
-      if (sp.rotated == true) throw 'Rotated sprites in the sprite map are not supported yet (${sp.name}).';
       sprites.set(Std.string(sp.name), new Rectangle(sp.x, sp.y, sp.w, sp.h));
+      if (sp.rotated == true) rotated.set(Std.string(sp.name), true);
     }
     if (anim.SD != null) for (s in (anim.SD.S : Array<Dynamic>))
       symbols.set(s.SN, s);
@@ -86,6 +88,14 @@ class AnimateAtlasImport
     if (r == null) return null;
     var b = new BitmapData(Std.int(r.width), Std.int(r.height), true, 0);
     b.copyPixels(sheet, r, new Point(0, 0));
+    if (rotated.exists(name))
+    {
+      // Stored rotated: (x, y) in the sheet region -> (h - y, x) in the sprite (same as Flixel's ANGLE_NEG_90).
+      var u = new BitmapData(Std.int(r.height), Std.int(r.width), true, 0);
+      u.draw(b, new Matrix(0, 1, -1, 0, r.height, 0), null, null, null, false);
+      b.dispose();
+      b = u;
+    }
     spriteCache.set(name, b);
     return b;
   }

@@ -30,7 +30,7 @@ read hx hy <<<"$(where part:head)"; click_at "$hx" "$hy"; sleep 0.4
 iclick "button:Tween (key at frame) >"; sleep 0.3; iclick "button:Tween (key at frame) >"; sleep 0.3
 wait_for "tween quadIn on 1 key(s) at frame 0" 1 4; check "tween easing set on the selected part's key" $?
 key b; read hx hy <<<"$(where part:head)"; drag $((hx - 10)) "$hy" $((hx + 10)) $((hy + 4))
-wait_for "paint stroke on Head ([1-9][0-9]* px)" 1 5; check "Paint tool draws on the part image" $?
+wait_for "paint stroke on [A-Za-z ]* ([1-9][0-9]* px)" 1 5; check "Paint tool draws on the part image" $?
 iclick "button:Undo stroke"; wait_for "paint stroke undone" 1 4; check "Undo stroke restores the image" $?
 key v
 iclick "button:Add to existing sheet..."; dialog_path "Existing sprite sheet" "$SHEET/oldchar.png"

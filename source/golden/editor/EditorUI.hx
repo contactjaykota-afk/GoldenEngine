@@ -294,7 +294,7 @@ class Inspector extends FlxSpriteGroup
     }
     rows = [];
     contentH = 0;
-    scrollY = 0;
+    // (scroll position is kept across rebuilds; clamped in update() once the rows exist)
   }
 
   function addRow(g:FlxSpriteGroup, h:Float, ?refresh:Void->Void, ?rel:Array<{dx:Float, dy:Float, w:Float, h:Float, id:String}>):Void
@@ -445,7 +445,6 @@ class Inspector extends FlxSpriteGroup
 
   function layout():Void
   {
-    EditorUI.mapLog('inspector:layout', 0, 0, 0, 0);
     var yy = 4 - scrollY;
     for (r in rows)
     {
@@ -462,9 +461,17 @@ class Inspector extends FlxSpriteGroup
 
   override function update(elapsed:Float):Void
   {
+    var maxScroll = Math.max(0, contentH - ph + 8);
+    if (scrollY > maxScroll)
+    {
+      scrollY = maxScroll;
+      EditorUI.mapLog('inspector:layout', 0, 0, 0, 0);
+      layout();
+    }
     if (FlxG.mouse.wheel != 0 && EditorUI.mouseOver(camera, x, y, pw, ph) && contentH > ph)
     {
       scrollY = Math.max(0, Math.min(contentH - ph + 8, scrollY - FlxG.mouse.wheel * 30));
+      EditorUI.mapLog('inspector:layout', 0, 0, 0, 0); // positions logged after this marker are current
       layout();
     }
     super.update(elapsed);

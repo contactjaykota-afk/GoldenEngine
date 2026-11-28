@@ -15,7 +15,7 @@ iclick "field:Preset name"; combo ctrl+a; typetext "Quake"; key Return; sleep 0.
 iclick "button:Save as preset"; wait_for 'preset "Quake" saved (3 effects)' 1 5; check "Save as preset stores the whole group" $?
 grep -q '"Quake"' "$MOD/data/golden/fxpresets.json"; check "preset saved in data/golden/fxpresets.json" $?
 click_at 640 712
-pick "My presets" "Quake" "Quake"; wait_for "added zoom+zoom+shake at" 2 5; check "the custom preset can be added again" $?
+pick "My presets" "Quake" "Quake"; wait_for "Added Quake at" 1 5; check "the custom preset can be added again" $?
 combo ctrl+s; wait_for 'Saved to mod "edit-test"' 1 10; check "saved (content reloaded)" $?
 wait_for "Loaded module: GoldenBopeeboModule" 1 15; check "FNF loads the Haxe module" $?
 key Home; click "button:Bot Preview"; wait_for "started song at" 1 60; check "song plays" $?

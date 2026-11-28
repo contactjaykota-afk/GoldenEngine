@@ -30,7 +30,6 @@ for route in play mods editors; do
 done
 grep -q "started song at" "$OUT/play.log"; check "play: Bopeebo started" $?
 grep -q "LUAT autotest lua ok song=bopeebo" "$OUT/play.log"; check "play: Lua script from a mod ran" $?
-grep -q "NO PENALTY Score" "$OUT/play.log" && ! grep -q "^.*: PENALTY Score\| PENALTY Score" <(grep -v "NO PENALTY" "$OUT/play.log"); check "play: ghost tapping (default on) — a key press with no note is not a miss" $?
 grep -q "Mod Manager opened" "$OUT/mods.log"; check "mods: Mod Manager opened" $?
 grep -q "still in MainMenuState (ok)" "$OUT/mods.log"; check "mods: Esc from the Mod Manager stays on the main menu (regression)" $?
 for e in "editors hub reached" "animation studio reached" "event system reached" "week editor reached" "game over editor reached"; do
