@@ -33,6 +33,12 @@ click_at() { mouse_to "$1" "$2"; xdotool mousedown 1; sleep 0.12; xdotool mouseu
 # click <ui id>: waits until the id was logged, then clicks its centre
 click() { local p="" end=$((SECONDS + ${2:-10})); while [ $SECONDS -lt $end ]; do p=$(where "$1"); [ -n "$p" ] && break; sleep 0.3; done
   [ -z "$p" ] && { echo "  (ui id not found: $1)"; return 1; }; click_at $p; return 0; }
+# iclick <ui id>: like click, but scrolls the right-hand inspector until the id is on screen
+iclick() { local p="" i; for i in 1 2 3 4 5 6 7 8 9 10; do p=$(where_fresh "$1"); [ -n "$p" ] && break
+  mouse_to 1100 400; xdotool click 5; sleep 0.4; done
+  [ -z "$p" ] && { echo "  (ui id not found: $1)"; return 1; }; click_at $p; }
+# position of an id logged after the last scroll/rebuild marker (falls back to the last one)
+where_fresh() { clean_log | awk '/GOLDEN UI  inspector:layout @/{buf=""} {buf=buf"\n"$0} END{print buf}' | grep -F "GOLDEN UI" | grep -F " $1 @ " | tail -1 | sed -E 's/.* @ ([-0-9.]+),([-0-9.]+),([0-9.]+),([0-9.]+).*/\1 \2 \3 \4/' | awk '{printf "%d %d", $1+$3/2, $2+$4/2}'; }
 # pick <folder> <label>: find a browser item through the search box (as a user would) and click it
 pick() { click "field:browser search" && combo ctrl+a && xdotool key BackSpace && typetext "${3:-$2}" && sleep 0.8 && click "item:$1/$2"; local r=$?
   click "field:browser search"; combo ctrl+a; xdotool key BackSpace; sleep 0.3; click_at 640 712; return $r; }  # clicking the status bar ends text focus
@@ -72,7 +78,7 @@ start_game() { pkill -9 -x Funkin 2>/dev/null; sleep 0.5
 to_main_menu() { sleep 14; key Return; wait_for "Idle -> EnteringMainMenu" 1 25; local r=$?; sleep 2; return $r; }
 # main menu -> Editors hub (Developer Mode on). Menu: story, freeplay, mods, editors, ...
 to_hub() { to_main_menu && key Down Down Down Return && wait_for "Editors hub ready for input" 1 25; }
-open_editor() { click "card:$1" 15 && wait_for "$1 ready for input" 1 30; }
+open_editor() { click "card:$1" 15 && wait_for "$1 ready for input" 1 30 && sleep 1; }
 crash_count() { local n; n=$(clean_log | grep -v "Enabling" | grep -ciE "uncaught|null object reference|segmentation|CRITICAL ERROR|Invalid field access|Called from"); [ -n "$(xdotool search --name "Fatal|Critical Error|Uncaught" 2>/dev/null)" ] && n=$((n+1)); echo "$n"; }
 # Fail fast when the game shows a fatal error dialog
 fatal_dialog() { [ -n "$(xdotool search --name "Fatal|Critical Error|Uncaught" 2>/dev/null)" ] || ls "$BIN/logs" 2>/dev/null | grep -q crash; }

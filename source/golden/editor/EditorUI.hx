@@ -95,8 +95,11 @@ class EButton extends FlxSpriteGroup
     label.y = Std.int((h - label.height) / 2);
     add(label);
     scrollFactor.set();
-    EditorUI.mapLog('button:$caption', x, y, w, h);
+    if (!suppressLog) EditorUI.mapLog('button:$caption', x, y, w, h);
   }
+
+  /** Set while building rows whose positions are logged later by their container (Inspector). */
+  public static var suppressLog:Bool = false;
 
   public function setCaption(c:String):Void
   {
@@ -283,6 +286,7 @@ class Inspector extends FlxSpriteGroup
 
   public function clearRows():Void
   {
+    EditorUI.mapLog('inspector:cleared', 0, 0, 0, 0);
     for (r in rows)
     {
       remove(r.group, true);
@@ -295,6 +299,7 @@ class Inspector extends FlxSpriteGroup
 
   function addRow(g:FlxSpriteGroup, h:Float, ?refresh:Void->Void, ?rel:Array<{dx:Float, dy:Float, w:Float, h:Float, id:String}>):Void
   {
+    EButton.suppressLog = false;
     g.scrollFactor.set();
     rows.push({group: g, h: h, refresh: refresh, rel: rel});
     add(g);
@@ -333,6 +338,7 @@ class Inspector extends FlxSpriteGroup
 
   public function addNumber(label:String, get:Void->Float, set:Float->Void, step:Float = 1, ?min:Float, ?max:Float):EField
   {
+    EButton.suppressLog = true;
     var g = new FlxSpriteGroup();
     g.add(EditorUI.text(8, 4, labelW - 8, label, 13, EditorUI.MUTED));
     var fw = pw - labelW - 8 - 52;
@@ -362,6 +368,7 @@ class Inspector extends FlxSpriteGroup
 
   public function addToggle(label:String, get:Void->Bool, set:Bool->Void):EButton
   {
+    EButton.suppressLog = true;
     var g = new FlxSpriteGroup();
     g.add(EditorUI.text(8, 4, labelW - 8, label, 13, EditorUI.MUTED));
     var b:EButton = null;
@@ -384,6 +391,7 @@ class Inspector extends FlxSpriteGroup
   /** A value picked from a list: < and > step through `options()`; the middle shows the value. */
   public function addChoice(label:String, options:Void->Array<String>, get:Void->String, set:String->Void):Void
   {
+    EButton.suppressLog = true;
     var g = new FlxSpriteGroup();
     g.add(EditorUI.text(8, 4, labelW - 8, label, 13, EditorUI.MUTED));
     var vw = pw - labelW - 8 - 48;
@@ -397,6 +405,7 @@ class Inspector extends FlxSpriteGroup
       i = (i + d + o.length) % o.length;
       set(o[i]);
       valueText.text = get();
+      trace('[GOLDEN EDITOR] $label = ${get()}');
     }
     g.add(EditorUI.rect(labelW + 24, 1, vw, 20, EditorUI.FIELD));
     g.add(valueText);
@@ -411,6 +420,7 @@ class Inspector extends FlxSpriteGroup
   /** One or more buttons on a row, sharing the width. */
   public function addButtons(buttons:Array<{caption:String, fn:Void->Void, ?tooltip:String}>):Array<EButton>
   {
+    EButton.suppressLog = true;
     var g = new FlxSpriteGroup();
     var n = buttons.length;
     var bw = Std.int((pw - 16 - (n - 1) * 4) / n);
@@ -435,6 +445,7 @@ class Inspector extends FlxSpriteGroup
 
   function layout():Void
   {
+    EditorUI.mapLog('inspector:layout', 0, 0, 0, 0);
     var yy = 4 - scrollY;
     for (r in rows)
     {

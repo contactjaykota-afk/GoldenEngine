@@ -105,7 +105,8 @@ class Level implements IRegistryEntry<LevelData>
    */
   public function isUnlocked():Bool
   {
-    return true;
+    // Golden Engine: unlock requirements set in the Week Editor (data/golden/weeks.json).
+    return golden.editor.WeekEditorState.isLevelUnlocked(id);
   }
 
   /**

@@ -153,6 +153,9 @@ class GameOverSubState extends MusicBeatSubState
     bg.scrollFactor.set();
     bg.screenCenter();
     add(bg);
+    // Golden Engine: Game Over Editor setup (background, text...).
+    var goldenSongId:Null<String> = parentPlayState?.currentSong?.id;
+    golden.GoldenGameOver.applyVisuals(this, bg, goldenSongId);
 
     // Pluck Boyfriend from the PlayState and place him (in the same position) in the GameOverSubState.
     // We can then play the character's `firstDeath` animation.
@@ -162,6 +165,24 @@ class GameOverSubState extends MusicBeatSubState
     else
     {
       boyfriend = parentPlayState?.currentStage?.getBoyfriend(true);
+      // Golden Engine: a different Game Over character from the Game Over Editor.
+      var goldenChar:Null<String> = golden.GoldenGameOver.characterFor(goldenSongId);
+      if (boyfriend != null && goldenChar != null)
+      {
+        var replacement = funkin.data.character.CharacterData.CharacterDataParser.fetchCharacter(goldenChar);
+        if (replacement != null)
+        {
+          var feetX = boyfriend.x + boyfriend.width / 2, feetY = boyfriend.y + boyfriend.height;
+          replacement.x = feetX - replacement.width / 2;
+          replacement.y = feetY - replacement.height;
+          replacement.originalPosition.set(replacement.x, replacement.y); // resetCharacter() moves it here
+          replacement.flipX = boyfriend.flipX;
+          trace('[GOLDEN] Game Over character: $goldenChar');
+          boyfriend = replacement;
+        }
+        else
+          trace('[GOLDEN] Game Over character "$goldenChar" not found; using the player');
+      }
       if (boyfriend != null)
       {
         boyfriend.canPlayOtherAnims = true;
@@ -172,6 +193,9 @@ class GameOverSubState extends MusicBeatSubState
     }
 
     setCameraTarget();
+    // Golden Engine: Game Over camera zoom from the Game Over Editor.
+    var goldenZoom = golden.GoldenGameOver.zoomFor(goldenSongId);
+    if (goldenZoom != 1) flixel.tweens.FlxTween.tween(FlxG.camera, {zoom: FlxG.camera.zoom * goldenZoom}, 1.5, {ease: flixel.tweens.FlxEase.quadOut});
 
     //
     // Set up the audio
@@ -470,6 +494,12 @@ class GameOverSubState extends MusicBeatSubState
    */
   function resolveMusicPath(suffix:String, starting:Bool = false, ending:Bool = false):Null<String>
   {
+    // Golden Engine: custom Game Over music (music/<key>.ogg) from the Game Over Editor.
+    if (!starting)
+    {
+      var custom = golden.GoldenGameOver.musicPath(parentPlayState?.currentSong?.id, ending);
+      if (custom != null) return custom;
+    }
     var basePath:String = 'gameplay/gameover/gameOver';
     if (ending) basePath += 'End';
     else if (starting) basePath += 'Start';
@@ -600,6 +630,13 @@ class GameOverSubState extends MusicBeatSubState
   public static function playBlueBalledSFX():Void
   {
     blueballed = true;
+    // Golden Engine: custom death sound from the Game Over Editor.
+    var goldenSound = golden.GoldenGameOver.soundPath(funkin.play.PlayState.instance?.currentSong?.id);
+    if (goldenSound != null)
+    {
+      FunkinSound.playOnce(goldenSound);
+      return;
+    }
 
     if (Assets.exists(Paths.sound('gameplay/gameover/fnf_loss_sfx' + blueBallSuffix)))
     {

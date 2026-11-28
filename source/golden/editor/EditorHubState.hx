@@ -32,8 +32,8 @@ class EditorHubState extends MusicBeatState
     list.push({name: 'Stage Editor', description: 'FNF stage editor: props, layers, scroll factors, character positions.', open: () -> FlxG.switchState(() -> new funkin.ui.debug.stageeditor.StageEditorState())});
     #end
     list.push({name: 'Event System', description: 'Song timeline: camera, effects, colour, overlays, text, notes, chart events, scripts.', open: () -> FlxG.switchState(() -> new golden.editor.EventSystemState())});
-    // PENDING list.push({name: 'Game Over Editor', description: 'Game Over setups: character, music, sounds, timing; per-song configs.', open: () -> FlxG.switchState(() -> new golden.editor.GameOverEditorState())});
-    // PENDING list.push({name: 'Week Editor', description: 'Story Mode weeks: songs, characters, background, difficulties, unlocks.', open: () -> FlxG.switchState(() -> new golden.editor.WeekEditorState())});
+    list.push({name: 'Game Over Editor', description: 'Game Over setups: character, music, sounds, timing; per-song configs.', open: () -> FlxG.switchState(() -> new golden.editor.GameOverEditorState())});
+    list.push({name: 'Week Editor', description: 'Story Mode weeks: songs, characters, background, difficulties, unlocks.', open: () -> FlxG.switchState(() -> new golden.editor.WeekEditorState())});
     // PENDING list.push({name: 'Note Skin Editor', description: 'Note styles: textures, receptors, holds, preview of all directions.', open: () -> FlxG.switchState(() -> new golden.editor.NoteSkinEditorState())});
     // PENDING list.push({name: 'Main Menu Editor', description: 'Custom main menu: background, logo, buttons, music, layout.', open: () -> FlxG.switchState(() -> new golden.editor.MainMenuEditorState())});
     // PENDING list.push({name: 'Cutscene Editor', description: 'Timeline cutscenes: images, characters, text, sounds, camera.', open: () -> FlxG.switchState(() -> new golden.editor.CutsceneEditorState())});

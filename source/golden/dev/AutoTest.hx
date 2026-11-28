@@ -14,6 +14,7 @@ private enum Step
   Log(message:String);
   PlaySong(songId:String, difficulty:String);
   ExpectState(name:String); // fail if the current state is not `name`
+  Die; // set the player's health to 0 (practice mode off) to reach the Game Over screen
 }
 
 /**
@@ -40,7 +41,7 @@ class AutoTest extends FlxBasic
   {
     #if sys
     var route = Sys.getEnv('GOLDEN_AUTOTEST');
-    if (route != 'play' && route != 'mods') return;
+    if (!['play', 'mods', 'gameover'].contains(route)) return;
     FlxG.plugins.addPlugin(new AutoTest(route));
     trace('[GOLDEN AUTOTEST] enabled (route: $route)');
     #end
@@ -62,6 +63,11 @@ class AutoTest extends FlxBasic
       Press(Keyboard.ESCAPE),
       WaitState('MainMenuState', 30), Log('back at main menu'), Delay(5),
       ExpectState('MainMenuState'), // regression: Esc from the Mod Manager must not continue to the title screen
+      Log('done')
+    ]);
+    else if (route == 'gameover') steps = steps.concat([
+      PlaySong(#if sys Sys.getEnv('GOLDEN_AUTOTEST_SONG') ?? #end 'bopeebo', 'normal'),
+      WaitState('PlayState', 90), Log('gameplay reached'), Delay(8), Die, Delay(8),
       Log('done')
     ]);
     else steps = steps.concat([
@@ -145,6 +151,15 @@ class AutoTest extends FlxBasic
           return;
         }
         trace('[GOLDEN AUTOTEST] still in $name (ok)');
+        next();
+      case Die:
+        var ps = funkin.play.PlayState.instance;
+        if (ps != null)
+        {
+          ps.isPracticeMode = false;
+          ps.health = 0;
+          trace('[GOLDEN AUTOTEST] health set to 0');
+        }
         next();
       case Log(message):
         trace('[GOLDEN AUTOTEST] $message');
