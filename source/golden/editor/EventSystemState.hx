@@ -150,9 +150,16 @@ class EventSystemState extends GoldenEditorState
   var previewTop:Int = GoldenEditorState.TOP;
   var previewH:Int = 0;
 
-  public function new()
+  /** Cutscene Editor mode: same timeline, saved to data/golden/cutscenes/<song>.json, own clock. */
+  public var cutsceneMode(default, null):Bool = false;
+  var cutLength:Float = 6000;
+  var cutBefore:Bool = true;
+  var clock:Float = 0;
+
+  public function new(cutscene:Bool = false)
   {
-    super('Event System');
+    super(cutscene ? 'Cutscene Editor' : 'Event System');
+    cutsceneMode = cutscene;
     leftW = 270;
     rightW = 330;
   }
@@ -164,7 +171,7 @@ class EventSystemState extends GoldenEditorState
 
   function rowsList():Array<String>
   {
-    var r = ['Player notes', 'Opponent notes', 'Chart events'];
+    var r = cutsceneMode ? [] : ['Player notes', 'Opponent notes', 'Chart events'];
     for (t in fx.tracks)
       if (!t.hidden) r.push(t.name);
     return r;
@@ -306,7 +313,30 @@ class EventSystemState extends GoldenEditorState
     if (chart != null && Reflect.field(chart.notes, diff) == null) Reflect.setField(chart.notes, diff, []);
     chartDirty = false;
     // effects
-    var p = golden.events.GoldenFxModule.loadProject(id);
+    var p:Null<FxProject> = null;
+    if (cutsceneMode)
+    {
+      var cp = Paths.json('golden/cutscenes/$id');
+      if (Assets.exists(cp))
+      {
+        try
+        {
+          var raw:Dynamic = haxe.Json.parse(Assets.getText(cp));
+          p = FxModel.fromJson(Assets.getText(cp));
+          cutLength = raw.length ?? 6000;
+          cutBefore = raw.beforeSong != false;
+        }
+        catch (e:Dynamic)
+          notify('Invalid cutscene file: $e', 0xFFFF5C5C);
+      }
+      else
+      {
+        cutLength = 6000;
+        cutBefore = true;
+      }
+    }
+    else
+      p = golden.events.GoldenFxModule.loadProject(id);
     fx = p ?? FxModel.emptyProject(id);
     for (n in ['Player notes', 'Opponent notes', 'Chart events'])
     {
@@ -316,7 +346,7 @@ class EventSystemState extends GoldenEditorState
     songLength = 0;
     for (n in notes())
       songLength = Math.max(songLength, n.t + (n.l ?? 0));
-    songLength = Math.max(songLength + 4000, 30000);
+    songLength = cutsceneMode ? cutLength : Math.max(songLength + 4000, 30000);
     buildPreview(d?.characters?.player ?? 'bf', d?.characters?.opponent ?? 'dad', d?.characters?.girlfriend ?? 'gf', d?.stage ?? 'mainStage');
     if (runtime != null) runtime.reset();
     runtime = new FxRuntime(fx, host);
@@ -579,13 +609,22 @@ class EventSystemState extends GoldenEditorState
   // ---- document ----------------------------------------------------------------------------------
 
   override function serialize():String
-    return FxModel.toJson(fx) + '\n#' + haxe.Json.stringify(chart);
+    return FxModel.toJson(fx) + '\n#' + haxe.Json.stringify(chart) + (cutsceneMode ? '|$cutLength|$cutBefore' : '');
 
   override function deserialize(s:String):Void
   {
     var i = s.lastIndexOf('\n#');
     fx = FxModel.fromJson(s.substr(0, i));
-    chart = haxe.Json.parse(s.substr(i + 2));
+    var rest = s.substr(i + 2);
+    if (cutsceneMode)
+    {
+      var parts = rest.split('|');
+      cutBefore = parts.pop() == 'true';
+      cutLength = Std.parseFloat(parts.pop());
+      songLength = cutLength;
+      rest = parts.join('|');
+    }
+    chart = haxe.Json.parse(rest);
     chartDirty = true;
     runtime.reset();
     runtime = new FxRuntime(fx, host);
@@ -601,6 +640,17 @@ class EventSystemState extends GoldenEditorState
   override function save():Null<String>
   {
     var mod = EditorFiles.target();
+    if (cutsceneMode)
+    {
+      var raw:Dynamic = haxe.Json.parse(FxModel.toJson(fx));
+      raw.length = cutLength;
+      raw.beforeSong = cutBefore;
+      var e2 = EditorFiles.saveJson(EditorFiles.modPath('data/golden/cutscenes/$songId.json', mod), raw);
+      if (e2 != null) return e2;
+      EditorFiles.reloadGameContent();
+      stage = null;
+      return null;
+    }
     var err = EditorFiles.saveText(EditorFiles.modPath('data/golden/events/$songId.json', mod), FxModel.toJson(fx));
     if (err != null) return err;
     if (chartDirty && chart != null)
@@ -670,6 +720,18 @@ class EventSystemState extends GoldenEditorState
 
   function togglePlay():Void
   {
+    if (cutsceneMode)
+    {
+      playing = !playing;
+      if (playing)
+      {
+        if (playhead >= songLength) playhead = 0;
+        runtime.reset();
+        runtime.skipTo(playhead);
+        trace('[GOLDEN EDITOR] Cutscene Editor: playing "$songId" cutscene from ${Math.round(playhead)} ms');
+      }
+      return;
+    }
     if (playing)
     {
       playing = false;
@@ -750,7 +812,8 @@ class EventSystemState extends GoldenEditorState
     var song = SongRegistry.instance.fetchEntry(songId);
     if (song == null) return;
     keep = {song: songId, diff: difficulty, playhead: playhead, pps: pps, scroll: scrollMs};
-    golden.studio.GoldenStudio.editorReturn = () -> FlxG.switchState(() -> new EventSystemState());
+    var cut = cutsceneMode;
+    golden.studio.GoldenStudio.editorReturn = () -> FlxG.switchState(() -> new EventSystemState(cut));
     trace('[GOLDEN EDITOR] Bot preview: "$songId" ($difficulty) from ${Math.round(playhead)} ms (bot play, practice: no scores saved)');
     leaving = true;
     funkin.ui.transition.LoadingState.loadPlayState({
@@ -936,6 +999,21 @@ class EventSystemState extends GoldenEditorState
       var s = SongRegistry.instance.fetchEntry(songId);
       return s != null ? s.listDifficulties(Constants.DEFAULT_VARIATION, null, true, true) : [difficulty];
     }, () -> difficulty, v -> confirmThen(() -> loadSong(songId, v)));
+    if (cutsceneMode)
+    {
+      inspector.addNumber('Cutscene length (ms)', () -> cutLength, v ->
+      {
+        cutLength = Math.max(500, v);
+        songLength = cutLength;
+        changed();
+      }, 500, 500, 600000);
+      inspector.addToggle('Play before the song', () -> cutBefore, v ->
+      {
+        cutBefore = v;
+        changed();
+      });
+      inspector.addNote('Plays before the countdown (Enter skips). Stage and characters are the song\'s.');
+    }
     inspector.addNote('${notes().length} notes, ${events().length} chart events, ${fx.effects.length} effects. ${Math.round(bpm)} BPM.');
     inspector.addNote('Characters: ' + [for (k => c in chars) '$k=${c.characterId}'].join(', '));
     inspector.addHeader('Tracks');
@@ -1308,7 +1386,14 @@ class EventSystemState extends GoldenEditorState
     super.update(elapsed);
     if (leaving) return;
     if (subState == null && armed) timelineMouse();
-    if (playing && music != null)
+    if (playing && cutsceneMode)
+    {
+      playhead += elapsed * 1000;
+      runtime.update(playhead, elapsed);
+      tlDirty = true;
+      if (playhead >= songLength) playing = false;
+    }
+    else if (playing && music != null)
     {
       playhead = music.time;
       runtime.update(playhead, elapsed);

@@ -141,6 +141,56 @@ class GoldenFxModule extends Module
     }
   }
 
+  // ---- cutscenes (Cutscene Editor): play before the countdown, Enter skips ----
+  var cutscene:Null<FxRuntime> = null;
+  var cutHost:Null<PlayFxHost> = null;
+  var cutTime:Float = 0;
+  var cutLength:Float = 0;
+  var cutPlayedFor:Null<String> = null;
+
+  override function onCountdownStart(event:CountdownScriptEvent):Void
+  {
+    var ps = PlayState.instance;
+    if (ps == null || cutscene != null) return;
+    var id = ps.currentSong?.id;
+    if (id == null || cutPlayedFor == id) return;
+    var path = Paths.json('golden/cutscenes/$id');
+    if (!Assets.exists(path)) return;
+    var raw:Dynamic = null;
+    var proj:Null<FxProject> = null;
+    try
+    {
+      raw = haxe.Json.parse(Assets.getText(path));
+      proj = FxModel.fromJson(Assets.getText(path));
+    }
+    catch (e:Dynamic)
+    {
+      trace('[GOLDEN FX] Invalid cutscene $path: $e');
+      return;
+    }
+    if (raw.beforeSong == false || proj.effects.length == 0) return;
+    event.cancel();
+    cutPlayedFor = id;
+    ps.isInCutscene = true;
+    ps.camHUD.visible = false;
+    cutHost = new PlayFxHost(ps);
+    cutscene = new FxRuntime(proj, cutHost);
+    cutTime = 0;
+    cutLength = raw.length ?? 6000;
+    trace('[GOLDEN FX] Cutscene for "$id" started (${proj.effects.length} effects, ${Math.round(cutLength)} ms)');
+  }
+
+  function endCutscene(skipped:Bool):Void
+  {
+    var ps = PlayState.instance;
+    cutscene?.reset();
+    cutscene = null;
+    cutHost?.dispose();
+    cutHost = null;
+    trace('[GOLDEN FX] Cutscene ${skipped ? "skipped" : "finished"}');
+    if (ps != null) ps.startCountdown();
+  }
+
   function stop():Void
   {
     if (runtime != null) runtime.reset();
@@ -172,6 +222,14 @@ class GoldenFxModule extends Module
   override function onUpdate(event:UpdateScriptEvent):Void
   {
     var ps = PlayState.instance;
+    if (cutscene != null && ps != null)
+    {
+      cutTime += event.elapsed * 1000;
+      cutscene.update(cutTime, event.elapsed);
+      if (cutTime >= cutLength) endCutscene(false);
+      else if (FlxG.keys.justPressed.ENTER || FlxG.keys.justPressed.ESCAPE) endCutscene(true);
+      return;
+    }
     if (ps != null && noteTints != null) tintNotes(ps);
     if (runtime == null || ps == null) return;
     @:privateAccess if (ps.isGamePaused) return;
@@ -192,6 +250,9 @@ class GoldenFxModule extends Module
   override function onStateChangeBegin(event:StateChangeScriptEvent):Void
   {
     stop();
+    cutscene?.reset();
+    cutscene = null;
+    cutPlayedFor = null;
     noteTints = null;
   }
 }

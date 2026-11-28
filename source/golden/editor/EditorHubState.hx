@@ -36,7 +36,7 @@ class EditorHubState extends MusicBeatState
     list.push({name: 'Week Editor', description: 'Story Mode weeks: songs, characters, background, difficulties, unlocks.', open: () -> FlxG.switchState(() -> new golden.editor.WeekEditorState())});
     list.push({name: 'Note Skin Editor', description: 'Note styles: textures, receptors, holds, preview of all directions.', open: () -> FlxG.switchState(() -> new golden.editor.NoteSkinEditorState())});
     list.push({name: 'Main Menu Editor', description: 'Custom main menu: background, logo, buttons, music, layout.', open: () -> FlxG.switchState(() -> new golden.editor.MainMenuEditorState())});
-    // PENDING list.push({name: 'Cutscene Editor', description: 'Timeline cutscenes: images, characters, text, sounds, camera.', open: () -> FlxG.switchState(() -> new golden.editor.CutsceneEditorState())});
+    list.push({name: 'Cutscene Editor', description: 'Timeline cutscenes before a song: images, text, characters, sounds, camera.', open: () -> FlxG.switchState(() -> new golden.editor.EventSystemState(true))});
     list.push({name: 'Mod Asset Manager', description: 'Browse, preview, import, rename, delete mod files; missing/unused.', open: () -> FlxG.switchState(() -> new golden.editor.AssetManagerState())});
     list.push({name: 'Script Editor', description: 'Golden Studio: Haxe/Lua/JSON editing, Play-in-Editor (F9).', open: () -> FlxG.switchState(() -> EditorFiles.target() != null ? new golden.studio.ScriptEditorState(EditorFiles.target()) : new golden.ui.ModManagerState())});
     #if FEATURE_ANIMATION_EDITOR
