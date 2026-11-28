@@ -2005,7 +2005,9 @@ class PlayState extends MusicBeatSubState
     healthBar.parent = this;
     healthBar.parentVariable = 'healthLerp';
     healthBar.scrollFactor.set();
-    healthBar.createFilledBar(Constants.COLOR_HEALTH_BAR_RED, Constants.COLOR_HEALTH_BAR_GREEN);
+    // Golden Engine: health bar colours set in the Character Editor (data/golden/healthcolors.json).
+    healthBar.createFilledBar(golden.editor.CharacterEditorState.healthColor(golden.GoldenPlayOverrides.opponent ?? currentChart?.characters?.opponent, Constants.COLOR_HEALTH_BAR_RED),
+      golden.editor.CharacterEditorState.healthColor(golden.GoldenPlayOverrides.player ?? currentChart?.characters?.player, Constants.COLOR_HEALTH_BAR_GREEN));
     healthBar.zIndex = 801;
     add(healthBar);
 

@@ -27,7 +27,7 @@ class EditorHubState extends MusicBeatState
     list.push({name: 'Chart Editor', description: 'Charts, events, MIDI import (FNF editor + Golden tools).', open: () -> FlxG.switchState(() -> new funkin.ui.debug.charting.ChartEditorState())});
     #end
     list.push({name: 'Animation Studio', description: 'Animate characters from separate body-part PNGs: poses, keyframes, export.', open: () -> FlxG.switchState(() -> new golden.editor.anim.AnimationStudioState())});
-    // PENDING list.push({name: 'Character Editor', description: 'Character JSON: animations, offsets, scale, flip, icon, health colours.', open: () -> FlxG.switchState(() -> new golden.editor.CharacterEditorState())});
+    list.push({name: 'Character Editor', description: 'Character JSON: animations, offsets, scale, flip, icon, health colours.', open: () -> FlxG.switchState(() -> new golden.editor.CharacterEditorState())});
     #if FEATURE_STAGE_EDITOR
     list.push({name: 'Stage Editor', description: 'FNF stage editor: props, layers, scroll factors, character positions.', open: () -> FlxG.switchState(() -> new funkin.ui.debug.stageeditor.StageEditorState())});
     #end
@@ -37,7 +37,7 @@ class EditorHubState extends MusicBeatState
     // PENDING list.push({name: 'Note Skin Editor', description: 'Note styles: textures, receptors, holds, preview of all directions.', open: () -> FlxG.switchState(() -> new golden.editor.NoteSkinEditorState())});
     // PENDING list.push({name: 'Main Menu Editor', description: 'Custom main menu: background, logo, buttons, music, layout.', open: () -> FlxG.switchState(() -> new golden.editor.MainMenuEditorState())});
     // PENDING list.push({name: 'Cutscene Editor', description: 'Timeline cutscenes: images, characters, text, sounds, camera.', open: () -> FlxG.switchState(() -> new golden.editor.CutsceneEditorState())});
-    // PENDING list.push({name: 'Mod Asset Manager', description: 'Browse, preview, import, rename, delete mod files; missing/unused.', open: () -> FlxG.switchState(() -> new golden.editor.AssetManagerState())});
+    list.push({name: 'Mod Asset Manager', description: 'Browse, preview, import, rename, delete mod files; missing/unused.', open: () -> FlxG.switchState(() -> new golden.editor.AssetManagerState())});
     list.push({name: 'Script Editor', description: 'Golden Studio: Haxe/Lua/JSON editing, Play-in-Editor (F9).', open: () -> FlxG.switchState(() -> EditorFiles.target() != null ? new golden.studio.ScriptEditorState(EditorFiles.target()) : new golden.ui.ModManagerState())});
     #if FEATURE_ANIMATION_EDITOR
     list.push({name: 'Offset Editor (FNF)', description: 'FNF animation offset editor for existing characters.', open: () -> FlxG.switchState(() -> new funkin.ui.debug.anim.DebugBoundingState())});
@@ -50,6 +50,7 @@ class EditorHubState extends MusicBeatState
   var selected:Int = 0;
   var leaving:Bool = false;
   var armed:Bool = false;
+  var pressedCard:Int = -1;
   var pending:Null<Void->Void> = null;
   static var lastSelected:Int = 0;
 
@@ -165,7 +166,9 @@ class EditorHubState extends MusicBeatState
           UISound.play(Hover);
           refreshCards();
         }
-        if (FlxG.mouse.justReleased)
+        if (FlxG.mouse.justPressed) pressedCard = i;
+        // Open only when the press also started on this card (no stale releases from the previous screen).
+        if (FlxG.mouse.justReleased && pressedCard == i)
         {
           selected = i;
           openSelected();
