@@ -289,7 +289,14 @@ class FunkinSound extends FlxSound implements ICloneable<FunkinSound>
   public static function playMusic(key:String, params:FunkinSoundPlayMusicParams):Bool
   {
     // Golden Engine: the menu theme is configurable (Options > Golden Engine > Menu Music).
-    if (key == 'freakyMenu' && golden.GoldenSettings.menuMusicKey() != key && Assets.exists(Paths.music('${golden.GoldenSettings.menuMusicKey()}/${golden.GoldenSettings.menuMusicKey()}')))
+    // Golden Engine: menu music chosen in the Main Menu Editor (mods) takes priority.
+    var goldenMenuMusic:Null<String> = key == 'freakyMenu' ? golden.GoldenMainMenu.musicKey() : null;
+    if (goldenMenuMusic != null)
+    {
+      key = goldenMenuMusic;
+      trace('[GOLDEN] Menu music: $key (main menu config)');
+    }
+    else if (key == 'freakyMenu' && golden.GoldenSettings.menuMusicKey() != key && Assets.exists(Paths.music('${golden.GoldenSettings.menuMusicKey()}/${golden.GoldenSettings.menuMusicKey()}')))
     {
       key = golden.GoldenSettings.menuMusicKey();
       if (key != goldenLastMenuMusic) trace('[GOLDEN] Menu music: $key');

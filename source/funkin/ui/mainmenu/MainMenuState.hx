@@ -121,7 +121,11 @@ class MainMenuState extends MusicBeatState
     bg.setGraphicSize(Std.int(FlxG.width * 1.2));
     bg.updateHitbox();
     bg.screenCenter();
+    golden.GoldenMainMenu.clearCache();
+    golden.GoldenMainMenu.applyBackground(bg); // Golden Engine: Main Menu Editor background
     add(bg);
+    var goldenLogo = golden.GoldenMainMenu.logo();
+    if (goldenLogo != null) add(goldenLogo);
 
     add(camFollow);
 
@@ -235,14 +239,19 @@ class MainMenuState extends MusicBeatState
       startExitState(() -> new funkin.ui.credits.CreditsState());
     });
 
+    // Golden Engine: Main Menu Editor order/visibility and custom entries.
+    applyGoldenMenuConfig();
+
     // Reset position of menu items.
     // Golden Engine: tighter spacing when the extra Mods/Editors entries are present (camera follows the selection).
-    final spacing:Float = menuItems.length > 5 ? 140 : 160;
+    var goldenSpacing:Float = golden.GoldenMainMenu.config?.spacing ?? 0;
+    final spacing:Float = goldenSpacing > 0 ? goldenSpacing : (menuItems.length > 5 ? 140 : 160);
+    final goldenOffsetX:Float = golden.GoldenMainMenu.config?.offsetX ?? 0;
     final top:Float = (FlxG.height - (spacing * (menuItems.length - 1))) / 2;
 
     for (index => menuItem in menuItems)
     {
-      menuItem.x = FlxG.width / 2;
+      menuItem.x = FlxG.width / 2 + goldenOffsetX;
       menuItem.y = top + spacing * index;
       menuItem.scrollFactor.x = #if !mobile 0.0 #else 0.4 #end; // we want a lil scroll on mobile, for the cute gyro effect
       // This one affects how much the menu items move when you scroll between them.
@@ -370,6 +379,57 @@ class MainMenuState extends MusicBeatState
     item.centered = true;
     item.changeAnim('idle');
     menuItems.addItem(name, item);
+  }
+
+  /** Golden Engine: apply data/golden/mainmenu.json (order, visibility, custom entries). */
+  function applyGoldenMenuConfig():Void
+  {
+    var c:Dynamic = golden.GoldenMainMenu.config;
+    if (c == null || menuItems == null) return;
+    var customs:Array<Dynamic> = c.custom ?? [];
+    for (i in 0...customs.length)
+    {
+      var e = customs[i];
+      var name = 'golden-custom$i';
+      var atlas:String = e.atlas ?? '';
+      var frames = atlas != '' && Assets.exists(Paths.file('images/$atlas.xml')) ? Paths.getSparrowAtlas(atlas) : golden.GoldenMainMenu.labelFrames(name, Std.string(e.label ?? 'ENTRY'));
+      var item = new AtlasMenuItem(name, frames, golden.GoldenMainMenu.actionFor(e.action));
+      item.scrollFactor.set();
+      item.centered = true;
+      item.changeAnim('idle');
+      menuItems.addItem(name, item);
+    }
+    var order:Array<Dynamic> = c.items ?? [];
+    if (order.length > 0)
+    {
+      var all = menuItems.members.copy();
+      var sorted:Array<AtlasMenuItem> = [];
+      for (o in order)
+      {
+        var it:Null<AtlasMenuItem> = all.find(m -> m != null && m.name == o.id);
+        if (it == null) continue;
+        all.remove(it);
+        if (o.visible == false)
+        {
+          @:privateAccess menuItems.byName.remove(o.id);
+          it.kill();
+          continue;
+        }
+        sorted.push(it);
+      }
+      for (rest in all)
+        if (rest != null) sorted.push(rest); // entries not listed keep their place at the end
+      for (m in menuItems.members.copy())
+        menuItems.remove(m, true);
+      var idx = 0;
+      for (it in sorted)
+      {
+        if (it == null) continue;
+        it.ID = idx++;
+        menuItems.add(it);
+      }
+    }
+    trace('[GOLDEN] Main menu entries: ' + [for (m in menuItems.members) m.name].join(', '));
   }
 
   var buttonGrp:Array<FlxSprite> = [];

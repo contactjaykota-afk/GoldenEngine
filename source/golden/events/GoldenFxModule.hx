@@ -149,11 +149,18 @@ class GoldenFxModule extends Module
     host = null;
   }
 
+  /** Note skin colours (Note Skin Editor) for the song's note style. */
+  var noteTints:Null<Array<flixel.util.FlxColor>> = null;
+
   override function onSongLoaded(event:SongLoadScriptEvent):Void
   {
     stop();
     var ps = PlayState.instance;
     if (ps == null) return;
+    golden.editor.NoteSkinEditorState.clearColors();
+    @:privateAccess var styleId:String = ps.noteStyle?.id ?? '';
+    noteTints = golden.editor.NoteSkinEditorState.tintsFor(styleId);
+    if (noteTints != null) trace('[GOLDEN] Note colours for note style "$styleId"');
     var p = loadProject(event.id);
     if (p == null || p.effects.length == 0) return;
     host = new PlayFxHost(ps);
@@ -165,11 +172,26 @@ class GoldenFxModule extends Module
   override function onUpdate(event:UpdateScriptEvent):Void
   {
     var ps = PlayState.instance;
+    if (ps != null && noteTints != null) tintNotes(ps);
     if (runtime == null || ps == null) return;
     @:privateAccess if (ps.isGamePaused) return;
     runtime.update(Conductor.instance.songPosition, event.elapsed);
   }
 
+  function tintNotes(ps:PlayState):Void
+  {
+    for (sl in [ps.playerStrumline, ps.opponentStrumline])
+    {
+      if (sl == null) continue;
+      sl.strumlineNotes.forEach(n -> n.color = noteTints[Std.int(n.direction) % 4]);
+      sl.notes.forEachAlive(n -> n.color = noteTints[Std.int(n.direction) % 4]);
+      sl.holdNotes.forEachAlive(n -> n.color = noteTints[Std.int(n.noteDirection) % 4]);
+    }
+  }
+
   override function onStateChangeBegin(event:StateChangeScriptEvent):Void
+  {
     stop();
+    noteTints = null;
+  }
 }
