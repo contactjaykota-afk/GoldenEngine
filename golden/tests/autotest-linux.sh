@@ -21,7 +21,7 @@ trap restore EXIT
 mkdir -p "$BIN/mods/zz-autotest/scripts/lua"
 echo '{"title":"AutoTest","api_version":"0.8.7","mod_version":"1.0.0"}' > "$BIN/mods/zz-autotest/_polymod_meta.json"
 echo 'function onCreate() print("LUAT autotest lua ok song=" .. tostring(getSongName())) end' > "$BIN/mods/zz-autotest/scripts/lua/t.lua"
-for route in play mods; do
+for route in play mods editors; do
   log="$OUT/$route.log"
   (cd "$BIN" && GOLDEN_AUTOTEST=$route timeout 150 ./Funkin > "$log" 2>&1)
   sed -i 's/\x1b\[[0-9;]*m//g' "$log"
@@ -32,5 +32,8 @@ grep -q "started song at" "$OUT/play.log"; check "play: Bopeebo started" $?
 grep -q "LUAT autotest lua ok song=bopeebo" "$OUT/play.log"; check "play: Lua script from a mod ran" $?
 grep -q "Mod Manager opened" "$OUT/mods.log"; check "mods: Mod Manager opened" $?
 grep -q "still in MainMenuState (ok)" "$OUT/mods.log"; check "mods: Esc from the Mod Manager stays on the main menu (regression)" $?
+for e in "editors hub reached" "animation studio reached" "event system reached" "week editor reached" "game over editor reached"; do
+  grep -q "AUTOTEST  $e" "$OUT/editors.log"; check "editors: $e" $?; done
+grep -q "Boyfriend imported from the game atlas" "$OUT/editors.log"; check "editors: Boyfriend imported in the Animation Studio" $?
 echo; echo "$PASS passed, $FAIL failed — logs in $OUT"
 [ "$FAIL" = 0 ]

@@ -58,7 +58,7 @@ jobs:
       - name: Package release folder
         run: |
           BIN=export/release/windows/bin
-          cp golden/release/README.txt golden/release/MODDING.md "$BIN/"
+          cp golden/release/README.txt golden/release/MODDING.md golden/release/EDITORS.md "$BIN/"
           cp golden/CHANGELOG.md "$BIN/GOLDEN-CHANGELOG.md"
           mkdir -p "$BIN/mods"
           echo "Put mods here (one folder per mod), or use Main menu > Mods." > "$BIN/mods/README.txt"

@@ -62,7 +62,7 @@ $env:GALLIUM_DRIVER = 'llvmpipe'
 $p = Run-Route 'mods'
 Start-Sleep -Seconds 5
 Record 'process_started' (-not $p.HasExited) "pid $($p.Id)"
-Record 'golden_engine_started' (Wait-For 'Golden Engine 0\.1\.0' 90) ''
+Record 'golden_engine_started' (Wait-For 'Golden Engine 0\.2\.0' 90) ''
 Record 'reached_title' (Wait-For 'TitleState' 180) ''
 Record 'renderer_detected' (Wait-For 'GL renderer:' 5) (([regex]::Match((Log-Text), 'GL renderer: [^\r\n]*')).Value)
 Start-Sleep -Seconds 15
@@ -93,7 +93,25 @@ Record 'gameplay_not_black' ($m -gt 12) "mean=$m"
 Record 'play_route_done' (Wait-For 'AUTOTEST  done' 40) ''
 Record 'still_running' (-not $p.HasExited) ''
 
-$text = $modsText + (Log-Text)
+$playText = Log-Text
+if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force }
+Start-Sleep -Seconds 2
+
+# --- Route "editors": Editors hub -> Animation Studio (BF from the atlas) -> Event System -> Week -> Game Over --
+$p = Run-Route 'editors'
+Record 'editors_hub_opens' (Wait-For 'AUTOTEST  editors hub reached' 300) ''
+Record 'animation_studio_opens' (Wait-For 'AUTOTEST  animation studio reached' 90) ''
+Record 'boyfriend_imported_from_atlas' ((Log-Text) -match 'Boyfriend imported from the game atlas') ''
+$m = Save-Shot '05-animation-studio'
+Record 'animation_studio_not_black' ($m -gt 12) "mean=$m"
+Record 'event_system_opens' (Wait-For 'AUTOTEST  event system reached' 90) ''
+$m = Save-Shot '06-event-system'
+Record 'event_system_not_black' ($m -gt 12) "mean=$m"
+Record 'week_editor_opens' (Wait-For 'AUTOTEST  week editor reached' 60) ''
+Record 'game_over_editor_opens' (Wait-For 'AUTOTEST  game over editor reached' 60) ''
+Record 'editors_route_done' (Wait-For 'AUTOTEST  done' 60) ''
+
+$text = $modsText + $playText + (Log-Text)
 $crash = ([regex]::Matches($text, '(?i)(uncaught|null object reference|critical error)')).Count - ([regex]::Matches($text, '(?i)Enabling .*(uncaught|critical error)')).Count
 Record 'no_uncaught_errors' ($crash -le 0) "count=$crash"
 $autotestFail = ([regex]::Matches($text, 'AUTOTEST  FAILED[^\r\n]*') | ForEach-Object Value) -join ' | '

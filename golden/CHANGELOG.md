@@ -2,6 +2,38 @@
 
 Only features that were built **and** tested are listed as done.
 
+## 0.2.0-alpha
+
+Tested on Linux x64 with automated runtime tests (real X11 mouse/keyboard input on a virtual display,
+Mesa software OpenGL); see DEVELOPMENT_STATUS.md for every result.
+
+- **Editors hub** (Main menu → Editors) replacing the debug list; shared Golden editor kit (toolbar,
+  searchable browser, inspector, workspace pan/zoom, undo/redo, Ctrl+S, unsaved-changes prompt,
+  saves into a chosen mod, never into the base game).
+- **Character Animation Studio**: Boyfriend imported from the game's Animate atlas as editable parts with
+  his real poses/animations; PNG part import (layer alignment, positions.json, by name) with auto-rig;
+  pose library (thumbnails, folders, save-as-new, revert, import/export); per-part keyframe timeline with
+  onion skin and playback; face variants; non-destructive pose/animation generator; export to FNF
+  character (Sparrow sheets, multi-sheet "multisparrow", JSON, health icon) and Test Play.
+- **Event System** (replaces the Camera Editor): song timeline with locked original tracks, note and chart
+  event editing saved as a mod copy, 24 effect types, 11 presets, 10 colour grades, 10 text styles,
+  drag-and-drop, real stage preview with in-editor playback, Bot Preview in real gameplay, Reset to
+  Original; gameplay runtime module (`data/golden/events/<song>.json`).
+- **Cutscene Editor** (same timeline; plays before the countdown, Enter skips).
+- **Character Editor** (offsets, scale, flip, camera, icon, health bar colour used in gameplay).
+- **Game Over Editor** (default + per-song setups used by the real Game Over screen).
+- **Week Editor** (FNF level JSON, live preview, unlock requirements).
+- **Note Skin Editor** (FNF note styles, textures, prefixes, colours in gameplay, use in song).
+- **Main Menu Editor** (background, logo, order, visibility, custom entries, music).
+- **Mod Asset Manager** (browse, preview, import/export, rename, replace, delete to trash, missing/unused).
+- **Freeplay search/filter/sort** (Ctrl+F / F3).
+- **Chart Editor**: E / hold E / Shift+E / Q sustain keys, purple menubar, info panel.
+- **Vocals**: `Voices-Player.ogg` / `Voices-Opponent.ogg` and lower-case `voices.ogg` supported (unit tested).
+- **Graphics presets** and a Screen Shaders option.
+- Mod starter template now ships in `mods/_ModTemplate`.
+- Fixes: crash when destroying text fields inside sprite groups (Flixel 6), stale input when opening the
+  hub/editors, editor stage preview returned to FNF's cache correctly (no crash entering a song after it).
+
 ## Milestone 1 — foundation
 
 - Architecture corrected: Golden Engine is now a branch (`golden-engine`) of the official

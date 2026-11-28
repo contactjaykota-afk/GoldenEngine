@@ -61,6 +61,42 @@ Only **enabled** mods load; a disabled mod's songs, characters, scripts and even
 registered at all. State is stored in `golden-mods.json`. If two enabled mods replace the same data
 file, the Mod Manager reports a conflict; the mod later in the load order wins.
 
+## Starter template
+
+`mods/_ModTemplate` is the template "New mod" copies (placeholders like `__MODID__` are filled in). Edit it to
+change what new mods start with. It has no `_polymod_meta.json`, so it is never loaded as a mod.
+
+## Vocals: one file or two
+
+Golden Engine looks for a song's vocals in this order (per side, first match wins):
+
+1. files listed in the song metadata (`playerVocals` / `opponentVocals`) — FNF;
+2. `songs/<song>/Voices-<character>[-variation].ogg` (e.g. `Voices-bf.ogg`) — FNF;
+3. `Voices-Player.ogg` / `Voices-Opponent.ogg` (lower case works too) — Golden;
+4. only if neither side found anything: one combined `Voices.ogg` or `voices.ogg`, played as a single track
+   (muted while the player misses, like classic FNF).
+
+So a mod can ship just `voices.ogg` (+ `Inst.ogg`). Variation files (`Voices-erect.ogg`) are tried before the
+plain names.
+
+## Files the Golden editors create
+
+| File (inside your mod) | Made by | Used by |
+|---|---|---|
+| `data/characters/<id>.json`, `images/characters/<id>.png/.xml`, `images/icons/icon-<id>.png` | Animation Studio, Character Editor | gameplay (FNF character format) |
+| `golden/animstudio/<id>/project.json` + `parts/` | Animation Studio | reopening the project |
+| `data/golden/events/<song>.json` | Event System | gameplay effects |
+| `data/golden/cutscenes/<song>.json` | Cutscene Editor | cutscene before the countdown |
+| `data/songs/<song>/<song>-chart.json` / `-metadata.json` (copies) | Event System / Note Skin Editor | replace the original chart/metadata while the mod is enabled |
+| `data/golden/gameover.json` | Game Over Editor | Game Over screen |
+| `data/levels/<id>.json`, `data/golden/weeks.json` | Week Editor | Story Mode / Freeplay |
+| `data/notestyles/<id>.json`, `data/golden/notecolors.json` | Note Skin Editor | gameplay notes |
+| `data/golden/mainmenu.json` | Main Menu Editor | main menu |
+| `data/golden/healthcolors.json` | Character Editor | health bar |
+
+All of them are plain JSON you can also edit by hand (formats are described in `EDITORS.md` and in the
+source files named there). Disable the mod to go back to the original game.
+
 ## Charts and MIDI
 
 Chart in the Chart Editor (Editors → Chart Editor, or 7 in Developer Mode). **File → Import MIDI...**

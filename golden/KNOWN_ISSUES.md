@@ -5,7 +5,24 @@ A bug is only marked fixed after its regression test has been re-run.
 
 ## Open
 
-### GE-004 — Windows build compiled in CI but never launched — high
+### GE-010 — Camera shader/filter effects render black on software OpenGL — high (mitigated)
+- Event System colour grading (openfl ColorMatrixFilter), blur, glitch and pixelate (ShaderFilter) on a
+  camera made that camera black under Mesa llvmpipe (test machines and the Windows CI runner). Not
+  verified on a real GPU. FNF itself uses ColorMatrixFilter camera filters (RetroCameraFade), so GPUs
+  probably work, but this is unconfirmed.
+- Mitigation: Options > Golden Engine > Screen Shaders (default Auto = off on software renderers;
+  colour grading then uses an overlay approximation, the other three are skipped with a log line).
+
+### GE-014 — Event System preview has no scrolling notes — low
+- The in-editor preview shows the real stage/characters/cameras/effects and characters sing on notes,
+  but notes do not scroll; Bot Preview (real gameplay) shows everything.
+
+### GE-015 — Not verified on Windows hardware — high (process)
+- Every 0.2.0 feature is runtime-tested on Linux (virtual display, software GL). The Windows build is
+  launched and driven on a GitHub-hosted runner (software GL, no audio, in-game input). Physical
+  keyboard/GPU/speaker testing on a Windows PC has not been done by anyone yet.
+
+### GE-004 — Windows build launched only on a CI runner — high (see GE-015)
 - This environment is Linux-only. `.github/workflows/golden-build.yml` built Windows successfully on
   GitHub's `windows-2022` runner (run 45953618100, commit 8652421, artifact golden-engine-windows-x64).
   Nobody has launched that artifact on Windows yet, so Windows runtime behaviour is UNVERIFIED.
@@ -34,6 +51,19 @@ A bug is only marked fixed after its regression test has been re-run.
   must be re-measured on a real GPU on Windows before optimizing.
 
 ## Fixed
+
+### GE-013 — Entering a song after the Event System crashed — critical (FIXED, 0.2.0)
+- The editor preview used FNF's cached Stage instance and destroyed it on exit; PlayState then reused it.
+  Fixed: stages are built/released exactly like PlayState (CREATE / DESTROY events). Regression: the
+  Event System and Cutscene tests start real gameplay after the editor.
+
+### GE-012 — Opening the Editors hub also opened the first editor — high (FIXED, 0.2.0)
+- The Enter/click that opened the hub was read again (FNF's shared controls report stale presses).
+  Fixed: frame-accurate keys, input armed after release, cards open only on press+release on the card.
+
+### GE-011 — Crash when a Golden editor rebuilt its property panel — critical (FIXED, 0.2.0)
+- Flixel 6 crashes destroying an FlxInputText inside an FlxSpriteGroup. Fixed in the editor kit (the
+  field detaches its input before destroying it). Regression: Animation Studio test (pose switching).
 
 ### GE-009 — Game froze at the title screen when no audio output device exists — critical (FIXED)
 - Found via the Windows CI runner (which has no audio device) and reproduced on Linux without an audio

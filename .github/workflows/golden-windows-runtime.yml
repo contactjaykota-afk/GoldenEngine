@@ -72,6 +72,10 @@ jobs:
         if: always()
         shell: pwsh
         run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.lua_runs_on_windows.ok) { exit 1 }'
+      - name: 'Check: editors open (hub, Animation Studio with BF, Event System, Week, Game Over)'
+        if: always()
+        shell: pwsh
+        run: '$r = Get-Content win-results/results.json | ConvertFrom-Json; if (-not $r.editors_hub_opens.ok -or -not $r.animation_studio_opens.ok -or -not $r.boyfriend_imported_from_atlas.ok -or -not $r.animation_studio_not_black.ok -or -not $r.event_system_opens.ok -or -not $r.event_system_not_black.ok -or -not $r.week_editor_opens.ok -or -not $r.game_over_editor_opens.ok -or -not $r.editors_route_done.ok) { exit 1 }'
       - name: 'Check: no crash, no uncaught errors'
         if: always()
         shell: pwsh

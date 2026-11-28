@@ -1,5 +1,10 @@
 # Golden Engine — roadmap
 
+**0.2.0-alpha status:** see the checklist in DEVELOPMENT_STATUS.md. Remaining after 0.2.0: 3D foundation (D7),
+profiling-based optimisation, Chart Editor character management + embedded gameplay preview, a separate
+text layout editor, Stage Editor extensions, shared preview framework, illustrated FNF-style UI art,
+verification on Windows hardware.
+
 Golden Engine is the official Friday Night Funkin' source (FunkinCrew/Funkin) extended in place.
 Every stage below must integrate with the real game runtime; status words follow the definitions
 in `DEVELOPMENT_STATUS.md` (Implemented → Compiled → Tested → Runtime verified → Complete).

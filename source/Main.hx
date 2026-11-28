@@ -73,6 +73,7 @@ class Main extends Sprite
     // Golden Engine: engine settings (Developer Mode, UI volume, shortcuts) from golden-settings.json.
     trace('[GOLDEN] ' + golden.GoldenVersion.NAME + ' ' + golden.GoldenVersion.VERSION + ' starting');
     golden.GoldenSettings.load();
+    golden.GoldenGraphics.applyAtStartup();
 
     // Load mods to override assets.
     // Golden Engine: only enabled mods are loaded (state in golden-mods.json, managed by the Mod Manager).

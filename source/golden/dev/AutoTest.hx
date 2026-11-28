@@ -15,6 +15,7 @@ private enum Step
   PlaySong(songId:String, difficulty:String);
   ExpectState(name:String); // fail if the current state is not `name`
   Die; // set the player's health to 0 (practice mode off) to reach the Game Over screen
+  Open(className:String); // switch to a state by class name (editors route)
 }
 
 /**
@@ -41,7 +42,7 @@ class AutoTest extends FlxBasic
   {
     #if sys
     var route = Sys.getEnv('GOLDEN_AUTOTEST');
-    if (!['play', 'mods', 'gameover'].contains(route)) return;
+    if (!['play', 'mods', 'gameover', 'editors'].contains(route)) return;
     FlxG.plugins.addPlugin(new AutoTest(route));
     trace('[GOLDEN AUTOTEST] enabled (route: $route)');
     #end
@@ -63,6 +64,15 @@ class AutoTest extends FlxBasic
       Press(Keyboard.ESCAPE),
       WaitState('MainMenuState', 30), Log('back at main menu'), Delay(5),
       ExpectState('MainMenuState'), // regression: Esc from the Mod Manager must not continue to the title screen
+      Log('done')
+    ]);
+    else if (route == 'editors') steps = steps.concat([
+      Open('golden.editor.EditorHubState'), WaitState('EditorHubState', 30), Log('editors hub reached'), Delay(3),
+      Open('golden.editor.anim.AnimationStudioState'), WaitState('AnimationStudioState', 60), Delay(5), Log('animation studio reached'),
+      Open('golden.editor.EventSystemState'), WaitState('EventSystemState', 60), Delay(5), Log('event system reached'),
+      Open('golden.editor.WeekEditorState'), WaitState('WeekEditorState', 30), Delay(3), Log('week editor reached'),
+      Open('golden.editor.GameOverEditorState'), WaitState('GameOverEditorState', 30), Delay(3), Log('game over editor reached'),
+      Open('golden.editor.EditorHubState'), WaitState('EditorHubState', 30), Delay(2),
       Log('done')
     ]);
     else if (route == 'gameover') steps = steps.concat([
@@ -151,6 +161,17 @@ class AutoTest extends FlxBasic
           return;
         }
         trace('[GOLDEN AUTOTEST] still in $name (ok)');
+        next();
+      case Open(className):
+        var cls = Type.resolveClass(className);
+        if (cls == null)
+        {
+          trace('[GOLDEN AUTOTEST] FAILED: no class $className');
+          steps = [];
+          return;
+        }
+        trace('[GOLDEN AUTOTEST] opening $className');
+        FlxG.switchState(() -> cast Type.createInstance(cls, []));
         next();
       case Die:
         var ps = funkin.play.PlayState.instance;

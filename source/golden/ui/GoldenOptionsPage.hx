@@ -25,6 +25,9 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
   var rebinding:Null<String> = null; // 'chart' | 'mods'
   var confirmReset:Bool = false;
 
+  /** Row height (rows are tighter now that there are 9). */
+  static inline var ROW:Int = 50;
+
   public function new()
   {
     super();
@@ -81,16 +84,48 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
       change: (_) -> {},
       accept: resetDev
     });
+    rows.push({
+      label: 'Graphics Preset',
+      desc: 'Low / Medium / High / Ultra set the frame rate cap, screen shader effects and default antialiasing. Custom keeps your own settings.',
+      value: () -> GoldenSettings.graphicsPreset.toUpperCase(),
+      change: (d) ->
+      {
+        var p = golden.GoldenGraphics.PRESETS;
+        GoldenSettings.graphicsPreset = p[(p.indexOf(GoldenSettings.graphicsPreset) + d + p.length) % p.length];
+        golden.GoldenGraphics.apply(GoldenSettings.graphicsPreset);
+      },
+      accept: () ->
+      {
+        var p = golden.GoldenGraphics.PRESETS;
+        GoldenSettings.graphicsPreset = p[(p.indexOf(GoldenSettings.graphicsPreset) + 1) % p.length];
+        golden.GoldenGraphics.apply(GoldenSettings.graphicsPreset);
+      }
+    });
+    rows.push({
+      label: 'Screen Shaders',
+      desc: 'Event System colour grading, blur, glitch and pixelate. Auto turns them off on software renderers (VMs, remote desktops).',
+      value: () -> GoldenSettings.screenShaders.toUpperCase() + (GoldenSettings.screenShaders == 'auto' ? (GoldenSettings.shaderEffectsEnabled() ? ' (on)' : ' (off)') : ''),
+      change: (d) ->
+      {
+        var o = ['auto', 'on', 'off'];
+        GoldenSettings.screenShaders = o[(o.indexOf(GoldenSettings.screenShaders) + d + 3) % 3];
+      },
+      accept: () ->
+      {
+        var o = ['auto', 'on', 'off'];
+        GoldenSettings.screenShaders = o[(o.indexOf(GoldenSettings.screenShaders) + 1) % 3];
+      }
+    });
 
     var top = 120;
     add(GoldenUI.text(80, 40, 800, 'GOLDEN ENGINE', 40, GoldenUI.GOLD));
-    cursor = new FlxSprite(60, top).makeGraphic(FlxG.width - 120, 52, GoldenUI.GOLD_DARK);
+    cursor = new FlxSprite(60, top).makeGraphic(FlxG.width - 120, ROW - 6, GoldenUI.GOLD_DARK);
     cursor.scrollFactor.set();
     add(cursor);
     for (i in 0...rows.length)
     {
-      var t = GoldenUI.text(80, top + i * 64 + 12, 600, rows[i].label, 26);
-      var v = GoldenUI.text(FlxG.width - 580, top + i * 64 + 12, 500, '', 26, GoldenUI.GOLD);
+      var t = GoldenUI.text(80, top + i * ROW + 6, 600, rows[i].label, 26);
+      var v = GoldenUI.text(FlxG.width - 580, top + i * ROW + 6, 500, '', 26, GoldenUI.GOLD);
       v.alignment = RIGHT;
       texts.push(t);
       valueTexts.push(v);
@@ -154,7 +189,7 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
       valueTexts[i].text = rows[i].value();
       texts[i].color = i == selected ? FlxColor.WHITE : GoldenUI.TEXT;
     }
-    cursor.y = 120 + selected * 64;
+    cursor.y = 120 + selected * ROW;
     if (descText.text == '' || descText.text.indexOf('Enabled —') < 0) descText.text = rows[selected].desc;
   }
 
@@ -197,7 +232,7 @@ class GoldenOptionsPage extends Page<OptionsMenuPageName>
 
     if (FlxG.mouse.justReleased) for (i in 0...rows.length)
     {
-      if (FlxG.mouse.screenY >= 120 + i * 64 && FlxG.mouse.screenY < 120 + i * 64 + 52)
+      if (FlxG.mouse.screenY >= 120 + i * ROW && FlxG.mouse.screenY < 120 + i * ROW + ROW - 4)
       {
         if (i == selected) rows[i].accept();
         else

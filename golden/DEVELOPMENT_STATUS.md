@@ -11,7 +11,42 @@ Status levels (a feature only moves up with evidence):
 Last full run: 2026-11-27, Linux x64 release build (`haxelib run lime build linux -release`),
 Mesa llvmpipe software GL under Xvfb. **No Windows build has been run by the developer (see GE-004).**
 
-## Test commands and results (2026-11-27)
+
+## 0.2.0-alpha checklist (2026-11-28)
+
+Statuses: NOT STARTED · IN PROGRESS · IMPLEMENTED (code exists) · TESTED (automated test exercised it) ·
+VERIFIED (end-to-end runtime test of the real workflow passed, incl. the result in real gameplay where it
+applies) · BLOCKED. "VERIFIED" here means Linux automated runtime verification (real X11 input, software
+GL); none of it is verified on Windows hardware (GE-015).
+
+| Item | Status | Evidence |
+|---|---|---|
+| Mod template in mods/_ModTemplate | VERIFIED | golden-ui + mods-extra tests create mods from it |
+| Combined / separate vocals (Voices-Player/Opponent, voices.ogg) | TESTED (11 unit) + VERIFIED for separate files in gameplay | VoiceTest; autotest log "Vocals for bopeebo: separate" |
+| Editor kit + Editors hub | VERIFIED | every editor test |
+| Character Animation Studio (BF from atlas, poses, timeline, import, generate, export, Test Play) | VERIFIED | animstudio-linux.sh 46/46 |
+| Event System (timeline, locked tracks, notes/events editing, effects, presets, bot preview, reset) | VERIFIED | eventsystem-linux.sh 32/32 |
+| Shader effects (colour grading, blur, glitch, pixelate) on a GPU | BLOCKED (no GPU here) | GE-010; fallback VERIFIED |
+| Cutscene Editor | VERIFIED | cutscene-linux.sh 14/14 |
+| Character Editor (+ health colours in gameplay) | VERIFIED | editors3-linux.sh |
+| Mod Asset Manager | VERIFIED | editors3-linux.sh (28/28 with Character Editor) |
+| Game Over Editor (default + per-song, real Game Over screen) | VERIFIED | editors2-linux.sh |
+| Week Editor (registered by Story Mode, unlock rule) | VERIFIED | editors2-linux.sh (27/27 with Game Over) |
+| Note Skin Editor (style + colours in gameplay) | VERIFIED | editors4-linux.sh |
+| Main Menu Editor (real main menu, custom entry runs) | VERIFIED | editors4-linux.sh (24/24 with Note Skin) |
+| Freeplay search / mod filter / sort | VERIFIED | freeplay-linux.sh 11/11 |
+| Chart Editor sustain keys + info panel + purple menubar | VERIFIED | chart-keys-linux.sh 11/11 |
+| Graphics presets + Screen Shaders option | IMPLEMENTED | settings persistence via existing settings code; preset effects not measured |
+| Stage Editor | IMPLEMENTED (FNF's own editor, unchanged) | not extended in 0.2.0 |
+| Text & typography | IMPLEMENTED inside the Event System (text effects, styles, layers) | eventsystem test (Horror Title text in gameplay); no separate text editor |
+| Chart Editor character management / additional characters / live gameplay preview | NOT STARTED | (FNF's chart editor already selects player/opponent/GF in its metadata toolbox) |
+| Live preview in every editor | IMPLEMENTED per editor (no shared preview engine) | each editor previews its own data |
+| UI sound / animation polish | IN PROGRESS | editor buttons: hover/click sounds, press animation, toasts, tooltips |
+| FNF visual identity pass | IN PROGRESS | purple/gold Golden theme; no new illustrated art |
+| 3D foundation | NOT STARTED | ROADMAP D7 |
+| Performance profiling and optimisation | NOT STARTED | presets only; no profiling numbers |
+
+## Test commands and results (0.1.0) (2026-11-27)
 
 | Command | Result |
 |---|---|

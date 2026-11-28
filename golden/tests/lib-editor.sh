@@ -61,6 +61,8 @@ editor_setup() { # $1 = results subdir; creates a valid test mod "edit-test" as 
   pulseaudio --check 2>/dev/null || pulseaudio -D --exit-idle-time=-1 -n --load=module-native-protocol-unix --load="module-null-sink sink_name=golden_test" >/dev/null 2>&1
   BACKUP="$OUT/user-backup"; mkdir -p "$BACKUP"
   for f in mods golden-mods.json golden-settings.json golden-animstudio-keys.json; do [ -e "$BIN/$f" ] && mv "$BIN/$f" "$BACKUP/$f"; done
+  # The FNF save (volume, mute, scores) is shared by all runs: snapshot it and restore it afterwards.
+  SAVE="$HOME/.local/share/FunkinCrew/Funkin1.sol"; [ -f "$SAVE" ] && cp "$SAVE" "$BACKUP/Funkin1.sol"
   trap editor_restore EXIT
   mkdir -p "$BIN/mods/edit-test"
   echo '{"title":"Editor Test","api_version":"0.8.7","mod_version":"1.0.0","description":"editor tests"}' > "$BIN/mods/edit-test/_polymod_meta.json"
@@ -68,6 +70,7 @@ editor_setup() { # $1 = results subdir; creates a valid test mod "edit-test" as 
   MOD="$BIN/mods/edit-test"
 }
 editor_restore() { pkill -9 -x Funkin 2>/dev/null; pkill -9 zenity 2>/dev/null
+  if [ -f "$BACKUP/Funkin1.sol" ]; then cp "$BACKUP/Funkin1.sol" "$SAVE"; else rm -f "$SAVE"; fi
   [ -d "$BIN/mods/edit-test" ] && cp -r "$BIN/mods/edit-test" "$OUT/edit-test-mod" 2>/dev/null
   rm -rf "$BIN/mods" "$BIN/golden-mods.json" "$BIN/golden-settings.json" "$BIN/golden-animstudio-keys.json"
   for f in mods golden-mods.json golden-settings.json golden-animstudio-keys.json; do [ -e "$BACKUP/$f" ] && mv "$BACKUP/$f" "$BIN/$f"; done
