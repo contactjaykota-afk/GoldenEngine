@@ -32,11 +32,15 @@ class ModOps
   /** Folder deleted mods are moved to (inside the mods folder; ignored by the scanner). */
   public static inline var TRASH_DIR:String = '.trash';
 
+  /** Folder inside mods/ that holds the starter template (editable by creators; not loaded as a mod). */
+  public static inline var TEMPLATE_DIR:String = '_ModTemplate';
+
   /** Where the packaged starter template lives in a built game. */
   public static function templateDir():String
   {
     var candidates = [
-      'assets/golden/mod-template/starter', // packaged build (see project.hxp)
+      Path.join([GoldenMods.modRoot(), TEMPLATE_DIR]), // packaged build: mods/_ModTemplate (see project.hxp)
+      'assets/golden/mod-template/starter', // 0.1.0 location
       '../../../../golden/mod-template/starter', // REDIRECT_ASSETS_FOLDER dev builds
       'golden/mod-template/starter'
     ];

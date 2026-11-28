@@ -892,7 +892,9 @@ class SongDifficulty
     {
       var suffix:String = (variation != null && variation != '' && variation != 'default') ? '-$variation' : '';
       // Try to use `Voices.ogg` if no other voices are found.
-      if (Assets.exists(Paths.voices(this.song.id, ''))) result.push(Paths.voices(this.song.id, '$suffix'));
+      // Golden Engine: also lower-case `voices.ogg`, and the variation file only if it exists (upstream pushed it unchecked).
+      var combined = golden.audio.VoiceResolver.combined(this.song.id, suffix, (p) -> Assets.exists(p), Constants.EXT_SOUND);
+      if (combined != null) result.push(combined);
     }
     return result;
   }
@@ -945,6 +947,8 @@ class SongDifficulty
       }
     }
 
+    // Golden Engine: generic Voices-Player.ogg (see golden.audio.VoiceResolver).
+    if (playerVoice == null) playerVoice = golden.audio.VoiceResolver.generic(this.song.id, 'Player', suffix, (p) -> Assets.exists(p), Constants.EXT_SOUND);
     return playerVoice != null ? [playerVoice] : [];
   }
 
@@ -995,6 +999,8 @@ class SongDifficulty
       }
     }
 
+    // Golden Engine: generic Voices-Opponent.ogg (see golden.audio.VoiceResolver).
+    if (opponentVoice == null) opponentVoice = golden.audio.VoiceResolver.generic(this.song.id, 'Opponent', suffix, (p) -> Assets.exists(p), Constants.EXT_SOUND);
     return opponentVoice != null ? [opponentVoice] : [];
   }
 
@@ -1028,8 +1034,9 @@ class SongDifficulty
     {
       var suffix:String = (variation != null && variation != '' && variation != 'default') ? '-$variation' : '';
       // Try to use `Voices.ogg` if no other voices are found.
-      var legacyPath = Paths.voices(this.song.id, '$suffix');
-      if (Assets.exists(legacyPath))
+      // Golden Engine: combined `Voices.ogg` / `voices.ogg` (see golden.audio.VoiceResolver).
+      var legacyPath = golden.audio.VoiceResolver.combined(this.song.id, suffix, (p) -> Assets.exists(p), Constants.EXT_SOUND);
+      if (legacyPath != null)
       {
         result.addPlayerVoice(FunkinSound.load(legacyPath, 1.0, false, false, false, false, null, null, true));
       }
@@ -1040,6 +1047,9 @@ class SongDifficulty
       result.legacyVoiceSystem = true;
       result.legacyVoiceUsesPlayer = result.getPlayerVoice(0) != null;
     }
+
+    trace('[GOLDEN] Vocals for ${this.song.id}: ' + (result.members.length == 0 ? 'none' : (result.legacyVoiceSystem ? 'combined' : 'separate'))
+      + ' (player ${playerVoiceList.length}, opponent ${opponentVoiceList.length}, tracks ${result.members.length})');
 
     // Sometimes the sounds don't set their important value to true, so we have to do this manually.
     result.forEach((snd:FunkinSound) -> snd.important = true);

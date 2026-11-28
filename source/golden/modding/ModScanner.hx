@@ -43,7 +43,7 @@ class ModScanner
   public static inline var ICON_FILE:String = '_polymod_icon.png';
 
   /** Folders inside the mods root that are never treated as mods. */
-  static final IGNORED_DIRS:Array<String> = ['.git', '.trash', '__MACOSX'];
+  static final IGNORED_DIRS:Array<String> = ['.git', '.trash', '__MACOSX', ModOps.TEMPLATE_DIR];
 
   /**
    * @param modRoot the mods folder

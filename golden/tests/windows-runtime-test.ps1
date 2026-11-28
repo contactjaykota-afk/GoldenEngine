@@ -46,7 +46,7 @@ function Run-Route([string]$route) {
 }
 
 # --- Package contents -------------------------------------------------------------------------
-$required = @('Funkin.exe', 'assets', 'manifest', 'assets\golden\mod-template\starter\README.md', 'assets\images\mainmenu\mods.png', 'README.txt', 'MODDING.md')
+$required = @('Funkin.exe', 'assets', 'manifest', 'mods\_ModTemplate\README.md', 'assets\images\mainmenu\mods.png', 'README.txt', 'MODDING.md')
 $missing = @($required | Where-Object { -not (Test-Path (Join-Path $Bin $_)) })
 Record 'package_contents' ($missing.Count -eq 0) ("missing: " + ($missing -join ', '))
 Write-Host "DLLs in package: $((Get-ChildItem -Path $Bin -Filter *.dll | ForEach-Object Name) -join ', ')"

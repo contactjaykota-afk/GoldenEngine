@@ -1431,11 +1431,12 @@ class Project extends HXProject
     if (!FEATURE_STAGE_EDITOR.isEnabled(this)) removeAssetPath('assets/preload/data/ui/stage-editor', "default");
 
     // Golden Engine: engine artwork (main menu items etc.) merged into the default library, and the
-    // Create Mod starter template, shipped as plain files next to the executable. Template scripts are
+    // Create Mod starter template, shipped as plain files in mods/_ModTemplate (not a mod: it has no
+    // _polymod_meta.json, and golden.modding.ModScanner skips it). Template scripts are
     // renamed *.hxc -> *.hxc.tmpl so Polymod (which registers every .hxc it can list) never runs them;
     // golden.modding.ModOps strips the suffix when it creates a mod.
     addAssetPath("golden/assets", "assets", "default", ["*"], exclude, shouldEmbed, "assets");
-    if (!isWeb()) addGoldenModTemplate("golden/mod-template", "assets/golden/mod-template");
+    if (!isWeb()) addGoldenModTemplate("golden/mod-template/starter", "mods/_ModTemplate");
 
     // Font assets
     var shouldEmbedFonts = true;

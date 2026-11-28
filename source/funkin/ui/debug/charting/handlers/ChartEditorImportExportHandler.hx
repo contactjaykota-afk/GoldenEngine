@@ -94,8 +94,9 @@ class ChartEditorImportExportHandler
         if (playerVoiceList.length == 0 && opponentVoiceList.length == 0) // Legacy support...
         {
           var suffix:String = (instId != null && instId != '' && instId != 'default') ? '-$instId' : '';
-          var voiceFile = Paths.voices(diff.song.id, suffix);
-          if (Assets.exists(voiceFile))
+          // Golden Engine: combined `Voices.ogg` / `voices.ogg` (see golden.audio.VoiceResolver).
+          var voiceFile = golden.audio.VoiceResolver.combined(diff.song.id, suffix, (p) -> Assets.exists(p), Constants.EXT_SOUND);
+          if (voiceFile != null)
           {
             state.loadVocalsFromAsset(voiceFile, diff.characters.player, instId);
             state.audioVocalTrackGroup.legacyVoiceSystem = true;

@@ -97,7 +97,7 @@ jobs:
           test "$(cat GoldenEngine/BUILD_COMMIT.txt)" = "${GITHUB_SHA}"
           zip -q -r -9 "$ZIP" GoldenEngine
           unzip -l "$ZIP" | grep -q "GoldenEngine/Funkin.exe"
-          unzip -l "$ZIP" | grep -q "GoldenEngine/assets/golden/mod-template/starter/"
+          unzip -l "$ZIP" | grep -q "GoldenEngine/mods/_ModTemplate/README.md"
           sha256sum "$ZIP" | tee "$ZIP.sha256"
           ls -la "$ZIP"
           echo "zip=$ZIP" >> "$GITHUB_OUTPUT"
