@@ -497,6 +497,9 @@ class EventSystemState extends GoldenEditorState
         items.push({folder: 'Scripts', label: 'Haxe: ' + f, data: {kind: 'haxe', file: f}});
     }
     items.push({folder: 'Scripts', label: 'New Lua event script...', data: {kind: 'newlua'}});
+    items.push({folder: 'Scripts', label: 'New Haxe module for this song...', data: {kind: 'newhaxe'}});
+    for (name in customPresetNames())
+      items.push({folder: 'My presets', label: name, data: {kind: 'mypreset', name: name}});
     items.push({folder: 'Scripts', label: 'Open Script Editor', data: {kind: 'scripteditor'}});
     browser.setItems(items);
   }
@@ -555,11 +558,34 @@ class EventSystemState extends GoldenEditorState
       case 'newlua':
         newLuaScript();
         return;
+      case 'newhaxe':
+        newHaxeModule();
+        return;
+      case 'mypreset':
+        added = customPreset(d.name, at);
       case 'scripteditor':
         openScriptEditor();
         return;
     }
     if (added.length == 0) return;
+    // Shift+click: preview without adding.
+    if (FlxG.keys.pressed.SHIFT)
+    {
+      var one = FxModel.emptyProject(songId);
+      var t0 = added[0].time;
+      for (f in added)
+      {
+        var c = FxModel.clone(f);
+        c.time -= t0;
+        one.effects.push(c);
+      }
+      var r = new FxRuntime(one, host);
+      previewRuntimes.push(r);
+      previewClock.set(r, 0);
+      trace('[GOLDEN EDITOR] Event System: previewing ${it.label} (not added)');
+      notify('Previewing ${it.label} (Shift+click previews, click adds).');
+      return;
+    }
     for (f in added)
     {
       if (trackInfo(f.track).locked)
@@ -597,6 +623,97 @@ class EventSystemState extends GoldenEditorState
     rebuildBrowser();
     notify('Created scripts/events/event$n.lua (drag it onto the timeline to call it).');
   }
+
+  /**
+   * Haxe scripting: FNF runs HScript classes (.hxc) through Polymod. This creates a module that only acts
+   * in this song; it is loaded on the next content reload (Save does that) and runs in real gameplay.
+   */
+  function newHaxeModule():Void
+  {
+    var mod = EditorFiles.target();
+    if (mod == null) return;
+    var cls = 'Golden' + golden.modding.ModOps.modClass(songId) + 'Module';
+    var path = EditorFiles.modPath('scripts/modules/$cls.hxc', mod);
+    if (EditorFiles.exists(path))
+    {
+      notify('scripts/modules/$cls.hxc already exists (open it in the Script Editor).');
+      return;
+    }
+    var code = 'import funkin.modding.module.Module;\nimport funkin.modding.events.ScriptEvent;\nimport funkin.play.PlayState;\n\n'
+      + '/** Haxe (HScript) module created by the Golden Event System for the song "$songId". */\n'
+      + 'class $cls extends Module\n{\n  public function new()\n  {\n    super("$cls");\n  }\n\n'
+      + '  function inSong():Bool\n    return PlayState.instance != null && PlayState.instance.currentSong != null && PlayState.instance.currentSong.id == "$songId";\n\n'
+      + '  override function onSongStart(event:ScriptEvent):Void\n  {\n    if (!inSong()) return;\n    trace("[HAXE MODULE] $cls: song started");\n  }\n\n'
+      + '  override function onBeatHit(event):Void\n  {\n    if (!inSong()) return;\n    // Example: zoom on every 4th beat\n    // if (event.beat % 4 == 0) PlayState.instance.camGame.zoom += 0.03;\n  }\n}\n';
+    var err = EditorFiles.saveText(path, code);
+    if (err != null)
+    {
+      notify(err, 0xFFFF5C5C);
+      return;
+    }
+    trace('[GOLDEN EDITOR] Event System: Haxe module scripts/modules/$cls.hxc created');
+    notify('Created scripts/modules/$cls.hxc (runs in "$songId" after Save / Bot Preview). Edit it in the Script Editor.');
+    rebuildBrowser();
+    dirty = true;
+  }
+
+  // ---- custom presets (data/golden/fxpresets.json in the target mod) ----
+
+  function presetsPath():Null<String>
+    return EditorFiles.target() == null ? null : EditorFiles.modPath('data/golden/fxpresets.json');
+
+  function loadPresets():Dynamic
+  {
+    var p = presetsPath();
+    return p != null && EditorFiles.exists(p) ? (EditorFiles.loadJson(p) ?? {}) : {};
+  }
+
+  function customPresetNames():Array<String>
+    return Reflect.fields(loadPresets());
+
+  function customPreset(name:String, at:Float):Array<Fx>
+  {
+    var list:Array<Dynamic> = Reflect.field(loadPresets(), name) ?? [];
+    return [
+      for (e in list)
+      {
+        var f:Fx = FxModel.clone(e);
+        f.time = at + (e.time ?? 0);
+        f.label = name;
+        f;
+      }
+    ];
+  }
+
+  /** Save the selected effect (and the others from the same preset/label) as a reusable preset. */
+  function saveAsPreset(name:String):Void
+  {
+    if (selFx == null || name.trim() == '') return;
+    var group = selFx.label != null ? fx.effects.filter(f -> f.label == selFx.label && Math.abs(f.time - selFx.time) < 4000) : [selFx];
+    var t0 = Math.POSITIVE_INFINITY;
+    for (f in group)
+      t0 = Math.min(t0, f.time);
+    var all = loadPresets();
+    Reflect.setField(all, name.trim(), [
+      for (f in group)
+      {
+        var c:Fx = FxModel.clone(f);
+        c.time = f.time - t0;
+        c;
+      }
+    ]);
+    var err = EditorFiles.saveJson(presetsPath(), all);
+    if (err != null)
+    {
+      notify(err, 0xFFFF5C5C);
+      return;
+    }
+    trace('[GOLDEN EDITOR] Event System: preset "${name.trim()}" saved (${group.length} effects)');
+    notify('Preset "${name.trim()}" saved (${group.length} effects) — see "My presets".');
+    rebuildBrowser();
+  }
+
+  var presetName:String = 'My preset';
 
   function openScriptEditor():Void
   {
@@ -947,6 +1064,8 @@ class EventSystemState extends GoldenEditorState
               v -> editFx(() -> Reflect.setField(f.params, name, v)));
         }
       }
+      inspector.addText('Preset name', () -> presetName, v -> presetName = v);
+      inspector.addButtons([{caption: 'Save as preset', fn: () -> saveAsPreset(presetName), tooltip: 'Reusable in any song (My presets)'}]);
       inspector.addButtons([
         {caption: 'Preview', fn: () -> previewOne(f), tooltip: 'Play this effect now in the preview'},
         {caption: 'Duplicate', fn: duplicateSelection}, {caption: 'Delete', fn: deleteSelection}
@@ -1079,6 +1198,7 @@ class EventSystemState extends GoldenEditorState
   }
 
   var previewRuntimes:Array<FxRuntime> = [];
+  var previewClock:Map<FxRuntime, Float> = [];
 
   function convertToChartEvent(f:Fx):Void
   {
@@ -1419,7 +1539,11 @@ class EventSystemState extends GoldenEditorState
     }
     else if (runtime != null) runtime.update(playhead, elapsed);
     for (r in previewRuntimes)
-      r.update(1, elapsed);
+    {
+      var t = (previewClock.get(r) ?? 1) + elapsed * 1000;
+      previewClock.set(r, t);
+      r.update(t, elapsed);
+    }
     if (inspectorDirty) rebuildInspector();
     if (tlDirty) redrawTimeline();
     var c = FxModel.conflicts(fx);

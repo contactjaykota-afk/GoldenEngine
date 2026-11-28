@@ -63,10 +63,13 @@ class EditorHubState extends MusicBeatState
     super.create();
     FlxG.mouse.visible = true;
     add(EditorUI.rect(0, 0, FlxG.width, FlxG.height, EditorUI.BG));
-    add(EditorUI.rect(0, 0, FlxG.width, 56, EditorUI.HEADER));
-    add(EditorUI.rect(0, 54, FlxG.width, 2, EditorUI.ACCENT));
-    add(EditorUI.text(24, 16, 600, 'GOLDEN ENGINE EDITORS', 22, EditorUI.ACCENT));
-    var t = EditorUI.text(FlxG.width - 524, 20, 500, 'Arrows + Enter or click  -  Esc: main menu', 13, EditorUI.MUTED);
+    add(EditorUI.rect(0, 0, FlxG.width, 84, EditorUI.HEADER));
+    add(EditorUI.rect(0, 82, FlxG.width, 2, EditorUI.ACCENT));
+    // FNF's own bold lettering (the in-game Alphabet atlas) for the title.
+    var title = new funkin.ui.AtlasText(20, 8, 'EDITORS', funkin.ui.AtlasText.AtlasFont.BOLD);
+    title.color = EditorUI.ACCENT;
+    add(title);
+    var t = EditorUI.text(FlxG.width - 524, 34, 500, 'Arrows + Enter or click  -  Esc: main menu', 13, EditorUI.MUTED);
     t.alignment = RIGHT;
     add(t);
     var target = EditorFiles.target();
@@ -75,7 +78,7 @@ class EditorHubState extends MusicBeatState
     for (i in 0...list.length)
     {
       var cx = 24 + (i % COLS) * (CW + 12);
-      var cy = 76 + Std.int(i / COLS) * (CH + 12);
+      var cy = 100 + Std.int(i / COLS) * (CH + 12);
       var bg = EditorUI.rect(cx, cy, CW, CH, EditorUI.PANEL);
       add(bg);
       var title = EditorUI.text(cx + 14, cy + 14, CW - 28, list[i].name, 18, EditorUI.TEXT);
